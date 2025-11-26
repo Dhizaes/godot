@@ -72,15 +72,17 @@ static DownloadsAvailability _get_downloads_availability() {
 		return DOWNLOADS_NOT_AVAILABLE_FOR_DEV_BUILDS;
 	}
 
+	int returnId = 0;
+
 #ifdef REAL_T_IS_DOUBLE
-	return DOWNLOADS_NOT_AVAILABLE_FOR_DOUBLE_BUILDS;
+	returnId = 2;
 #endif
 
 	if (network_mode == EditorSettings::NETWORK_OFFLINE) {
-		return DOWNLOADS_NOT_AVAILABLE_IN_OFFLINE_MODE;
+		returnId = 1;
 	}
 
-	return DOWNLOADS_AVAILABLE;
+	return returnId == 0 ? DOWNLOADS_AVAILABLE : returnId == 1 ? DOWNLOADS_NOT_AVAILABLE_IN_OFFLINE_MODE : DOWNLOADS_NOT_AVAILABLE_FOR_DOUBLE_BUILDS;
 }
 
 void ExportTemplateManager::_update_template_status() {
