@@ -135,7 +135,6 @@ void MetalDeviceProperties::init_features(id<MTLDevice> p_device) {
 	}
 
 	if (@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)) {
-		features.metal_fx_spatial = [MTLFXSpatialScalerDescriptor supportsDevice:p_device];
 #ifdef METAL_MFXTEMPORAL_ENABLED
 		features.metal_fx_temporal = [MTLFXTemporalScalerDescriptor supportsDevice:p_device];
 #else

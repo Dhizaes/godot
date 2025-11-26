@@ -42,58 +42,10 @@
 #include "servers/rendering/renderer_scene_render.h"
 
 #ifdef __OBJC__
-@protocol MTLFXSpatialScaler;
 @protocol MTLFXTemporalScaler;
 #endif
 
 namespace RendererRD {
-
-struct MFXSpatialContext {
-#ifdef __OBJC__
-	id<MTLFXSpatialScaler> scaler = nullptr;
-#else
-	void *scaler = nullptr;
-#endif
-	MFXSpatialContext() = default;
-	~MFXSpatialContext();
-};
-
-class MFXSpatialEffect : public SpatialUpscaler {
-	struct CallbackArgs {
-		MFXSpatialEffect *owner;
-		RDD::TextureID src;
-		RDD::TextureID dst;
-		MFXSpatialContext ctx;
-
-		CallbackArgs(MFXSpatialEffect *p_owner, RDD::TextureID p_src, RDD::TextureID p_dst, MFXSpatialContext p_ctx) :
-				owner(p_owner), src(p_src), dst(p_dst), ctx(p_ctx) {}
-
-		static void free(CallbackArgs **p_args) {
-			(*p_args)->owner->args_allocator.free(*p_args);
-			*p_args = nullptr;
-		}
-	};
-
-	PagedAllocator<CallbackArgs, true, 16> args_allocator;
-	static void callback(RDD *p_driver, RDD::CommandBufferID p_command_buffer, CallbackArgs *p_userdata);
-
-public:
-	virtual const Span<char> get_label() const final { return "MetalFX Spatial Upscale"; }
-	virtual void ensure_context(Ref<RenderSceneBuffersRD> p_render_buffers) final;
-	virtual void process(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_src, RID p_dst) final;
-
-	struct CreateParams {
-		Vector2i input_size;
-		Vector2i output_size;
-		RD::DataFormat input_format;
-		RD::DataFormat output_format;
-	};
-
-	MFXSpatialContext *create_context(CreateParams p_params) const;
-
-	MFXSpatialEffect();
-	~MFXSpatialEffect();
-};
 
 #ifdef METAL_MFXTEMPORAL_ENABLED
 

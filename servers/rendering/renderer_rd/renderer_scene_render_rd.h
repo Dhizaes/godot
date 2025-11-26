@@ -63,11 +63,7 @@ protected:
 	RendererRD::Luminance *luminance = nullptr;
 	RendererRD::SMAA *smaa = nullptr;
 	RendererRD::ToneMapper *tone_mapper = nullptr;
-	RendererRD::FSR *fsr = nullptr;
 	RendererRD::VRS *vrs = nullptr;
-#ifdef METAL_ENABLED
-	RendererRD::MFXSpatialEffect *mfx_spatial = nullptr;
-#endif
 	double time = 0.0;
 	double time_step = 0.0;
 

@@ -152,21 +152,9 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 			}
 
 			if (scaling_3d_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL && !RD::get_singleton()->has_feature(RD::SUPPORTS_METALFX_TEMPORAL)) {
-				if (RD::get_singleton()->has_feature(RD::SUPPORTS_METALFX_SPATIAL)) {
-					// Prefer MetalFX spatial if it is supported, which will be much more efficient than FSR2,
-					// as the hardware already will struggle with FSR2.
-					scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_METALFX_SPATIAL;
-					WARN_PRINT_ONCE("MetalFX temporal upscaling is not supported by the current renderer or hardware. Falling back to MetalFX Spatial scaling.");
-				} else {
-					scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_FSR2;
-					WARN_PRINT_ONCE("MetalFX upscaling is not supported by the current renderer or hardware. Falling back to FSR 2 scaling.");
-				}
+				scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_FSR2;
+				WARN_PRINT_ONCE("MetalFX upscaling is not supported by the current renderer or hardware. Falling back to FSR 2 scaling.");
 				scaling_type = RS::scaling_3d_mode_type(scaling_3d_mode);
-			}
-
-			if (scaling_3d_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_SPATIAL && !RD::get_singleton()->has_feature(RD::SUPPORTS_METALFX_SPATIAL)) {
-				scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_FSR;
-				WARN_PRINT_ONCE("MetalFX spatial upscaling is not supported by the current renderer or hardware. Falling back to FSR scaling.");
 			}
 
 			RS::ViewportMSAA msaa_3d = p_viewport->msaa_3d;
@@ -222,9 +210,7 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 					render_width = CLAMP(target_width * scaling_3d_scale, 1, 16384);
 					render_height = CLAMP(target_height * scaling_3d_scale, 1, 16384);
 					break;
-				case RS::VIEWPORT_SCALING_3D_MODE_METALFX_SPATIAL:
 				case RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL:
-				case RS::VIEWPORT_SCALING_3D_MODE_FSR:
 				case RS::VIEWPORT_SCALING_3D_MODE_FSR2:
 					target_width = p_viewport->size.width;
 					target_height = p_viewport->size.height;
@@ -976,12 +962,8 @@ void RendererViewport::viewport_set_scaling_3d_mode(RID p_viewport, RS::Viewport
 	ERR_FAIL_NULL(viewport);
 	const String rendering_method = OS::get_singleton()->get_current_rendering_method();
 	if (rendering_method != "forward_plus") {
-		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_FSR, "FSR1 is only available when using the Forward+ renderer.");
 		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_FSR2, "FSR2 is only available when using the Forward+ renderer.");
 		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL, "MetalFX Temporal is only available when using the Forward+ renderer.");
-	}
-	if (rendering_method == "gl_compatibility") {
-		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_SPATIAL, "MetalFX Spatial is only available when using the Forward+ and Mobile renderers.");
 	}
 
 	if (viewport->scaling_3d_mode == p_mode) {

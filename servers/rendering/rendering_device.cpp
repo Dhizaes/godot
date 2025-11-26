@@ -4579,11 +4579,6 @@ void RenderingDevice::draw_list_bind_render_pipeline(DrawListID p_list, RID p_re
 						}
 					}
 				} break;
-				case RDD::SHADER_CHANGE_INVALIDATION_ALL_OR_NONE_ACCORDING_TO_LAYOUT_HASH: {
-					if (draw_list.state.pipeline_shader_layout_hash != pipeline->shader_layout_hash) {
-						first_invalid_set = 0;
-					}
-				} break;
 			}
 		}
 
@@ -5164,11 +5159,6 @@ void RenderingDevice::compute_list_bind_compute_pipeline(ComputeListID p_list, R
 						first_invalid_set = i;
 						break;
 					}
-				}
-			} break;
-			case RDD::SHADER_CHANGE_INVALIDATION_ALL_OR_NONE_ACCORDING_TO_LAYOUT_HASH: {
-				if (compute_list.state.pipeline_shader_layout_hash != pipeline->shader_layout_hash) {
-					first_invalid_set = 0;
 				}
 			} break;
 		}
@@ -7998,7 +7988,6 @@ void RenderingDevice::_bind_methods() {
 	BIND_ENUM_CONSTANT(PIPELINE_SPECIALIZATION_CONSTANT_TYPE_INT);
 	BIND_ENUM_CONSTANT(PIPELINE_SPECIALIZATION_CONSTANT_TYPE_FLOAT);
 
-	BIND_ENUM_CONSTANT(SUPPORTS_METALFX_SPATIAL);
 	BIND_ENUM_CONSTANT(SUPPORTS_METALFX_TEMPORAL);
 	BIND_ENUM_CONSTANT(SUPPORTS_BUFFER_DEVICE_ADDRESS);
 	BIND_ENUM_CONSTANT(SUPPORTS_IMAGE_ATOMIC_32_BIT);

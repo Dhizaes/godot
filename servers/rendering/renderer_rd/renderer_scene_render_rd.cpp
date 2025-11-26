@@ -459,16 +459,6 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 
 	RS::ViewportScaling3DMode scale_mode = rb->get_scaling_3d_mode();
 	bool use_upscaled_texture = rb->has_upscaled_texture() && (scale_mode == RS::VIEWPORT_SCALING_3D_MODE_FSR2 || scale_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL);
-	SpatialUpscaler *spatial_upscaler = nullptr;
-	if (can_use_effects) {
-		if (scale_mode == RS::VIEWPORT_SCALING_3D_MODE_FSR) {
-			spatial_upscaler = fsr;
-		} else if (scale_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_SPATIAL) {
-#if METAL_ENABLED
-			spatial_upscaler = mfx_spatial;
-#endif
-		}
-	}
 
 	bool use_smaa = smaa && rb->get_screen_space_aa() == RS::VIEWPORT_SCREEN_SPACE_AA_SMAA;
 
@@ -693,7 +683,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		RID dest_fb;
 		RD::DataFormat dest_fb_format;
 		RD::DataFormat format_for_debanding;
-		if (spatial_upscaler != nullptr || use_smaa) {
+		if (use_smaa) {
 			// If we use a spatial upscaler to upscale or SMAA to antialias we need to write our result into an intermediate buffer.
 			// Note that this is cached so we only create the texture the first time.
 			dest_fb_format = _render_buffers_get_color_format();
@@ -751,29 +741,16 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 
 		bool using_hdr = texture_storage->render_target_is_using_hdr(render_target);
 		RID dest_fb;
-		if (spatial_upscaler) {
-			rb->create_texture(SNAME("SMAA"), SNAME("destination"), _render_buffers_get_color_format(), RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT, RD::TEXTURE_SAMPLES_1, Size2i(), 0, 1, true, true);
-		}
 		if (rb->get_view_count() > 1) {
 			for (uint32_t v = 0; v < rb->get_view_count(); v++) {
 				RID source_texture = rb->get_texture_slice(SNAME("Tonemapper"), SNAME("destination"), v, 0);
 
 				RID dest_texture;
 				RD::DataFormat format_for_debanding;
-				if (spatial_upscaler) {
-					dest_texture = rb->get_texture_slice(SNAME("SMAA"), SNAME("destination"), v, 0);
-					// Debanding is currently not supported when using spatial upscaling, so apply it before scaling.
-					// This produces suboptimal results because the image will be modified by spatial upscaling after
-					// debanding has been applied. Ideally, debanding should be applied as the final step before quantization
-					// to integer values, but in the case of MetalFX, it may not be worth the performance cost of creating a new
-					// intermediate buffer. In the case of FSR 1.0, the work of adding debanding support hasn't been done yet.
-					// Assume that the DataFormat that will be used by spatial_upscaler is the same as render_target_get_color_format.
-					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-				} else {
-					dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
-					// Assume that the DataFormat is the same as render_target_get_color_format.
-					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-				}
+				dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
+				// Assume that the DataFormat is the same as render_target_get_color_format.
+				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
+
 				dest_fb = FramebufferCacheRD::get_singleton()->get_cache(dest_texture);
 
 				if (rb->get_use_debanding()) {
@@ -795,27 +772,15 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 			RID source_texture = rb->get_texture(SNAME("Tonemapper"), SNAME("destination"));
 			RD::DataFormat format_for_debanding;
 
-			if (spatial_upscaler) {
-				RID dest_texture = rb->create_texture(SNAME("SMAA"), SNAME("destination"), _render_buffers_get_color_format(), RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT, RD::TEXTURE_SAMPLES_1, Size2i(), 0, 1, true, true);
-				dest_fb = FramebufferCacheRD::get_singleton()->get_cache(dest_texture);
-				// Debanding is currently not supported when using spatial upscaling, so apply it before scaling.
-				// This produces suboptimal results because the image will be modified by spatial upscaling after
-				// debanding has been applied. Ideally, debanding should be applied as the final step before quantization
-				// to integer values, but in the case of MetalFX, it may not be worth the performance cost of creating a new
-				// intermediate buffer. In the case of FSR 1.0, the work of adding debanding support hasn't been done yet.
-				// Assume that the DataFormat that will be used by spatial_upscaler is the same as render_target_get_color_format.
+			if (dest_is_msaa_2d) {
+				dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
+				// Assume that the DataFormat of render_target_get_rd_texture_msaa is the same as render_target_get_color_format.
 				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
+				texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
 			} else {
-				if (dest_is_msaa_2d) {
-					dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
-					// Assume that the DataFormat of render_target_get_rd_texture_msaa is the same as render_target_get_color_format.
-					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-					texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
-				} else {
-					dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
-					// Assume that the DataFormat of render_target_get_rd_framebuffer is the same as render_target_get_color_format.
-					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-				}
+				dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
+				// Assume that the DataFormat of render_target_get_rd_framebuffer is the same as render_target_get_color_format.
+				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
 			}
 
 			if (rb->get_use_debanding()) {
@@ -832,35 +797,6 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 			}
 
 			smaa->process(rb, source_texture, dest_fb);
-		}
-
-		RD::get_singleton()->draw_command_end_label();
-	}
-
-	if (rb.is_valid() && spatial_upscaler) {
-		spatial_upscaler->ensure_context(rb);
-
-		RD::get_singleton()->draw_command_begin_label(spatial_upscaler->get_label());
-
-		for (uint32_t v = 0; v < rb->get_view_count(); v++) {
-			RID source_texture;
-			if (use_smaa) {
-				source_texture = rb->get_texture_slice(SNAME("SMAA"), SNAME("destination"), v, 0);
-			} else {
-				source_texture = rb->get_texture_slice(SNAME("Tonemapper"), SNAME("destination"), v, 0);
-			}
-			RID dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
-
-			spatial_upscaler->process(rb, source_texture, dest_texture);
-		}
-
-		if (dest_is_msaa_2d) {
-			// We can't upscale directly into our MSAA buffer so we need to do a copy
-			RID source_texture = texture_storage->render_target_get_rd_texture(render_target);
-			RID dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
-			copy_effects->copy_to_fb_rect(source_texture, dest_fb, Rect2i(Point2i(), rb->get_target_size()));
-
-			texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
 		}
 
 		RD::get_singleton()->draw_command_end_label();
@@ -1710,12 +1646,6 @@ void RendererSceneRenderRD::init() {
 	if (can_use_vrs) {
 		vrs = memnew(RendererRD::VRS);
 	}
-	if (can_use_storage) {
-		fsr = memnew(RendererRD::FSR);
-	}
-#ifdef METAL_ENABLED
-	mfx_spatial = memnew(RendererRD::MFXSpatialEffect);
-#endif
 }
 
 RendererSceneRenderRD::~RendererSceneRenderRD() {
@@ -1744,14 +1674,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 	if (vrs) {
 		memdelete(vrs);
 	}
-	if (fsr) {
-		memdelete(fsr);
-	}
-#ifdef METAL_ENABLED
-	if (mfx_spatial) {
-		memdelete(mfx_spatial);
-	}
-#endif
 
 	if (sky.sky_scene_state.uniform_set.is_valid() && RD::get_singleton()->uniform_set_is_valid(sky.sky_scene_state.uniform_set)) {
 		RD::get_singleton()->free(sky.sky_scene_state.uniform_set);

@@ -139,13 +139,6 @@ void RenderSceneBuffersRD::cleanup() {
 			weight_buffer.weight = RID();
 		}
 	}
-
-#ifdef METAL_ENABLED
-	if (mfx_spatial_context) {
-		memdelete(mfx_spatial_context);
-		mfx_spatial_context = nullptr;
-	}
-#endif
 }
 
 void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_config) {
@@ -249,31 +242,6 @@ void RenderSceneBuffersRD::set_anisotropic_filtering_level(RS::ViewportAnisotrop
 void RenderSceneBuffersRD::set_use_debanding(bool p_use_debanding) {
 	use_debanding = p_use_debanding;
 }
-
-#ifdef METAL_ENABLED
-void RenderSceneBuffersRD::ensure_mfx(RendererRD::MFXSpatialEffect *p_effect) {
-	if (mfx_spatial_context) {
-		return;
-	}
-
-	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-	RenderingDevice *rd = RD::get_singleton();
-
-	// Determine the output format of the render target.
-	RID dest = texture_storage->render_target_get_rd_texture(render_target);
-	RD::TextureFormat tf = rd->texture_get_format(dest);
-	RD::DataFormat output_format = tf.format;
-
-	RendererRD::MFXSpatialEffect::CreateParams params = {
-		.input_size = internal_size,
-		.output_size = target_size,
-		.input_format = base_data_format,
-		.output_format = output_format,
-	};
-
-	mfx_spatial_context = p_effect->create_context(params);
-}
-#endif
 
 // Named textures
 

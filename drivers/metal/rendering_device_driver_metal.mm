@@ -2750,8 +2750,6 @@ bool RenderingDeviceDriverMetal::has_feature(Features p_feature) {
 			return true;
 		case SUPPORTS_BUFFER_DEVICE_ADDRESS:
 			return device_properties->features.supports_gpu_address;
-		case SUPPORTS_METALFX_SPATIAL:
-			return device_properties->features.metal_fx_spatial;
 		case SUPPORTS_METALFX_TEMPORAL:
 			return device_properties->features.metal_fx_temporal;
 		case SUPPORTS_IMAGE_ATOMIC_32_BIT:
