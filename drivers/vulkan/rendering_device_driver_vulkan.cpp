@@ -36,12 +36,6 @@
 
 #include "thirdparty/misc/smolv.h"
 
-#if defined(ANDROID_ENABLED)
-#include "platform/android/java_godot_wrapper.h"
-#include "platform/android/os_android.h"
-#include "platform/android/thread_jandroid.h"
-#endif
-
 #if defined(SWAPPY_FRAME_PACING_ENABLED)
 #include "thirdparty/swappy-frame-pacing/swappyVk.h"
 #endif
@@ -645,12 +639,7 @@ Error RenderingDeviceDriverVulkan::_check_device_features() {
 		}
 		error_string += "\nThis is usually a hardware limitation, so updating graphics drivers won't help in most cases.";
 
-#if defined(ANDROID_ENABLED) || defined(IOS_ENABLED)
-		// Android/iOS platform ports currently don't exit themselves when this method returns `ERR_CANT_CREATE`.
-		OS::get_singleton()->alert(error_string + "\nClick OK to exit (black screen will be visible).");
-#else
 		OS::get_singleton()->alert(error_string + "\nClick OK to exit.");
-#endif
 
 		return ERR_CANT_CREATE;
 	}

@@ -32,11 +32,6 @@
 
 #include "display_server_macos_base.h"
 
-#if defined(GLES3_ENABLED)
-#include "gl_manager_macos_angle.h"
-#include "gl_manager_macos_legacy.h"
-#endif // GLES3_ENABLED
-
 #import "native_menu_macos.h"
 
 #if defined(RD_ENABLED)
@@ -151,10 +146,6 @@ public:
 	uint64_t time_since_popup = 0;
 
 private:
-#if defined(GLES3_ENABLED)
-	GLManagerLegacy_MacOS *gl_manager_legacy = nullptr;
-	GLManagerANGLE_MacOS *gl_manager_angle = nullptr;
-#endif
 #if defined(RD_ENABLED)
 	RenderingContextDriver *rendering_context = nullptr;
 	RenderingDevice *rendering_device = nullptr;

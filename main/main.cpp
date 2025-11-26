@@ -1031,7 +1031,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	bool load_shell_env = false;
 
 	String default_renderer = "";
-	String default_renderer_mobile = "";
 	String renderer_hints = "";
 
 	packed_data = PackedData::get_singleton();
@@ -2374,31 +2373,11 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	// Start with RenderingDevice-based backends.
 #ifdef RD_ENABLED
-	renderer_hints = "forward_plus,mobile";
-	default_renderer_mobile = "mobile";
-#endif
-
-	// And Compatibility next, or first if Vulkan is disabled.
-#ifdef GLES3_ENABLED
-	if (!renderer_hints.is_empty()) {
-		renderer_hints += ",";
-	}
-	renderer_hints += "gl_compatibility";
-	if (default_renderer_mobile.is_empty()) {
-		default_renderer_mobile = "gl_compatibility";
-	}
-	// Default to Compatibility when using the project manager.
-	if (rendering_driver.is_empty() && rendering_method.is_empty() && project_manager) {
-		rendering_driver = "opengl3";
-		rendering_method = "gl_compatibility";
-		default_renderer_mobile = "gl_compatibility";
-	}
+	renderer_hints = "forward_plus";
 #endif
 
 	if (!rendering_method.is_empty()) {
 		if (rendering_method != "forward_plus" &&
-				rendering_method != "mobile" &&
-				rendering_method != "gl_compatibility" &&
 				rendering_method != "dummy") {
 			OS::get_singleton()->print("Unknown rendering method '%s', aborting.\nValid options are ",
 					rendering_method.utf8().get_data());
@@ -2483,7 +2462,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		// Now validate whether the selected driver matches with the renderer.
 		bool valid_combination = false;
 		Vector<String> available_drivers;
-		if (rendering_method == "forward_plus" || rendering_method == "mobile") {
+		if (rendering_method == "forward_plus") {
 #ifdef VULKAN_ENABLED
 			available_drivers.push_back("vulkan");
 #endif
@@ -2491,13 +2470,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			available_drivers.push_back("metal");
 #endif
 		}
-#ifdef GLES3_ENABLED
-		if (rendering_method == "gl_compatibility") {
-			available_drivers.push_back("opengl3");
-			available_drivers.push_back("opengl3_angle");
-			available_drivers.push_back("opengl3_es");
-		}
-#endif
 		if (rendering_method == "dummy") {
 			available_drivers.push_back("dummy");
 		}
@@ -2528,8 +2500,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	default_renderer = renderer_hints.get_slicec(',', 0);
 	GLOBAL_DEF_RST_BASIC(PropertyInfo(Variant::STRING, "rendering/renderer/rendering_method", PROPERTY_HINT_ENUM, renderer_hints), default_renderer);
-	GLOBAL_DEF_RST_BASIC("rendering/renderer/rendering_method.mobile", default_renderer_mobile);
-	GLOBAL_DEF_RST_BASIC(PropertyInfo(Variant::STRING, "rendering/renderer/rendering_method.web", PROPERTY_HINT_ENUM, "gl_compatibility"), "gl_compatibility"); // This is a bit of a hack until we have WebGPU support.
 
 	// Default to ProjectSettings default if nothing set on the command line.
 	if (rendering_method.is_empty()) {
@@ -2539,8 +2509,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	if (rendering_driver.is_empty()) {
 		if (rendering_method == "dummy") {
 			rendering_driver = "dummy";
-		} else if (rendering_method == "gl_compatibility") {
-			rendering_driver = GLOBAL_GET("rendering/gl_compatibility/driver");
 		} else {
 			rendering_driver = GLOBAL_GET("rendering/rendering_device/driver");
 		}
@@ -2728,7 +2696,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	Engine::get_singleton()->set_audio_output_latency(GLOBAL_GET("audio/driver/output_latency"));
 
-#if defined(MACOS_ENABLED) || defined(IOS_ENABLED)
+#if defined(MACOS_ENABLED)
 	OS::get_singleton()->set_environment("MVK_CONFIG_LOG_LEVEL", OS::get_singleton()->_verbose_stdout ? "3" : "1"); // 1 = Errors only, 3 = Info
 #endif
 

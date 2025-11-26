@@ -32,7 +32,6 @@
 
 #ifdef WAYLAND_ENABLED
 #ifdef EGL_ENABLED
-#ifdef GLES3_ENABLED
 
 const char *EGLManagerWaylandGLES::_get_platform_extension_name() const {
 	return "EGL_KHR_platform_wayland";
@@ -59,6 +58,5 @@ Vector<EGLint> EGLManagerWaylandGLES::_get_platform_context_attribs() const {
 	return ret;
 }
 
-#endif // GLES3_ENABLED
 #endif // EGL_ENABLED
 #endif // WAYLAND_ENABLED

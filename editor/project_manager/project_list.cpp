@@ -75,10 +75,8 @@ void ProjectListItemControl::_notification(int p_what) {
 
 			if (project_is_missing) {
 				explore_button->set_button_icon(get_editor_theme_icon(SNAME("FileBroken")));
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
 			} else {
 				explore_button->set_button_icon(get_editor_theme_icon(SNAME("Load")));
-#endif
 			}
 		} break;
 
@@ -294,10 +292,8 @@ void ProjectListItemControl::set_is_missing(bool p_missing) {
 		explore_button->set_button_icon(get_editor_theme_icon(SNAME("FileBroken")));
 		explore_button->set_tooltip_text(TTRC("Error: Project is missing on the filesystem."));
 	} else {
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
 		explore_button->set_button_icon(get_editor_theme_icon(SNAME("Load")));
 		explore_button->set_tooltip_text(TTRC("Show in File Manager"));
-#else
 		// Opening the system file manager is not supported on the Android and web editors.
 		explore_button->hide();
 #endif
@@ -1002,9 +998,7 @@ void ProjectList::_create_project_item_control(int p_index) {
 	hb->connect(SceneStringName(gui_input), callable_mp(this, &ProjectList::_list_item_input).bind(hb));
 	hb->connect("favorite_pressed", callable_mp(this, &ProjectList::_on_favorite_pressed).bind(hb));
 
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
 	hb->connect("explore_pressed", callable_mp(this, &ProjectList::_on_explore_pressed).bind(item.path));
-#endif
 
 	project_list_vbox->add_child(hb);
 	item.control = hb;

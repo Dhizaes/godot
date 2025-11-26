@@ -186,10 +186,6 @@
 #include "servers/physics_server_3d.h"
 #endif // PHYSICS_3D_DISABLED
 
-#ifdef ANDROID_ENABLED
-#include "editor/gui/touch_actions_panel.h"
-#endif // ANDROID_ENABLED
-
 #include <cstdlib>
 
 EditorNode *EditorNode::singleton = nullptr;
@@ -845,9 +841,6 @@ void EditorNode::_notification(int p_what) {
 			get_tree()->get_root()->set_snap_2d_transforms_to_pixel(false);
 			get_tree()->get_root()->set_snap_2d_vertices_to_pixel(false);
 			get_tree()->set_auto_accept_quit(false);
-#ifdef ANDROID_ENABLED
-			get_tree()->set_quit_on_go_back(false);
-#endif
 			get_tree()->get_root()->connect("files_dropped", callable_mp(this, &EditorNode::_dropped_files));
 
 			command_palette->register_shortcuts_as_command();
@@ -1035,11 +1028,6 @@ void EditorNode::_notification(int p_what) {
 #if defined(MODULE_GDSCRIPT_ENABLED) || defined(MODULE_MONO_ENABLED)
 			if (EditorSettings::get_singleton()->check_changed_settings_in_group("text_editor/theme/highlighting")) {
 				EditorHelpHighlighter::get_singleton()->reset_cache();
-			}
-#endif
-#ifdef ANDROID_ENABLED
-			if (EditorSettings::get_singleton()->check_changed_settings_in_group("interface/touchscreen/touch_actions_panel")) {
-				_touch_actions_panel_mode_changed();
 			}
 #endif
 		} break;
@@ -3435,9 +3423,9 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 			export_template_manager->popup_manager();
 		} break;
 		case EDITOR_CONFIGURE_FBX_IMPORTER: {
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
+#if !defined(WEB_ENABLED)
 			fbx_importer_manager->show_dialog();
-#endif
+			#endif
 		} break;
 		case EDITOR_MANAGE_FEATURE_PROFILES: {
 			feature_profile_manager->popup_centered_clamped(Size2(900, 800) * EDSCALE, 0.8);
@@ -5487,23 +5475,9 @@ String EditorNode::_get_system_info() const {
 	// Prettify
 	if (rendering_method == "forward_plus") {
 		rendering_method = "Forward+";
-	} else if (rendering_method == "mobile") {
-		rendering_method = "Mobile";
-	} else if (rendering_method == "gl_compatibility") {
-		rendering_method = "Compatibility";
 	}
 	if (driver_name == "vulkan") {
 		driver_name = "Vulkan";
-	} else if (driver_name == "opengl3_angle") {
-		driver_name = "OpenGL ES 3/ANGLE";
-	} else if (driver_name == "opengl3_es") {
-		driver_name = "OpenGL ES 3";
-	} else if (driver_name == "opengl3") {
-		if (OS::get_singleton()->get_gles_over_gl()) {
-			driver_name = "OpenGL 3";
-		} else {
-			driver_name = "OpenGL ES 3";
-		}
 	} else if (driver_name == "metal") {
 		driver_name = "Metal";
 	}
@@ -7138,10 +7112,6 @@ void EditorNode::_update_renderer_color() {
 
 	if (rendering_method == "forward_plus") {
 		renderer->add_theme_color_override(SceneStringName(font_color), theme->get_color(SNAME("forward_plus_color"), EditorStringName(Editor)));
-	} else if (rendering_method == "mobile") {
-		renderer->add_theme_color_override(SceneStringName(font_color), theme->get_color(SNAME("mobile_color"), EditorStringName(Editor)));
-	} else if (rendering_method == "gl_compatibility") {
-		renderer->add_theme_color_override(SceneStringName(font_color), theme->get_color(SNAME("gl_compatibility_color"), EditorStringName(Editor)));
 	}
 }
 
@@ -7156,8 +7126,8 @@ void EditorNode::_renderer_selected(int p_which) {
 
 	renderer_request = rendering_method;
 	video_restart_dialog->set_text(
-			vformat(TTR("Changing the renderer requires restarting the editor.\n\nChoosing Save & Restart will change the rendering method to:\n- Desktop platforms: %s\n- Mobile platforms: %s\n- Web platform: gl_compatibility"),
-					renderer_request, renderer_request.replace("forward_plus", "mobile")));
+			vformat(TTR("Changing the renderer requires restarting the editor.\n\nChoosing Save & Restart will change the rendering method to:\n- Desktop platforms: %s"),
+					renderer_request));
 	video_restart_dialog->popup_centered();
 	renderer->select(renderer_current);
 	_update_renderer_color();
@@ -7168,12 +7138,6 @@ void EditorNode::_add_renderer_entry(const String &p_renderer_name, bool p_mark_
 	if (p_renderer_name == "forward_plus") {
 		item_text = TTR("Forward+");
 	}
-	if (p_renderer_name == "mobile") {
-		item_text = TTR("Mobile");
-	}
-	if (p_renderer_name == "gl_compatibility") {
-		item_text = TTR("Compatibility");
-	}
 	if (p_mark_overridden) {
 		// TRANSLATORS: The placeholder is the rendering method that has overridden the default one.
 		item_text = vformat(TTR("%s (Overridden)"), item_text);
@@ -7183,16 +7147,6 @@ void EditorNode::_add_renderer_entry(const String &p_renderer_name, bool p_mark_
 
 void EditorNode::_set_renderer_name_save_and_restart() {
 	ProjectSettings::get_singleton()->set("rendering/renderer/rendering_method", renderer_request);
-	if (renderer_request == "mobile" || renderer_request == "gl_compatibility") {
-		// Also change the mobile override if changing to a compatible rendering method.
-		// This prevents visual discrepancies between desktop and mobile platforms.
-		ProjectSettings::get_singleton()->set("rendering/renderer/rendering_method.mobile", renderer_request);
-	} else if (renderer_request == "forward_plus") {
-		// Use the equivalent mobile rendering method. This prevents the rendering method from staying
-		// on its old choice if moving from `gl_compatibility` to `forward_plus`.
-		ProjectSettings::get_singleton()->set("rendering/renderer/rendering_method.mobile", "mobile");
-	}
-
 	ProjectSettings::get_singleton()->save();
 
 	save_all_scenes();
@@ -7392,14 +7346,6 @@ void EditorNode::_update_main_menu_type() {
 			}
 		}
 
-#ifdef ANDROID_ENABLED
-		// Align main menu icon visually with TouchActionsPanel buttons.
-		main_menu_button->get_popup()->add_theme_constant_override("v_separation", 16 * EDSCALE);
-		menu_btn_spacer = memnew(Control);
-		menu_btn_spacer->set_custom_minimum_size(Vector2(8, 0) * EDSCALE);
-		title_bar->add_child(menu_btn_spacer);
-		title_bar->move_child(menu_btn_spacer, left_menu_spacer ? left_menu_spacer->get_index() + 1 : 0);
-#endif
 		title_bar->add_child(main_menu_button);
 		if (menu_btn_spacer == nullptr) {
 			title_bar->move_child(main_menu_button, left_menu_spacer ? left_menu_spacer->get_index() + 1 : 0);
@@ -7463,34 +7409,6 @@ void EditorNode::_add_to_main_menu(const String &p_name, PopupMenu *p_menu) {
 		main_menu_bar->add_child(p_menu);
 	}
 }
-
-#ifdef ANDROID_ENABLED
-void EditorNode::_touch_actions_panel_mode_changed() {
-	int panel_mode = EDITOR_GET("interface/touchscreen/touch_actions_panel");
-	switch (panel_mode) {
-		case 1:
-			if (touch_actions_panel != nullptr) {
-				touch_actions_panel->queue_free();
-			}
-			touch_actions_panel = memnew(TouchActionsPanel);
-			main_hbox->call_deferred("add_child", touch_actions_panel);
-			break;
-		case 2:
-			if (touch_actions_panel != nullptr) {
-				touch_actions_panel->queue_free();
-			}
-			touch_actions_panel = memnew(TouchActionsPanel);
-			call_deferred("add_child", touch_actions_panel);
-			break;
-		case 0:
-			if (touch_actions_panel != nullptr) {
-				touch_actions_panel->queue_free();
-				touch_actions_panel = nullptr;
-			}
-			break;
-	}
-}
-#endif
 
 #ifdef MACOS_ENABLED
 extern "C" GameViewPluginBase *get_game_view_plugin();
@@ -7820,28 +7738,10 @@ EditorNode::EditorNode() {
 
 	main_vbox = memnew(VBoxContainer);
 
-#ifdef ANDROID_ENABLED
-	base_vbox = memnew(VBoxContainer);
-	base_vbox->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT, Control::PRESET_MODE_MINSIZE, theme->get_constant(SNAME("window_border_margin"), EditorStringName(Editor)));
-
-	title_bar = memnew(EditorTitleBar);
-	base_vbox->add_child(title_bar);
-
-	main_hbox = memnew(HBoxContainer);
-	main_hbox->add_child(main_vbox);
-	main_vbox->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-	main_hbox->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-	base_vbox->add_child(main_hbox);
-
-	_touch_actions_panel_mode_changed();
-
-	gui_base->add_child(base_vbox);
-#else
 	gui_base->add_child(main_vbox);
 
 	title_bar = memnew(EditorTitleBar);
 	main_vbox->add_child(title_bar);
-#endif
 
 	left_l_hsplit = memnew(DockSplitContainer);
 	left_l_hsplit->set_name("DockHSplitLeftL");
@@ -8048,10 +7948,10 @@ EditorNode::EditorNode() {
 	gui_base->add_child(about);
 	feature_profile_manager->connect("current_feature_profile_changed", callable_mp(this, &EditorNode::_feature_profile_changed));
 
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
+	#if !defined(WEB_ENABLED)
 	fbx_importer_manager = memnew(FBXImporterManager);
 	gui_base->add_child(fbx_importer_manager);
-#endif
+	#endif
 
 	warning = memnew(AcceptDialog);
 	warning->set_unparent_when_invisible(true);
@@ -8138,10 +8038,6 @@ EditorNode::EditorNode() {
 	project_menu->add_separator();
 	project_menu->add_shortcut(ED_SHORTCUT_AND_COMMAND("editor/export", TTRC("Export..."), Key::NONE, TTRC("Export")), PROJECT_EXPORT);
 	project_menu->add_item(TTRC("Pack Project as ZIP..."), PROJECT_PACK_AS_ZIP);
-#ifndef ANDROID_ENABLED
-	project_menu->add_item(TTRC("Install Android Build Template..."), PROJECT_INSTALL_ANDROID_SOURCE);
-	project_menu->add_item(TTRC("Open User Data Folder"), PROJECT_OPEN_USER_DATA_FOLDER);
-#endif
 
 	project_menu->add_separator();
 
@@ -8217,24 +8113,11 @@ EditorNode::EditorNode() {
 	settings_menu->add_shortcut(ED_GET_SHORTCUT("editor/fullscreen_mode"), EDITOR_TOGGLE_FULLSCREEN);
 	settings_menu->add_separator();
 
-#ifndef ANDROID_ENABLED
-	if (OS::get_singleton()->get_data_path() == OS::get_singleton()->get_config_path()) {
-		// Configuration and data folders are located in the same place (Windows/macOS).
-		settings_menu->add_item(TTRC("Open Editor Data/Settings Folder"), EDITOR_OPEN_DATA_FOLDER);
-	} else {
-		// Separate configuration and data folders (Linux).
-		settings_menu->add_item(TTRC("Open Editor Data Folder"), EDITOR_OPEN_DATA_FOLDER);
-		settings_menu->add_item(TTRC("Open Editor Settings Folder"), EDITOR_OPEN_CONFIG_FOLDER);
-	}
-	settings_menu->add_separator();
-#endif
-
 	settings_menu->add_item(TTRC("Manage Editor Features..."), EDITOR_MANAGE_FEATURE_PROFILES);
 	settings_menu->add_item(TTRC("Manage Export Templates..."), EDITOR_MANAGE_EXPORT_TEMPLATES);
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
+#if !defined(WEB_ENABLED)
 	settings_menu->add_item(TTRC("Configure FBX Importer..."), EDITOR_CONFIGURE_FBX_IMPORTER);
-#endif
-
+	#endif
 	help_menu = memnew(PopupMenu);
 	if (global_menu && NativeMenu::get_singleton()->has_system_menu(NativeMenu::HELP_MENU_ID)) {
 		help_menu->set_system_menu(NativeMenu::HELP_MENU_ID);

@@ -41,9 +41,6 @@
 #include "scene/gui/panel_container.h"
 
 void QuickSettingsDialog::_fetch_setting_values() {
-#ifndef ANDROID_ENABLED
-	editor_languages.clear();
-#endif
 	editor_themes.clear();
 	editor_scales.clear();
 	editor_network_modes.clear();
@@ -56,9 +53,6 @@ void QuickSettingsDialog::_fetch_setting_values() {
 
 		for (const PropertyInfo &pi : editor_settings_properties) {
 			if (pi.name == "interface/editor/editor_language") {
-#ifndef ANDROID_ENABLED
-				editor_languages = pi.hint_string.split(",");
-#endif
 			} else if (pi.name == "interface/theme/preset") {
 				editor_themes = pi.hint_string.split(",");
 			} else if (pi.name == "interface/editor/display_scale") {
@@ -75,20 +69,6 @@ void QuickSettingsDialog::_fetch_setting_values() {
 }
 
 void QuickSettingsDialog::_update_current_values() {
-#ifndef ANDROID_ENABLED
-	// Language options.
-	{
-		const String current_lang = EDITOR_GET("interface/editor/editor_language");
-
-		for (int i = 0; i < editor_languages.size(); i++) {
-			const String &lang_value = editor_languages[i];
-			if (current_lang == lang_value) {
-				language_option_button->set_text(current_lang);
-				language_option_button->select(i);
-			}
-		}
-	}
-#endif
 
 	// Theme options.
 	{
@@ -175,13 +155,6 @@ void QuickSettingsDialog::_add_setting_control(const String &p_text, Control *p_
 	container->add_child(p_control);
 }
 
-#ifndef ANDROID_ENABLED
-void QuickSettingsDialog::_language_selected(int p_id) {
-	const String selected_language = language_option_button->get_item_metadata(p_id);
-	_set_setting_value("interface/editor/editor_language", selected_language);
-}
-#endif
-
 void QuickSettingsDialog::_theme_selected(int p_id) {
 	const String selected_theme = theme_option_button->get_item_text(p_id);
 	_set_setting_value("interface/theme/preset", selected_theme);
@@ -232,9 +205,6 @@ void QuickSettingsDialog::_request_restart() {
 }
 
 void QuickSettingsDialog::update_size_limits(const Size2 &p_max_popup_size) {
-#ifndef ANDROID_ENABLED
-	language_option_button->get_popup()->set_max_size(p_max_popup_size);
-#endif
 }
 
 void QuickSettingsDialog::_notification(int p_what) {
@@ -275,25 +245,6 @@ QuickSettingsDialog::QuickSettingsDialog() {
 
 		settings_list = memnew(VBoxContainer);
 		settings_list_panel->add_child(settings_list);
-
-#ifndef ANDROID_ENABLED
-		// Language options.
-		{
-			language_option_button = memnew(OptionButton);
-			language_option_button->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
-			language_option_button->set_fit_to_longest_item(false);
-			language_option_button->connect(SceneStringName(item_selected), callable_mp(this, &QuickSettingsDialog::_language_selected));
-
-			for (int i = 0; i < editor_languages.size(); i++) {
-				const String &lang_value = editor_languages[i];
-				String lang_name = TranslationServer::get_singleton()->get_locale_name(lang_value);
-				language_option_button->add_item(vformat("[%s] %s", lang_value, lang_name), i);
-				language_option_button->set_item_metadata(i, lang_value);
-			}
-
-			_add_setting_control(TTRC("Language"), language_option_button);
-		}
-#endif
 
 		// Theme options.
 		{

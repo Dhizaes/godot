@@ -33,7 +33,6 @@
 #include "core/config/project_settings.h"
 #include "core/io/resource_loader.h"
 #include "servers/rendering/renderer_rd/forward_clustered/scene_shader_forward_clustered.h"
-#include "servers/rendering/renderer_rd/forward_mobile/scene_shader_forward_mobile.h"
 #include "servers/rendering/storage/variant_converters.h"
 #include "texture_storage.h"
 

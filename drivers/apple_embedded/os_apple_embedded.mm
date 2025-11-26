@@ -645,9 +645,6 @@ bool OS_AppleEmbedded::_check_internal_feature_support(const String &p_feature) 
 	if (p_feature == "system_fonts") {
 		return true;
 	}
-	if (p_feature == "mobile") {
-		return true;
-	}
 
 	return false;
 }

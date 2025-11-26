@@ -470,19 +470,6 @@ def configure_msvc(env: "SConsEnvironment"):
             env.Append(LIBPATH=[env["mesa_libs"] + "/bin"])
         LIBS += ["libNIR.windows." + env["arch"] + prebuilt_lib_extra_suffix]
 
-    if env["opengl3"]:
-        env.AppendUnique(CPPDEFINES=["GLES3_ENABLED"])
-        if env["angle_libs"] != "":
-            env.AppendUnique(CPPDEFINES=["EGL_STATIC"])
-            env.Append(LIBPATH=[env["angle_libs"]])
-            LIBS += [
-                "libANGLE.windows." + env["arch"] + prebuilt_lib_extra_suffix,
-                "libEGL.windows." + env["arch"] + prebuilt_lib_extra_suffix,
-                "libGLES.windows." + env["arch"] + prebuilt_lib_extra_suffix,
-            ]
-            LIBS += ["dxgi", "d3d9", "d3d11"]
-        env.Prepend(CPPPATH=["#thirdparty/angle/include"])
-
     if env["target"] in ["editor", "template_debug"]:
         LIBS += ["psapi", "dbghelp"]
 
@@ -860,21 +847,6 @@ def configure_mingw(env: "SConsEnvironment"):
             env.Append(LIBPATH=[env["mesa_libs"] + "/bin"])
         env.Append(LIBS=["libNIR.windows." + env["arch"]])
         env.Append(LIBS=["version"])  # Mesa dependency.
-
-    if env["opengl3"]:
-        env.Append(CPPDEFINES=["GLES3_ENABLED"])
-        if env["angle_libs"] != "":
-            env.AppendUnique(CPPDEFINES=["EGL_STATIC"])
-            env.Append(LIBPATH=[env["angle_libs"]])
-            env.Append(
-                LIBS=[
-                    "EGL.windows." + env["arch"],
-                    "GLES.windows." + env["arch"],
-                    "ANGLE.windows." + env["arch"],
-                ]
-            )
-            env.Append(LIBS=["dxgi", "d3d9", "d3d11"])
-        env.Prepend(CPPPATH=["#thirdparty/angle/include"])
 
     env.Append(CPPDEFINES=["MINGW_ENABLED", ("MINGW_HAS_SECURE_API", 1)])
 

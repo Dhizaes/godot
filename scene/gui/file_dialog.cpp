@@ -729,14 +729,14 @@ void FileDialog::_item_menu_id_pressed(int p_option) {
 void FileDialog::_empty_clicked(const Vector2 &p_pos, MouseButton p_button) {
 	if (p_button == MouseButton::RIGHT) {
 		item_menu->clear();
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
+#if !defined(WEB_ENABLED)
 		// Opening the system file manager is not supported on the Android and web editors.
 		item_menu->add_item(ETR("Open in File Manager"), ITEM_MENU_SHOW_IN_EXPLORER);
 
 		item_menu->set_position(file_list->get_screen_position() + p_pos);
 		item_menu->reset_size();
 		item_menu->popup();
-#endif
+		#endif
 	} else if (p_button == MouseButton::LEFT) {
 		deselect_all();
 	}
@@ -745,7 +745,7 @@ void FileDialog::_empty_clicked(const Vector2 &p_pos, MouseButton p_button) {
 void FileDialog::_item_clicked(int p_item, const Vector2 &p_pos, MouseButton p_button) {
 	if (p_button == MouseButton::RIGHT) {
 		item_menu->clear();
-#if !defined(ANDROID_ENABLED) && !defined(WEB_ENABLED)
+#if !defined(WEB_ENABLED)
 		// Opening the system file manager is not supported on the Android and web editors.
 		Dictionary d = file_list->get_item_metadata(p_item);
 		if (d["bundle"]) {
@@ -756,7 +756,7 @@ void FileDialog::_item_clicked(int p_item, const Vector2 &p_pos, MouseButton p_b
 		item_menu->set_position(file_list->get_screen_position() + p_pos);
 		item_menu->reset_size();
 		item_menu->popup();
-#endif
+		#endif
 	}
 }
 
@@ -1361,9 +1361,6 @@ void FileDialog::set_access(Access p_access) {
 	switch (p_access) {
 		case ACCESS_FILESYSTEM: {
 			dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-#ifdef ANDROID_ENABLED
-			set_current_dir(OS::get_singleton()->get_system_dir(OS::SYSTEM_DIR_DESKTOP));
-#endif
 		} break;
 		case ACCESS_RESOURCES: {
 			dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);

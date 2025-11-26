@@ -528,8 +528,7 @@ private:
 	// Supported rendering methods for advanced debug draw mode items.
 	enum SupportedRenderingMethods {
 		ALL,
-		FORWARD_PLUS,
-		FORWARD_PLUS_MOBILE,
+		FORWARD_PLUS
 	};
 
 	void _set_lock_view_rotation(bool p_lock_rotation);

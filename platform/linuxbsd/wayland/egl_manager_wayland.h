@@ -32,7 +32,6 @@
 
 #ifdef WAYLAND_ENABLED
 #ifdef EGL_ENABLED
-#ifdef GLES3_ENABLED
 
 #include "drivers/egl/egl_manager.h"
 
@@ -45,6 +44,5 @@ public:
 	virtual Vector<EGLint> _get_platform_context_attribs() const override;
 };
 
-#endif // GLES3_ENABLED
 #endif // EGL_ENABLED
 #endif // WAYLAND_ENABLED

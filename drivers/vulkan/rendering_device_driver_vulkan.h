@@ -370,9 +370,6 @@ private:
 		RenderPassID render_pass;
 		int pre_transform_rotation_degrees = 0;
 		uint32_t image_index = 0;
-#ifdef ANDROID_ENABLED
-		uint64_t refresh_duration = 0;
-#endif
 	};
 
 	void _swap_chain_release(SwapChain *p_swap_chain);

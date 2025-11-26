@@ -709,12 +709,6 @@ void ScriptTextEditor::set_edit_state(const Variant &p_state) {
 			_change_syntax_highlighter(idx);
 		}
 	}
-
-	if (editor_enabled) {
-#ifndef ANDROID_ENABLED
-		ensure_focus();
-#endif
-	}
 }
 
 Variant ScriptTextEditor::get_navigation_state() {

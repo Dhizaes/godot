@@ -586,9 +586,9 @@ Dictionary OS_Unix::get_memory_info() const {
 	return meminfo;
 }
 
-#if !defined(__GLIBC__) && !defined(WEB_ENABLED)
+#if !defined(__GLIBC__)
 void OS_Unix::_load_iconv() {
-#if defined(MACOS_ENABLED) || defined(IOS_ENABLED)
+#if defined(MACOS_ENABLED)
 	String iconv_lib_aliases[] = { "/usr/lib/libiconv.2.dylib" };
 	String iconv_func_aliases[] = { "iconv" };
 	String charset_lib_aliases[] = { "/usr/lib/libcharset.1.dylib" };

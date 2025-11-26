@@ -94,12 +94,8 @@ const PackedStringArray ProjectSettings::_get_supported_features() {
 
 #ifdef RD_ENABLED
 	features.append("Forward Plus");
-	features.append("Mobile");
 #endif
 
-#ifdef GLES3_ENABLED
-	features.append("GL Compatibility");
-#endif
 	return features;
 }
 
@@ -702,11 +698,6 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 			return err;
 		}
 	}
-
-#ifdef ANDROID_ENABLED
-	// Attempt to load sparse PCK assets.
-	_load_resource_pack("res://assets.sparsepck", false, 0, true);
-#endif
 
 	// Try to use the filesystem for files, according to OS.
 	// (Only Android -when reading from pck- and iOS use this.)

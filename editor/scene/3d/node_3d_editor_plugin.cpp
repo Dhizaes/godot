@@ -3069,12 +3069,8 @@ void Node3DEditorViewport::_notification(int p_what) {
 				switch (rendering_methods) {
 					case SupportedRenderingMethods::ALL:
 						break;
-					case SupportedRenderingMethods::FORWARD_PLUS_MOBILE:
-						disabled = OS::get_singleton()->get_current_rendering_method() == "gl_compatibility";
-						disabled_tooltip = TTR("This debug draw mode is not supported when using the Compatibility rendering method.");
-						break;
 					case SupportedRenderingMethods::FORWARD_PLUS:
-						disabled = OS::get_singleton()->get_current_rendering_method() == "gl_compatibility" || OS::get_singleton()->get_current_rendering_method() == "mobile";
+						disabled = false;
 						disabled_tooltip = TTR("This debug draw mode is not supported when using the Mobile or Compatibility rendering methods.");
 						break;
 				}

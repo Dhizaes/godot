@@ -6706,12 +6706,7 @@ Error RenderingDevice::initialize(RenderingContextDriver *p_context, DisplayServ
 
 	if (is_main_instance) {
 		// Only the singleton instance with a display should print this information.
-		String rendering_method;
-		if (OS::get_singleton()->get_current_rendering_method() == "mobile") {
-			rendering_method = "Forward Mobile";
-		} else {
-			rendering_method = "Forward+";
-		}
+		String rendering_method = "Forward+";
 
 		// Output our device version.
 		Engine::get_singleton()->print_header(vformat("%s %s - %s - Using Device #%d: %s - %s", get_device_api_name(), get_device_api_version(), rendering_method, device_index, _get_device_vendor_name(device), device.name));
