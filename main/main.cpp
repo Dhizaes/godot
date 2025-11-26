@@ -2192,7 +2192,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	{
 		// RenderingDevice driver overrides per platform.
 		GLOBAL_DEF_RST("rendering/rendering_device/driver", "vulkan");
-		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.windows", PROPERTY_HINT_ENUM, "vulkan,d3d12"), "vulkan");
+		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.windows", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.linuxbsd", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.android", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.ios", PROPERTY_HINT_ENUM, "metal,vulkan"), "metal");
@@ -2200,7 +2200,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.macos", PROPERTY_HINT_ENUM, "metal,vulkan"), "metal");
 
 		GLOBAL_DEF_RST("rendering/rendering_device/fallback_to_vulkan", true);
-		GLOBAL_DEF_RST("rendering/rendering_device/fallback_to_d3d12", true);
 		GLOBAL_DEF_RST("rendering/rendering_device/fallback_to_opengl3", true);
 	}
 
@@ -2517,9 +2516,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		if (rendering_method == "forward_plus" || rendering_method == "mobile") {
 #ifdef VULKAN_ENABLED
 			available_drivers.push_back("vulkan");
-#endif
-#ifdef D3D12_ENABLED
-			available_drivers.push_back("d3d12");
 #endif
 #ifdef METAL_ENABLED
 			available_drivers.push_back("metal");

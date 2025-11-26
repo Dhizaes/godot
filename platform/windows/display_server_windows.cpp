@@ -52,9 +52,6 @@
 #if defined(VULKAN_ENABLED)
 #include "rendering_context_driver_vulkan_windows.h"
 #endif
-#if defined(D3D12_ENABLED)
-#include "drivers/d3d12/rendering_context_driver_d3d12.h"
-#endif
 #if defined(GLES3_ENABLED)
 #include "drivers/gles3/rasterizer_gles3.h"
 #endif
@@ -2383,9 +2380,6 @@ void DisplayServerWindows::_get_window_style(bool p_main_window, bool p_initiali
 	r_style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	r_style_ex |= WS_EX_ACCEPTFILES;
 
-	if (OS::get_singleton()->get_current_rendering_driver_name() == "d3d12") {
-		r_style_ex |= WS_EX_NOREDIRECTIONBITMAP;
-	}
 }
 
 void DisplayServerWindows::_update_window_style(WindowID p_window, bool p_repaint) {
@@ -6467,19 +6461,11 @@ DisplayServer::WindowID DisplayServerWindows::_create_window(WindowMode p_mode, 
 #ifdef VULKAN_ENABLED
 				RenderingContextDriverVulkanWindows::WindowPlatformData vulkan;
 #endif
-#ifdef D3D12_ENABLED
-				RenderingContextDriverD3D12::WindowPlatformData d3d12;
-#endif
 			} wpd;
 #ifdef VULKAN_ENABLED
 			if (rendering_driver == "vulkan") {
 				wpd.vulkan.window = wd.hWnd;
 				wpd.vulkan.instance = hInstance;
-			}
-#endif
-#ifdef D3D12_ENABLED
-			if (rendering_driver == "d3d12") {
-				wpd.d3d12.window = wd.hWnd;
 			}
 #endif
 			if (rendering_context->window_create(id, &wpd) != OK) {
@@ -6972,24 +6958,14 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 
 #if defined(RD_ENABLED)
 	[[maybe_unused]] bool fallback_to_vulkan = GLOBAL_GET("rendering/rendering_device/fallback_to_vulkan");
-	[[maybe_unused]] bool fallback_to_d3d12 = GLOBAL_GET("rendering/rendering_device/fallback_to_d3d12");
 
 #if defined(VULKAN_ENABLED)
 	if (rendering_driver == "vulkan") {
 		rendering_context = memnew(RenderingContextDriverVulkanWindows);
 		tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
 	}
-#else
-	fallback_to_d3d12 = true; // Always enable fallback if engine was built w/o other driver support.
 #endif
-#if defined(D3D12_ENABLED)
-	if (rendering_driver == "d3d12") {
-		rendering_context = memnew(RenderingContextDriverD3D12);
-		tested_drivers.set_flag(DRIVER_ID_RD_D3D12);
-	}
-#else
 	fallback_to_vulkan = true; // Always enable fallback if engine was built w/o other driver support.
-#endif
 
 	if (rendering_context) {
 		if (rendering_context->initialize() != OK) {
@@ -7000,21 +6976,8 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 				rendering_context = memnew(RenderingContextDriverVulkanWindows);
 				tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
 				if (rendering_context->initialize() == OK) {
-					WARN_PRINT("Your video card drivers seem not to support Direct3D 12, switching to Vulkan.");
+					WARN_PRINT("Switching to Vulkan.");
 					rendering_driver = "vulkan";
-					OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
-					failed = false;
-				}
-			}
-#endif
-#if defined(D3D12_ENABLED)
-			if (failed && fallback_to_d3d12 && rendering_driver != "d3d12") {
-				memdelete(rendering_context);
-				rendering_context = memnew(RenderingContextDriverD3D12);
-				tested_drivers.set_flag(DRIVER_ID_RD_D3D12);
-				if (rendering_context->initialize() == OK) {
-					WARN_PRINT("Your video card drivers seem not to support Vulkan, switching to Direct3D 12.");
-					rendering_driver = "d3d12";
 					OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
 					failed = false;
 				}
@@ -7026,7 +6989,7 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 				memdelete(rendering_context);
 				rendering_context = nullptr;
 				tested_drivers.set_flag(DRIVER_ID_COMPAT_OPENGL3);
-				WARN_PRINT("Your video card drivers seem not to support Direct3D 12 or Vulkan, switching to OpenGL 3.");
+				WARN_PRINT("Your video card drivers seem not to support Vulkan, switching to OpenGL 3.");
 				rendering_driver = "opengl3";
 				OS::get_singleton()->set_current_rendering_method("gl_compatibility");
 				OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
@@ -7294,9 +7257,6 @@ Vector<String> DisplayServerWindows::get_rendering_drivers_func() {
 #ifdef VULKAN_ENABLED
 	drivers.push_back("vulkan");
 #endif
-#ifdef D3D12_ENABLED
-	drivers.push_back("d3d12");
-#endif
 #ifdef GLES3_ENABLED
 	drivers.push_back("opengl3");
 	drivers.push_back("opengl3_angle");
@@ -7311,13 +7271,10 @@ DisplayServer *DisplayServerWindows::create_func(const String &p_rendering_drive
 	if (r_error != OK) {
 		if (tested_drivers == 0) {
 			OS::get_singleton()->alert("Failed to register the window class.", "Unable to initialize DisplayServer");
-		} else if (tested_drivers.has_flag(DRIVER_ID_RD_VULKAN) || tested_drivers.has_flag(DRIVER_ID_RD_D3D12)) {
+		} else if (tested_drivers.has_flag(DRIVER_ID_RD_VULKAN)) {
 			Vector<String> drivers;
 			if (tested_drivers.has_flag(DRIVER_ID_RD_VULKAN)) {
 				drivers.push_back("Vulkan");
-			}
-			if (tested_drivers.has_flag(DRIVER_ID_RD_D3D12)) {
-				drivers.push_back("Direct3D 12");
 			}
 			String executable_name = OS::get_singleton()->get_executable_path().get_file();
 			OS::get_singleton()->alert(
@@ -7333,9 +7290,6 @@ DisplayServer *DisplayServerWindows::create_func(const String &p_rendering_drive
 			Vector<String> drivers;
 			if (tested_drivers.has_flag(DRIVER_ID_COMPAT_OPENGL3)) {
 				drivers.push_back("OpenGL 3.3");
-			}
-			if (tested_drivers.has_flag(DRIVER_ID_COMPAT_ANGLE_D3D11)) {
-				drivers.push_back("Direct3D 11");
 			}
 			OS::get_singleton()->alert(
 					vformat(
