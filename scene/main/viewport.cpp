@@ -727,18 +727,6 @@ void Viewport::_process_picking() {
 		physics_picking_events.clear();
 		return;
 	}
-#ifndef XR_DISABLED
-	if (use_xr) {
-		if (XRServer::get_singleton() != nullptr) {
-			Ref<XRInterface> xr_interface = XRServer::get_singleton()->get_primary_interface();
-			if (xr_interface.is_valid() && xr_interface->is_initialized() && xr_interface->get_view_count() > 1) {
-				WARN_PRINT_ONCE("Object picking can't be used when stereo rendering, this will be turned off!");
-				physics_object_picking = false; // don't try again.
-				return;
-			}
-		}
-	}
-#endif // XR_DISABLED
 
 	_drop_physics_mouseover(true);
 
@@ -1139,18 +1127,6 @@ bool Viewport::_set_size(const Size2i &p_size, const Size2 &p_size_2d_override, 
 }
 
 Size2i Viewport::_get_size() const {
-#ifndef XR_DISABLED
-	if (use_xr) {
-		if (XRServer::get_singleton() != nullptr) {
-			Ref<XRInterface> xr_interface = XRServer::get_singleton()->get_primary_interface();
-			if (xr_interface.is_valid() && xr_interface->is_initialized()) {
-				Size2 xr_size = xr_interface->get_render_target_size();
-				return (Size2i)xr_size;
-			}
-		}
-		return Size2i();
-	}
-#endif // XR_DISABLED
 
 	return size;
 }

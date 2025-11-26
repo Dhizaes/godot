@@ -48,10 +48,6 @@
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel_container.h"
 
-#ifndef XR_DISABLED
-#include "servers/xr_server.h"
-#endif // XR_DISABLED
-
 EditorRunBar *EditorRunBar::singleton = nullptr;
 
 void EditorRunBar::_notification(int p_what) {
@@ -608,29 +604,10 @@ EditorRunBar::EditorRunBar() {
 	main_hbox->add_child(run_native);
 	run_native->connect("native_run", callable_mp(this, &EditorRunBar::_run_native));
 
-	bool add_play_xr_mode_options = false;
-#ifndef XR_DISABLED
-	if (XRServer::get_xr_mode() == XRServer::XRMODE_ON ||
-			(XRServer::get_xr_mode() == XRServer::XRMODE_DEFAULT && GLOBAL_GET("xr/openxr/enabled"))) {
-		// If OpenXR is enabled, we turn the `play_scene_button` and
-		// `play_custom_scene_button` into MenuButtons to provide the option to start a scene in
-		// either regular mode or XR mode.
-		add_play_xr_mode_options = true;
-	}
-#endif // XR_DISABLED
+	play_scene_button = memnew(Button);
+	play_scene_button->set_toggle_mode(true);
+	play_scene_button->connect(SceneStringName(pressed), callable_mp(this, &EditorRunBar::_play_current_pressed).bind(-1));
 
-	if (add_play_xr_mode_options) {
-		MenuButton *menu_button = memnew(MenuButton);
-		PopupMenu *popup = menu_button->get_popup();
-		popup->add_item(TTRC("Run Scene in Regular Mode"), 0);
-		popup->add_item(TTRC("Run Scene in XR Mode"), 1);
-		popup->connect(SceneStringName(id_pressed), callable_mp(this, &EditorRunBar::_play_current_pressed));
-		play_scene_button = menu_button;
-	} else {
-		play_scene_button = memnew(Button);
-		play_scene_button->set_toggle_mode(true);
-		play_scene_button->connect(SceneStringName(pressed), callable_mp(this, &EditorRunBar::_play_current_pressed).bind(-1));
-	}
 	main_hbox->add_child(play_scene_button);
 	play_scene_button->set_theme_type_variation("RunBarButton");
 	play_scene_button->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
@@ -640,18 +617,9 @@ EditorRunBar::EditorRunBar() {
 	ED_SHORTCUT_OVERRIDE("editor/run_current_scene", "macos", KeyModifierMask::META | Key::R);
 	play_scene_button->set_shortcut(ED_GET_SHORTCUT("editor/run_current_scene"));
 
-	if (add_play_xr_mode_options) {
-		MenuButton *menu_button = memnew(MenuButton);
-		PopupMenu *popup = menu_button->get_popup();
-		popup->add_item(TTRC("Run in Regular Mode"), 0);
-		popup->add_item(TTRC("Run in XR Mode"), 1);
-		popup->connect(SceneStringName(id_pressed), callable_mp(this, &EditorRunBar::_play_custom_pressed));
-		play_custom_scene_button = menu_button;
-	} else {
-		play_custom_scene_button = memnew(Button);
-		play_custom_scene_button->set_toggle_mode(true);
-		play_custom_scene_button->connect(SceneStringName(pressed), callable_mp(this, &EditorRunBar::_play_custom_pressed).bind(-1));
-	}
+	play_custom_scene_button = memnew(Button);
+	play_custom_scene_button->set_toggle_mode(true);
+	play_custom_scene_button->connect(SceneStringName(pressed), callable_mp(this, &EditorRunBar::_play_custom_pressed).bind(-1));
 	main_hbox->add_child(play_custom_scene_button);
 	play_custom_scene_button->set_theme_type_variation("RunBarButton");
 	play_custom_scene_button->set_focus_mode(Control::FOCUS_ACCESSIBILITY);

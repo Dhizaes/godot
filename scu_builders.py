@@ -364,7 +364,6 @@ def generate_scu_files(max_includes_per_scu):
     process_folder(["scene/3d"])
     process_folder(["scene/3d/physics"])
     process_folder(["scene/3d/physics/joints"])
-    process_folder(["scene/3d/xr"])
     process_folder(["scene/animation"])
     process_folder(["scene/gui"])
     process_folder(["scene/main"])
@@ -387,7 +386,6 @@ def generate_scu_files(max_includes_per_scu):
     process_folder(["servers/audio"])
     process_folder(["servers/audio/effects"])
     process_folder(["servers/navigation"])
-    process_folder(["servers/xr"])
 
     # Finally change back the path to the calling folder
     os.chdir(curr_folder)

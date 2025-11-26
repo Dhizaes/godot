@@ -49,8 +49,6 @@ const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 	"disable_3d",
 	"disable_navigation_2d",
 	"disable_navigation_3d",
-	"disable_xr",
-	"module_openxr_enabled",
 	"wayland",
 	"x11",
 	"rendering_device", // FIXME: There's no scons option to disable rendering device.
@@ -77,8 +75,6 @@ const bool EditorBuildProfile::build_option_disabled_by_default[BUILD_OPTION_MAX
 	false, // 3D
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
-	false, // XR
-	false, // OPENXR
 	false, // WAYLAND
 	false, // X11
 	false, // RENDERING_DEVICE
@@ -105,8 +101,6 @@ const bool EditorBuildProfile::build_option_disable_values[BUILD_OPTION_MAX] = {
 	true, // 3D
 	true, // NAVIGATION_2D
 	true, // NAVIGATION_3D
-	true, // XR
-	false, // OPENXR
 	false, // WAYLAND
 	false, // X11
 	false, // RENDERING_DEVICE
@@ -133,8 +127,6 @@ const bool EditorBuildProfile::build_option_explicit_use[BUILD_OPTION_MAX] = {
 	false, // 3D
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
-	false, // XR
-	false, // OPENXR
 	false, // WAYLAND
 	false, // X11
 	false, // RENDERING_DEVICE
@@ -160,8 +152,6 @@ const EditorBuildProfile::BuildOptionCategory EditorBuildProfile::build_option_c
 	BUILD_OPTION_CATEGORY_GENERAL, // 3D
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_2D
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_3D
-	BUILD_OPTION_CATEGORY_GENERAL, // XR
-	BUILD_OPTION_CATEGORY_GENERAL, // OPENXR
 	BUILD_OPTION_CATEGORY_GENERAL, // WAYLAND
 	BUILD_OPTION_CATEGORY_GENERAL, // X11
 	BUILD_OPTION_CATEGORY_GRAPHICS, // RENDERING_DEVICE
@@ -189,9 +179,6 @@ HashMap<EditorBuildProfile::BuildOption, HashMap<String, LocalVector<Variant>>> 
 /* clang-format off */
 
 const HashMap<EditorBuildProfile::BuildOption, LocalVector<EditorBuildProfile::BuildOption>> EditorBuildProfile::build_option_dependencies = {
-	{ BUILD_OPTION_OPENXR, {
-			BUILD_OPTION_XR,
-	} },
 	{ BUILD_OPTION_FORWARD_RENDERER, {
 			BUILD_OPTION_RENDERING_DEVICE,
 	} },
@@ -244,24 +231,6 @@ const HashMap<EditorBuildProfile::BuildOption, LocalVector<String>> EditorBuildP
 			"NavigationMeshSourceGeometryData3D",
 			"NavigationObstacle3D",
 			"NavigationRegion3D",
-	} },
-	{ BUILD_OPTION_XR, {
-			"XRBodyModifier3D",
-			"XRBodyTracker",
-			"XRControllerTracker",
-			"XRFaceModifier3D",
-			"XRFaceTracker",
-			"XRHandModifier3D",
-			"XRHandTracker",
-			"XRInterface",
-			"XRInterfaceExtension",
-			"XRNode3D",
-			"XROrigin3D",
-			"XRPose",
-			"XRPositionalTracker",
-			"XRServer",
-			"XRTracker",
-			"XRVRS",
 	} },
 	{ BUILD_OPTION_RENDERING_DEVICE, {
 			"RenderingDevice",
@@ -377,8 +346,6 @@ String EditorBuildProfile::get_build_option_name(BuildOption p_build_option) {
 		TTRC("3D Engine"),
 		TTRC("Navigation (2D)"),
 		TTRC("Navigation (3D)"),
-		TTRC("XR"),
-		TTRC("OpenXR"),
 		TTRC("Wayland"),
 		TTRC("X11"),
 		TTRC("RenderingDevice"),
@@ -409,8 +376,6 @@ String EditorBuildProfile::get_build_option_description(BuildOption p_build_opti
 		TTRC("3D Nodes as well as RenderingServer access to 3D features."),
 		TTRC("Navigation Server and capabilities for 2D."),
 		TTRC("Navigation Server and capabilities for 3D."),
-		TTRC("XR (AR and VR)."),
-		TTRC("OpenXR standard implementation (requires XR to be enabled)."),
 		TTRC("Wayland display (Linux only)."),
 		TTRC("X11 display (Linux only)."),
 		TTRC("RenderingDevice based rendering (if disabled, the OpenGL backend is required)."),
@@ -580,8 +545,6 @@ void EditorBuildProfile::_bind_methods() {
 	BIND_ENUM_CONSTANT(BUILD_OPTION_3D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_2D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_3D);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_XR);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_OPENXR);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_WAYLAND);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_X11);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_RENDERING_DEVICE);
@@ -613,18 +576,14 @@ void EditorBuildProfile::_bind_methods() {
 EditorBuildProfile::EditorBuildProfile() {
 	reset_build_options();
 
-	HashMap<String, LocalVector<Variant>> settings_openxr = {
-		{ "xr/openxr/enabled", { true } },
-	};
-	build_option_settings.insert(BUILD_OPTION_OPENXR, settings_openxr);
 	HashMap<String, LocalVector<Variant>> settings_wayland = {
 		{ "display/display_server/driver.linuxbsd", { "default", "wayland" } },
 	};
-	build_option_settings.insert(BUILD_OPTION_OPENXR, settings_wayland);
+	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_wayland);
 	HashMap<String, LocalVector<Variant>> settings_x11 = {
 		{ "display/display_server/driver.linuxbsd", { "default", "x11" } },
 	};
-	build_option_settings.insert(BUILD_OPTION_OPENXR, settings_x11);
+	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_x11);
 	HashMap<String, LocalVector<Variant>> settings_rd = {
 		{ "rendering/renderer/rendering_method", { "forward_plus", "mobile" } },
 		{ "rendering/renderer/rendering_method.mobile", { "forward_plus", "mobile" } },

@@ -602,10 +602,6 @@ void SceneShaderForwardMobile::init(const String p_defines) {
 		immutable_shadow_sampler.uniform_type = RenderingDeviceCommons::UNIFORM_TYPE_SAMPLER;
 		immutable_samplers.push_back(immutable_shadow_sampler);
 		shader.initialize(shader_versions, p_defines, immutable_samplers);
-
-		if (RendererCompositorRD::get_singleton()->is_xr_enabled()) {
-			enable_multiview_shader_group();
-		}
 	}
 
 	material_storage->shader_set_data_request_function(RendererRD::MaterialStorage::SHADER_TYPE_3D, _create_shader_funcs);

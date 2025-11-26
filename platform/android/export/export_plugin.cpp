@@ -2177,8 +2177,6 @@ void EditorExportPlatformAndroid::get_export_options(List<ExportOption> *r_optio
 
 	r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "shader_baker/enabled"), false));
 
-	r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "xr_features/xr_mode", PROPERTY_HINT_ENUM, "Regular,OpenXR"), XR_MODE_REGULAR, false, true));
-
 	r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "gesture/swipe_to_dismiss"), false));
 
 	r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "screen/immersive_mode"), true));
@@ -3085,20 +3083,6 @@ void EditorExportPlatformAndroid::get_command_line_flags(const Ref<EditorExportP
 		command_line_strings.push_back(FileAccess::get_md5(fullpath));
 		command_line_strings.push_back("--apk_expansion_key");
 		command_line_strings.push_back(apk_expansion_public_key.strip_edges());
-	}
-
-	int xr_mode_index = p_preset->get("xr_features/xr_mode");
-	if (xr_mode_index == XR_MODE_OPENXR) {
-		command_line_strings.push_back("--xr_mode_openxr");
-	} else { // XRMode.REGULAR is the default.
-		command_line_strings.push_back("--xr_mode_regular");
-
-		// Also override the 'xr/openxr/enabled' project setting.
-		// This is useful for multi-platforms projects supporting both XR and non-XR devices. The project would need
-		// to enable openxr for development, and would create multiple XR and non-XR export presets.
-		// These command line args ensure that the non-XR export presets will have openxr disabled.
-		command_line_strings.push_back("--xr-mode");
-		command_line_strings.push_back("off");
 	}
 
 	bool immersive = p_preset->get("screen/immersive_mode");

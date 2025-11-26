@@ -996,8 +996,6 @@ if env["disable_navigation_2d"]:
     env.Append(CPPDEFINES=["NAVIGATION_2D_DISABLED"])
 if env["disable_navigation_3d"]:
     env.Append(CPPDEFINES=["NAVIGATION_3D_DISABLED"])
-if env["disable_xr"]:
-    env.Append(CPPDEFINES=["XR_DISABLED"])
 if env["minizip"]:
     env.Append(CPPDEFINES=["MINIZIP_ENABLED"])
 if env["brotli"]:

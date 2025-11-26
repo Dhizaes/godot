@@ -98,10 +98,6 @@
 #include "servers/physics_server_3d_dummy.h"
 #endif // PHYSICS_3D_DISABLED
 
-#ifndef XR_DISABLED
-#include "servers/xr_server.h"
-#endif // XR_DISABLED
-
 #ifdef TESTS_ENABLED
 #include "tests/test_main.h"
 #endif
@@ -183,9 +179,6 @@ static PhysicsServer2D *physics_server_2d = nullptr;
 static PhysicsServer3DManager *physics_server_3d_manager = nullptr;
 static PhysicsServer3D *physics_server_3d = nullptr;
 #endif // PHYSICS_3D_DISABLED
-#ifndef XR_DISABLED
-static XRServer *xr_server = nullptr;
-#endif // XR_DISABLED
 // We error out if setup2() doesn't turn this true
 static bool _start_success = false;
 
@@ -749,9 +742,6 @@ Error Main::test_setup() {
 
 	/** INITIALIZE SERVERS **/
 	register_server_types();
-#ifndef XR_DISABLED
-	XRServer::set_xr_mode(XRServer::XRMODE_OFF); // Skip in tests.
-#endif // XR_DISABLED
 	initialize_modules(MODULE_INITIALIZATION_LEVEL_SERVERS);
 	GDExtensionManager::get_singleton()->initialize_extensions(GDExtension::INITIALIZATION_LEVEL_SERVERS);
 
@@ -1815,26 +1805,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			skip_breakpoints = true;
 		} else if (I->get() == "--ignore-error-breaks") {
 			ignore_error_breaks = true;
-#ifndef XR_DISABLED
-		} else if (arg == "--xr-mode") {
-			if (N) {
-				String xr_mode = N->get().to_lower();
-				N = N->next();
-				if (xr_mode == "default") {
-					XRServer::set_xr_mode(XRServer::XRMODE_DEFAULT);
-				} else if (xr_mode == "off") {
-					XRServer::set_xr_mode(XRServer::XRMODE_OFF);
-				} else if (xr_mode == "on") {
-					XRServer::set_xr_mode(XRServer::XRMODE_ON);
-				} else {
-					OS::get_singleton()->print("Unknown --xr-mode argument \"%s\", aborting.\n", xr_mode.ascii().get_data());
-					goto error;
-				}
-			} else {
-				OS::get_singleton()->print("Missing --xr-mode argument, aborting.\n");
-				goto error;
-			}
-#endif // XR_DISABLED
 		} else if (arg == "--benchmark") {
 			OS::get_singleton()->set_use_benchmark(true);
 		} else if (arg == "--benchmark-file") {
@@ -2778,43 +2748,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	GLOBAL_DEF("display/window/ios/hide_status_bar", true);
 	GLOBAL_DEF("display/window/ios/suppress_ui_gesture", true);
 
-#ifndef _3D_DISABLED
-	// XR project settings.
-	GLOBAL_DEF_RST_BASIC("xr/openxr/enabled", false);
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::STRING, "xr/openxr/default_action_map", PROPERTY_HINT_FILE, "*.tres"), "res://openxr_action_map.tres");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/form_factor", PROPERTY_HINT_ENUM, "Head Mounted,Handheld"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/view_configuration", PROPERTY_HINT_ENUM, "Mono,Stereo"), "1"); // "Mono,Stereo,Quad,Observer"
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/reference_space", PROPERTY_HINT_ENUM, "Local,Stage,Local Floor"), "1");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/environment_blend_mode", PROPERTY_HINT_ENUM, "Opaque,Additive,Alpha"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/foveation_level", PROPERTY_HINT_ENUM, "Off,Low,Medium,High"), "0");
-	GLOBAL_DEF_BASIC("xr/openxr/foveation_dynamic", false);
-
-	GLOBAL_DEF_BASIC("xr/openxr/submit_depth_buffer", false);
-	GLOBAL_DEF_BASIC("xr/openxr/startup_alert", true);
-
-	// OpenXR project extensions settings.
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/debug_utils", PROPERTY_HINT_ENUM, "Disabled,Error,Warning,Info,Verbose"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/debug_message_types", PROPERTY_HINT_FLAGS, "General,Validation,Performance,Conformance"), "15");
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking_unobstructed_data_source", false); // XR_HAND_TRACKING_DATA_SOURCE_UNOBSTRUCTED_EXT
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking_controller_data_source", false); // XR_HAND_TRACKING_DATA_SOURCE_CONTROLLER_EXT
-	GLOBAL_DEF_RST_BASIC("xr/openxr/extensions/hand_interaction_profile", false);
-	GLOBAL_DEF_RST_BASIC("xr/openxr/extensions/eye_gaze_interaction", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/render_model", false);
-
-	// OpenXR Binding modifier settings
-	GLOBAL_DEF_BASIC("xr/openxr/binding_modifiers/analog_threshold", false);
-	GLOBAL_DEF_RST_BASIC("xr/openxr/binding_modifiers/dpad_binding", false);
-
-#ifdef TOOLS_ENABLED
-	// Disabled for now, using XR inside of the editor we'll be working on during the coming months.
-
-	// editor settings (it seems we're too early in the process when setting up rendering, to access editor settings...)
-	// EDITOR_DEF_RST("xr/openxr/in_editor", false);
-	// GLOBAL_DEF("xr/openxr/in_editor", false);
-#endif // TOOLS_ENABLED
-#endif // _3D_DISABLED
-
 	Engine::get_singleton()->set_frame_delay(frame_delay);
 
 	message_queue = memnew(MessageQueue);
@@ -3431,18 +3364,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 
 		OS::get_singleton()->benchmark_end_measure("Servers", "Audio");
 	}
-
-#ifndef XR_DISABLED
-	/* Initialize XR Server */
-
-	{
-		OS::get_singleton()->benchmark_begin_measure("Servers", "XR");
-
-		xr_server = memnew(XRServer);
-
-		OS::get_singleton()->benchmark_end_measure("Servers", "XR");
-	}
-#endif // XR_DISABLED
 
 	OS::get_singleton()->benchmark_end_measure("Startup", "Servers");
 
@@ -4711,9 +4632,6 @@ bool Main::iteration() {
 	bool exit = false;
 
 	// process all our active interfaces
-#ifndef XR_DISABLED
-	XRServer::get_singleton()->_process();
-#endif // XR_DISABLED
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
@@ -4996,14 +4914,6 @@ void Main::cleanup(bool p_force) {
 	//clear global shader variables before scene and other graphics stuff are deinitialized.
 	rendering_server->global_shader_parameters_clear();
 
-#ifndef XR_DISABLED
-	if (xr_server) {
-		// Now that we're unregistering properly in plugins we need to keep access to xr_server for a little longer
-		// We do however unset our primary interface
-		xr_server->set_primary_interface(Ref<XRInterface>());
-	}
-#endif // XR_DISABLED
-
 #ifdef TOOLS_ENABLED
 	GDExtensionManager::get_singleton()->deinitialize_extensions(GDExtension::INITIALIZATION_LEVEL_EDITOR);
 	uninitialize_modules(MODULE_INITIALIZATION_LEVEL_EDITOR);
@@ -5036,12 +4946,6 @@ void Main::cleanup(bool p_force) {
 	unregister_server_types();
 
 	EngineDebugger::deinitialize();
-
-#ifndef XR_DISABLED
-	if (xr_server) {
-		memdelete(xr_server);
-	}
-#endif // XR_DISABLED
 
 	if (audio_server) {
 		audio_server->finish();

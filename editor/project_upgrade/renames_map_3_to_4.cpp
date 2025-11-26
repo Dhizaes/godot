@@ -72,16 +72,6 @@ const char *RenamesMap3To4::enum_renames[][2] = {
 	{ "ALIGN_CENTER", "ALIGNMENT_CENTER" }, // AspectRatioContainer
 	{ "ALIGN_END", "ALIGNMENT_END" }, // AspectRatioContainer
 	{ "ARRAY_COMPRESS_BASE", "ARRAY_COMPRESS_FLAGS_BASE" }, // Mesh
-	{ "ARVR_AR", "XR_AR" }, // XRInterface
-	{ "ARVR_EXCESSIVE_MOTION", "XR_EXCESSIVE_MOTION" }, // XRInterface
-	{ "ARVR_EXTERNAL", "XR_EXTERNAL" }, // XRInterface
-	{ "ARVR_INSUFFICIENT_FEATURES", "XR_INSUFFICIENT_FEATURES" }, // XRInterface
-	{ "ARVR_MONO", "XR_MONO" }, // XRInterface
-	{ "ARVR_NONE", "XR_NONE" }, // XRInterface
-	{ "ARVR_NORMAL_TRACKING", "XR_NORMAL_TRACKING" }, // XRInterface
-	{ "ARVR_NOT_TRACKING", "XR_NOT_TRACKING" }, // XRInterface
-	{ "ARVR_STEREO", "XR_STEREO" }, // XRInterface
-	{ "ARVR_UNKNOWN_TRACKING", "XR_UNKNOWN_TRACKING" }, // XRInterface
 	{ "BAKE_ERROR_INVALID_MESH", "BAKE_ERROR_MESHES_INVALID" }, // LightmapGI
 	{ "BODY_MODE_CHARACTER", "BODY_MODE_RIGID_LINEAR" }, // PhysicsServer
 	{ "CLEAR_MODE_ONLY_NEXT_FRAME", "CLEAR_MODE_ONCE" }, // SubViewport
@@ -150,7 +140,6 @@ const char *RenamesMap3To4::enum_renames[][2] = {
 	{ "FFT_Size", "FFTSize" }, // AudioEffectPitchShift, AudioEffectSpectrumAnalyzer
 	{ "PauseMode", "ProcessMode" }, // Node
 	{ "TimerProcessMode", "TimerProcessCallback" }, // Timer
-	{ "Tracking_status", "TrackingStatus" }, // XRInterface
 	{ nullptr, nullptr },
 };
 
@@ -362,7 +351,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "get_preset_name", "_get_preset_name" }, // EditorImportPlugin
 	{ "get_recognized_extensions", "_get_recognized_extensions" }, // ResourceFormatLoader, EditorImportPlugin -- Breaks ResourceSaver.
 	{ "get_render_info", "get_rendering_info" }, // RenderingServer
-	{ "get_render_targetsize", "get_render_target_size" }, // XRInterface
 	{ "get_resource_type", "_get_resource_type" }, // ResourceFormatLoader
 	{ "get_result", "get_data" }, // JSON
 	{ "get_reverb_bus", "set_reverb_bus_name" }, // Area3D
@@ -531,8 +519,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "set_interior_ambient", "set_ambient_color" }, // ReflectionProbe
 	{ "set_interior_ambient_energy", "set_ambient_color_energy" }, // ReflectionProbe
 	{ "set_invert_faces", "set_flip_faces" }, // CSGPrimitive3D
-	{ "set_is_initialized", "_is_initialized" }, // XRInterface
-	{ "set_is_primary", "set_primary" }, // XRInterface
 	{ "set_item_navmesh", "set_item_navigation_mesh" }, // MeshLibrary
 	{ "set_item_navmesh_transform", "set_item_navigation_mesh_transform" }, // MeshLibrary
 	{ "set_iterations_per_second", "set_physics_ticks_per_second" }, // Engine
@@ -590,7 +576,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "unselect_all", "deselect_all" }, // ItemList
 	{ "update_configuration_warning", "update_configuration_warnings" }, // Node
 	{ "update_gizmo", "update_gizmos" }, // Node3D
-	{ "viewport_set_use_arvr", "viewport_set_use_xr" }, // RenderingServer
 	{ "warp_mouse_position", "warp_mouse" }, // Input
 	{ "world_to_map", "local_to_map" }, // TileMap, GridMap
 
@@ -783,7 +768,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "GetPresetName", "_GetPresetName" }, // EditorImportPlugin
 	{ "GetRecognizedExtensions", "_GetRecognizedExtensions" }, // ResourceFormatLoader, EditorImportPlugin -- Breaks ResourceSaver.
 	{ "GetRenderInfo", "GetRenderingInfo" }, // RenderingServer
-	{ "GetRenderTargetsize", "GetRenderTargetSize" }, // XRInterface
 	{ "GetResourceType", "_GetResourceType" }, // ResourceFormatLoader
 	{ "GetResult", "GetData" }, // JSON
 	{ "GetReverbBus", "GetReverbBusName" }, // Area3D
@@ -942,8 +926,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "SetIconAlign", "SetIconAlignment" }, // Button
 	{ "SetInteriorAmbient", "SetAmbientColor" }, // ReflectionProbe
 	{ "SetInteriorAmbientEnergy", "SetAmbientColorEnergy" }, // ReflectionProbe
-	{ "SetIsInitialized", "_IsInitialized" }, // XRInterface
-	{ "SetIsPrimary", "SetPrimary" }, // XRInterface
 	{ "SetItemNavmesh", "SetItemNavigationMesh" }, // MeshLibrary
 	{ "SetItemNavmeshTransform", "SetItemNavigationMeshTransform" }, // MeshLibrary
 	{ "SetIterationsPerSecond", "SetPhysicsTicksPerSecond" }, // Engine
@@ -1002,7 +984,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "UnselectAll", "DeselectAll" }, // ItemList
 	{ "UpdateConfigurationWarning", "UpdateConfigurationWarnings" }, // Node
 	{ "UpdateGizmo", "UpdateGizmos" }, // Node3D
-	{ "ViewportSetUseArvr", "ViewportSetUseXr" }, // RenderingServer
 	{ "WarpMousePosition", "WarpMouse" }, // Input
 	{ "WorldToMap", "LocalToMap" }, // TileMap, GridMap
 
@@ -1467,14 +1448,6 @@ const char *RenamesMap3To4::class_renames[][2] = {
 	{ "Shape", "Shape3D" },
 	{ "Tabs", "TabBar" },
 
-	{ "ARVRAnchor", "XRAnchor3D" },
-	{ "ARVRCamera", "XRCamera3D" },
-	{ "ARVRController", "XRController3D" },
-	{ "ARVRInterface", "XRInterface" },
-	{ "ARVRInterfaceGDNative", "Node3D" },
-	{ "ARVROrigin", "XROrigin3D" },
-	{ "ARVRPositionalTracker", "XRPositionalTracker" },
-	{ "ARVRServer", "XRServer" },
 	{ "AStar", "AStar3D" },
 	{ "AnimatedSprite", "AnimatedSprite2D" },
 	{ "AudioStreamOGGVorbis", "AudioStreamOggVorbis" },

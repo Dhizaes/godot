@@ -51,10 +51,6 @@
 #include "main/main.h"
 #include "servers/rendering_server.h"
 
-#ifndef XR_DISABLED
-#include "servers/xr_server.h"
-#endif // XR_DISABLED
-
 #ifdef TOOLS_ENABLED
 #include "editor/settings/editor_settings.h"
 #endif
@@ -274,19 +270,7 @@ JNIEXPORT jboolean JNICALL Java_org_godotengine_godot_GodotLib_step(JNIEnv *env,
 	}
 
 	if (step.get() == STEP_SHOW_LOGO) {
-		bool xr_enabled = false;
-#ifndef XR_DISABLED
-		// Unlike PCVR, there's no additional 2D screen onto which to render the boot logo,
-		// so we skip this step if xr is enabled.
-		if (XRServer::get_xr_mode() == XRServer::XRMODE_DEFAULT) {
-			xr_enabled = GLOBAL_GET_CACHED(bool, "xr/shaders/enabled");
-		} else {
-			xr_enabled = XRServer::get_xr_mode() == XRServer::XRMODE_ON;
-		}
-#endif // XR_DISABLED
-		if (!xr_enabled) {
-			Main::setup_boot_logo();
-		}
+		Main::setup_boot_logo();
 
 		step.increment();
 		return true;

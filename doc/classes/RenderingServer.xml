@@ -4263,14 +4263,6 @@
 				If [code]true[/code], use temporal antialiasing. Equivalent to [member ProjectSettings.rendering/anti_aliasing/quality/use_taa] or [member Viewport.use_taa].
 			</description>
 		</method>
-		<method name="viewport_set_use_xr">
-			<return type="void" />
-			<param index="0" name="viewport" type="RID" />
-			<param index="1" name="use_xr" type="bool" />
-			<description>
-				If [code]true[/code], the viewport uses augmented or virtual reality technologies. See [XRInterface].
-			</description>
-		</method>
 		<method name="viewport_set_vrs_mode">
 			<return type="void" />
 			<param index="0" name="viewport" type="RID" />
@@ -5318,9 +5310,6 @@
 		</constant>
 		<constant name="VIEWPORT_VRS_TEXTURE" value="1" enum="ViewportVRSMode">
 			Variable rate shading uses a texture. Note, for stereoscopic use a texture atlas with a texture for each view.
-		</constant>
-		<constant name="VIEWPORT_VRS_XR" value="2" enum="ViewportVRSMode">
-			Variable rate shading texture is supplied by the primary [XRInterface]. Note that this may override the update mode.
 		</constant>
 		<constant name="VIEWPORT_VRS_MAX" value="3" enum="ViewportVRSMode">
 			Represents the size of the [enum ViewportVRSMode] enum.
