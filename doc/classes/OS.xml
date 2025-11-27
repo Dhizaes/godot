@@ -892,9 +892,6 @@
 		<constant name="RENDERING_DRIVER_VULKAN" value="0" enum="RenderingDriver">
 			The Vulkan rendering driver. It requires Vulkan 1.0 support and automatically uses features from Vulkan 1.1 and 1.2 if available.
 		</constant>
-		<constant name="RENDERING_DRIVER_D3D12" value="2" enum="RenderingDriver">
-			The Direct3D 12 rendering driver.
-		</constant>
 		<constant name="RENDERING_DRIVER_METAL" value="3" enum="RenderingDriver">
 			The Metal rendering driver.
 		</constant>

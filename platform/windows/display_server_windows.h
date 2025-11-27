@@ -222,8 +222,7 @@ class DisplayServerWindows : public DisplayServer {
 	bool winink_disabled = false;
 
 	enum DriverID {
-		DRIVER_ID_COMPAT_ANGLE_D3D11 = 1 << 0,
-		DRIVER_ID_RD_VULKAN = 1 << 1,
+		DRIVER_ID_RD_VULKAN = 1 << 0,
 	};
 	static BitField<DriverID> tested_drivers;
 

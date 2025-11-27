@@ -6860,8 +6860,9 @@ Error RenderingDevice::initialize(RenderingContextDriver *p_context, DisplayServ
 	bool project_pipeline_cache_enable = GLOBAL_GET("rendering/rendering_device/pipeline_cache/enable");
 	if (is_main_instance && project_pipeline_cache_enable) {
 		// Only the instance that is not a local device and is also the singleton is allowed to manage a pipeline cache.
+		String current_rendering_method = "forward_plus";
 		pipeline_cache_file_path = vformat("user://vulkan/pipelines.%s.%s",
-				OS::get_singleton()->get_current_rendering_method(),
+				current_rendering_method,
 				device.name.validate_filename().replace_char(' ', '_').to_lower());
 		if (Engine::get_singleton()->is_editor_hint()) {
 			pipeline_cache_file_path += ".editor";

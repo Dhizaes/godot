@@ -188,7 +188,6 @@ String display_driver = "";
 String tablet_driver = "";
 String text_driver = "";
 String rendering_driver = "";
-String rendering_method = "";
 static int text_driver_idx = -1;
 static int audio_driver_idx = -1;
 
@@ -1030,7 +1029,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	bool delta_smoothing_override = false;
 	bool load_shell_env = false;
 
-	String default_renderer = "";
 	String renderer_hints = "";
 
 	packed_data = PackedData::get_singleton();
@@ -1211,14 +1209,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 				N = N->next();
 			} else {
 				OS::get_singleton()->print("Missing display driver argument, aborting.\n");
-				goto error;
-			}
-		} else if (arg == "--rendering-method") {
-			if (N) {
-				rendering_method = N->get();
-				N = N->next();
-			} else {
-				OS::get_singleton()->print("Missing renderer name argument, aborting.\n");
 				goto error;
 			}
 		} else if (arg == "--rendering-driver") {
@@ -2164,8 +2154,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.windows", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.linuxbsd", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.macos", PROPERTY_HINT_ENUM, "metal,vulkan"), "metal");
-
-		GLOBAL_DEF_RST("rendering/rendering_device/fallback_to_vulkan", true);
 	}
 
 	// Start with RenderingDevice-based backends.
@@ -2173,27 +2161,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	renderer_hints = "forward_plus";
 #endif
 
-	if (!rendering_method.is_empty()) {
-		if (rendering_method != "forward_plus" &&
-				rendering_method != "dummy") {
-			OS::get_singleton()->print("Unknown rendering method '%s', aborting.\nValid options are ",
-					rendering_method.utf8().get_data());
-
-			Vector<String> rendering_method_hints = renderer_hints.split(",");
-			rendering_method_hints.push_back("dummy");
-			for (int i = 0; i < rendering_method_hints.size(); i++) {
-				if (i == rendering_method_hints.size() - 1) {
-					OS::get_singleton()->print(" and ");
-				} else if (i != 0) {
-					OS::get_singleton()->print(", ");
-				}
-				OS::get_singleton()->print("'%s'", rendering_method_hints[i].utf8().get_data());
-			}
-
-			OS::get_singleton()->print(".\n");
-			goto error;
-		}
-	}
 	if (renderer_hints.is_empty()) {
 		renderer_hints = "dummy";
 	}
@@ -2245,33 +2212,17 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			goto error;
 		}
 
-		// Set a default renderer if none selected. Try to choose one that matches the driver.
-		if (rendering_method.is_empty()) {
-			if (rendering_driver == "dummy") {
-				rendering_method = "dummy";
-			} else {
-				rendering_method = "forward_plus";
-			}
-		}
-
 		// Now validate whether the selected driver matches with the renderer.
 		bool valid_combination = false;
 		Vector<String> available_drivers;
-		if (rendering_method == "forward_plus") {
+
 #ifdef VULKAN_ENABLED
-			available_drivers.push_back("vulkan");
+		available_drivers.push_back("vulkan");
 #endif
 #ifdef METAL_ENABLED
-			available_drivers.push_back("metal");
+		available_drivers.push_back("metal");
 #endif
-		}
-		if (rendering_method == "dummy") {
-			available_drivers.push_back("dummy");
-		}
-		if (available_drivers.is_empty()) {
-			OS::get_singleton()->print("Unknown renderer name '%s', aborting.\n", rendering_method.utf8().get_data());
-			goto error;
-		}
+
 
 		for (int i = 0; i < available_drivers.size(); i++) {
 			if (rendering_driver == available_drivers[i]) {
@@ -2279,41 +2230,14 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 				break;
 			}
 		}
-
-		if (!valid_combination) {
-			OS::get_singleton()->print("Invalid renderer/driver combination '%s' and '%s', aborting. %s only supports the following drivers ", rendering_method.utf8().get_data(), rendering_driver.utf8().get_data(), rendering_method.utf8().get_data());
-
-			for (int d = 0; d < available_drivers.size(); d++) {
-				OS::get_singleton()->print("'%s', ", available_drivers[d].utf8().get_data());
-			}
-
-			OS::get_singleton()->print(".\n");
-
-			goto error;
-		}
-	}
-
-	default_renderer = renderer_hints.get_slicec(',', 0);
-	GLOBAL_DEF_RST_BASIC(PropertyInfo(Variant::STRING, "rendering/renderer/rendering_method", PROPERTY_HINT_ENUM, renderer_hints), default_renderer);
-
-	// Default to ProjectSettings default if nothing set on the command line.
-	if (rendering_method.is_empty()) {
-		rendering_method = GLOBAL_GET("rendering/renderer/rendering_method");
 	}
 
 	if (rendering_driver.is_empty()) {
-		if (rendering_method == "dummy") {
-			rendering_driver = "dummy";
-		} else {
-			rendering_driver = GLOBAL_GET("rendering/rendering_device/driver");
-		}
+		rendering_driver = GLOBAL_GET("rendering/rendering_device/driver");
 	}
 
 	// always convert to lower case for consistency in the code
 	rendering_driver = rendering_driver.to_lower();
-
-	OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
-	OS::get_singleton()->set_current_rendering_method(rendering_method);
 
 #ifdef TOOLS_ENABLED
 	if (!force_res && project_manager) {

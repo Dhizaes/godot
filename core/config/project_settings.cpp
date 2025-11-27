@@ -1115,14 +1115,6 @@ Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_cust
 	if (project_features.is_empty()) {
 		project_features = ProjectSettings::get_required_features();
 	}
-	// Check the rendering API.
-	const String rendering_api = has_setting("rendering/renderer/rendering_method") ? (String)get_setting("rendering/renderer/rendering_method") : String();
-	if (!rendering_api.is_empty()) {
-		// Add the rendering API as a project feature if it doesn't already exist.
-		if (!project_features.has(rendering_api)) {
-			project_features.append(rendering_api);
-		}
-	}
 	// Check for the existence of a csproj file.
 	if (_csproj_exists(get_resource_path())) {
 		// If there is a csproj file, add the C# feature if it doesn't already exist.

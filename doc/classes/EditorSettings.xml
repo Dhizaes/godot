@@ -1179,9 +1179,6 @@
 			If [code]true[/code], enable TLSv1.3 negotiation.
 			[b]Note:[/b] Only supported when using Mbed TLS 3.0 or later (Linux distribution packages may be compiled against older system Mbed TLS packages), otherwise the maximum supported TLS version is always TLSv1.2.
 		</member>
-		<member name="project_manager/default_renderer" type="String" setter="" getter="">
-			The renderer type that will be checked off by default when creating a new project. Accepted string is "forward_plus" only.
-		</member>
 		<member name="project_manager/directory_naming_convention" type="int" setter="" getter="">
 			Directory naming convention for the project manager. Options are "No convention" (project name is directory name), "kebab-case" (default), "snake_case", "camelCase", "PascalCase", or "Title Case".
 		</member>
@@ -1207,13 +1204,6 @@
 		</member>
 		<member name="run/output/max_lines" type="int" setter="" getter="">
 			Maximum number of lines to show at any one time in the Output panel.
-		</member>
-		<member name="run/window_placement/android_window" type="int" setter="" getter="">
-			Specifies how the Play window is launched relative to the Android editor.
-			- [b]Auto (based on screen size)[/b] (default) will automatically choose how to launch the Play window based on the device and screen metrics. Defaults to [b]Same as Editor[/b] on phones and [b]Side-by-side with Editor[/b] on tablets.
-			- [b]Same as Editor[/b] will launch the Play window in the same window as the Editor.
-			- [b]Side-by-side with Editor[/b] will launch the Play window side-by-side with the Editor window.
-			[b]Note:[/b] Only available in the Android editor.
 		</member>
 		<member name="run/window_placement/game_embed_mode" type="int" setter="" getter="">
 			Overrides game embedding setting for all newly opened projects. If enabled, game embedding settings are not saved.

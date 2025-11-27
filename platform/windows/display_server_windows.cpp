@@ -6846,7 +6846,6 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 	}
 
 #if defined(RD_ENABLED)
-	[[maybe_unused]] bool fallback_to_vulkan = GLOBAL_GET("rendering/rendering_device/fallback_to_vulkan");
 
 #if defined(VULKAN_ENABLED)
 	if (rendering_driver == "vulkan") {
@@ -6854,24 +6853,11 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 		tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
 	}
 #endif
-	fallback_to_vulkan = true; // Always enable fallback if engine was built w/o other driver support.
 
 	if (rendering_context) {
 		if (rendering_context->initialize() != OK) {
 			bool failed = true;
-#if defined(VULKAN_ENABLED)
-			if (failed && fallback_to_vulkan && rendering_driver != "vulkan") {
-				memdelete(rendering_context);
-				rendering_context = memnew(RenderingContextDriverVulkanWindows);
-				tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
-				if (rendering_context->initialize() == OK) {
-					WARN_PRINT("Switching to Vulkan.");
-					rendering_driver = "vulkan";
-					OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
-					failed = false;
-				}
-			}
-#endif
+
 			if (failed) {
 				memdelete(rendering_context);
 				rendering_context = nullptr;

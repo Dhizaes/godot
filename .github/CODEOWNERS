@@ -27,10 +27,7 @@
 /drivers/xaudio2/                             @godotengine/audio
 
 ## Rendering
-/drivers/d3d12/                               @godotengine/rendering
 /drivers/dummy/                               @godotengine/rendering
-/drivers/egl/                                 @godotengine/rendering
-/drivers/gles3/                               @godotengine/rendering
 /drivers/metal/                               @godotengine/rendering
 /drivers/spirv-reflect/                       @godotengine/rendering
 /drivers/vulkan/                              @godotengine/rendering

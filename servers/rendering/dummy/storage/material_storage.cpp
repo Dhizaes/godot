@@ -121,8 +121,7 @@ void MaterialStorage::global_shader_parameters_load_settings(bool p_load_texture
 				"sampler2D",
 				"sampler2DArray",
 				"sampler3D",
-				"samplerCube",
-				"samplerExternalOES"
+				"samplerCube"
 			};
 
 			RS::GlobalShaderParameterType gvtype = RS::GLOBAL_VAR_TYPE_MAX;
