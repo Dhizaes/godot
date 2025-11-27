@@ -3424,8 +3424,6 @@ Vector<String> DisplayServerMacOS::get_rendering_drivers_func() {
 	drivers.push_back("metal");
 #endif
 
-	drivers.push_back("dummy");
-
 	return drivers;
 }
 

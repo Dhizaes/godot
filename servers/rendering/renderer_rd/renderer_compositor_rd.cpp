@@ -324,8 +324,6 @@ RendererCompositorRD::RendererCompositorRD() {
 	fog = memnew(RendererRD::Fog);
 	canvas = memnew(RendererCanvasRenderRD());
 
-	uint64_t textures_per_stage = RD::get_singleton()->limit_get(RD::LIMIT_MAX_TEXTURES_PER_SHADER_STAGE);
-
 	scene = memnew(RendererSceneRenderImplementation::RenderForwardClustered());
 
 	scene->init();

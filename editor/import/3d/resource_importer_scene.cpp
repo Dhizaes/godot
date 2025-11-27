@@ -419,12 +419,6 @@ static bool _teststr(const String &p_what, const String &p_str) {
 	if (what.containsn("$" + p_str)) { // Blender and other stuff.
 		return true;
 	}
-	if (what.to_lower().ends_with("-" + p_str)) { //collada only supports "_" and "-" besides letters
-		return true;
-	}
-	if (what.to_lower().ends_with("_" + p_str)) { //collada only supports "_" and "-" besides letters
-		return true;
-	}
 	return false;
 }
 
@@ -441,12 +435,6 @@ static String _fixstr(const String &p_what, const String &p_str) {
 
 	if (what.containsn("$" + p_str)) { // Blender and other stuff.
 		return what.replace("$" + p_str, "") + end;
-	}
-	if (what.to_lower().ends_with("-" + p_str)) { //collada only supports "_" and "-" besides letters
-		return what.substr(0, what.length() - (p_str.length() + 1)) + end;
-	}
-	if (what.to_lower().ends_with("_" + p_str)) { //collada only supports "_" and "-" besides letters
-		return what.substr(0, what.length() - (p_str.length() + 1)) + end;
 	}
 	return what;
 }

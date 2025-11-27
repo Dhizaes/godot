@@ -5255,7 +5255,6 @@ ShaderLanguage::DataType ShaderLanguage::get_scalar_type(DataType p_type) {
 		TYPE_UINT,
 		TYPE_FLOAT,
 		TYPE_FLOAT,
-		TYPE_FLOAT,
 		TYPE_VOID,
 	};
 
@@ -5286,7 +5285,6 @@ int ShaderLanguage::get_cardinality(DataType p_type) {
 		4,
 		9,
 		16,
-		1,
 		1,
 		1,
 		1,

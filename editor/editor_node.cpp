@@ -110,7 +110,6 @@
 #include "editor/gui/editor_toaster.h"
 #include "editor/gui/progress_dialog.h"
 #include "editor/gui/window_wrapper.h"
-#include "editor/import/3d/editor_import_collada.h"
 #include "editor/import/3d/resource_importer_obj.h"
 #include "editor/import/3d/resource_importer_scene.h"
 #include "editor/import/3d/scene_import_settings.h"
@@ -7514,10 +7513,6 @@ EditorNode::EditorNode() {
 		ResourceFormatImporter::get_singleton()->add_importer(import_animation);
 
 		{
-			Ref<EditorSceneFormatImporterCollada> import_collada;
-			import_collada.instantiate();
-			ResourceImporterScene::add_scene_importer(import_collada);
-
 			Ref<EditorOBJImporter> import_obj2;
 			import_obj2.instantiate();
 			ResourceImporterScene::add_scene_importer(import_obj2);

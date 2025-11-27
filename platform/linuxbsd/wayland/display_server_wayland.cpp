@@ -1838,11 +1838,6 @@ DisplayServerWayland::DisplayServerWayland(const String &p_rendering_driver, Win
 	bool driver_found = false;
 	String executable_name = OS::get_singleton()->get_executable_path().get_file();
 
-	if (rendering_driver == "dummy") {
-		RasterizerDummy::make_current();
-		driver_found = true;
-	}
-
 #ifdef RD_ENABLED
 #ifdef VULKAN_ENABLED
 	rendering_context = memnew(RenderingContextDriverVulkanWayland);
@@ -1857,9 +1852,7 @@ DisplayServerWayland::DisplayServerWayland(const String &p_rendering_driver, Win
 
 				OS::get_singleton()->alert(
 						vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
-								"If possible, consider updating your video card drivers or using the OpenGL 3 driver.\n\n"
-								"You can enable the OpenGL 3 driver by starting the engine from the\n"
-								"command line with the command:\n\n    \"%s\" --rendering-driver opengl3\n\n"
+								"If possible, consider updating your video card drivers.\n\n"
 								"If you recently updated your video card drivers, try rebooting.",
 								executable_name),
 						"Unable to initialize Vulkan video driver");
