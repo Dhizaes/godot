@@ -1258,9 +1258,43 @@ GameView::GameView(Ref<GameViewDebugger> p_debugger, EmbeddedProcessBase *p_embe
 
 void GameViewPluginBase::selected_notify() {
 	if (_is_window_wrapper_enabled()) {
+		notify_main_screen_changed(get_plugin_name());
 		window_wrapper->grab_window_focus();
 		_focus_another_editor();
 	}
+}
+
+void GameViewPluginBase::make_visible(bool p_visible) {
+	if (p_visible) {
+		window_wrapper->show();
+	} else {
+		window_wrapper->hide();
+	}
+}
+
+void GameViewPluginBase::set_window_layout(Ref<ConfigFile> p_layout) {
+	game_view->set_window_layout(p_layout);
+}
+
+void GameViewPluginBase::get_window_layout(Ref<ConfigFile> p_layout) {
+	game_view->get_window_layout(p_layout);
+}
+
+void GameViewPluginBase::setup(Ref<GameViewDebugger> p_debugger, EmbeddedProcessBase *p_embedded_process) {
+	debugger = p_debugger;
+
+	window_wrapper = memnew(WindowWrapper);
+	window_wrapper->set_margins_enabled(true);
+
+	game_view = memnew(GameView(debugger, p_embedded_process, window_wrapper));
+	game_view->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+
+	window_wrapper->set_wrapped_control(game_view, nullptr);
+
+	EditorNode::get_singleton()->get_editor_main_screen()->get_control()->add_child(window_wrapper);
+	window_wrapper->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+	window_wrapper->hide();
+	window_wrapper->connect("window_visibility_changed", callable_mp(this, &GameViewPlugin::_focus_another_editor).unbind(1));
 }
 
 void GameViewPluginBase::_notification(int p_what) {
@@ -1299,8 +1333,13 @@ bool GameViewPluginBase::_is_window_wrapper_enabled() const {
 }
 
 GameViewPluginBase::GameViewPluginBase() {
+	debugger.instantiate();
 }
 
 GameViewPlugin::GameViewPlugin() :
 		GameViewPluginBase() {
+	Ref<GameViewDebugger> game_view_debugger;
+	game_view_debugger.instantiate();
+	EmbeddedProcess *embedded_process = memnew(EmbeddedProcess);
+	setup(game_view_debugger, embedded_process);
 }
