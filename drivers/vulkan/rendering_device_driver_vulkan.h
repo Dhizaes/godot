@@ -140,11 +140,7 @@ class RenderingDeviceDriverVulkan : public RenderingDeviceDriver {
 #if defined(VK_TRACK_DEVICE_MEMORY)
 	bool device_memory_report_support = false;
 #endif
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-	// Swappy frame pacer for Android.
-	bool swappy_frame_pacer_enable = false;
-	uint8_t swappy_mode = 2; // See default value for display/window/frame_pacing/android/swappy_mode.
-#endif
+
 	DeviceFunctions device_functions;
 
 	void _register_requested_device_extension(const CharString &p_extension_name, bool p_required);

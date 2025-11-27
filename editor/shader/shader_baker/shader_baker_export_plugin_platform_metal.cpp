@@ -41,9 +41,6 @@ RenderingShaderContainerFormat *ShaderBakerExportPluginPlatformMetal::create_sha
 		profile = MetalDeviceProfile::get_profile(MetalDeviceProfile::Platform::macOS, MetalDeviceProfile::GPU::Apple7);
 		// Godot metal doesn't support x86_64 mac so no need to worry about that version
 		min_os_version = p_preset->get("application/min_macos_version_arm64");
-	} else if (os_name == U"iOS") {
-		profile = MetalDeviceProfile::get_profile(MetalDeviceProfile::Platform::iOS, MetalDeviceProfile::GPU::Apple7);
-		min_os_version = p_preset->get("application/min_ios_version");
 	} else {
 		ERR_FAIL_V_MSG(nullptr, vformat("Unsupported platform: %s", os_name));
 	}

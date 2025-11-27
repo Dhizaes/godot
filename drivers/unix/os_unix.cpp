@@ -92,7 +92,7 @@
 #define GODOT_DLOPEN_MODE RTLD_NOW
 #endif
 
-#if defined(MACOS_ENABLED) || (defined(__ANDROID_API__) && __ANDROID_API__ >= 28)
+#if defined(MACOS_ENABLED)
 // Random location for getentropy. Fitting.
 #include <sys/random.h>
 #define UNIX_GET_ENTROPY

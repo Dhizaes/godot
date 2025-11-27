@@ -7052,9 +7052,6 @@ DisplayServer *DisplayServerWindows::create_func(const String &p_rendering_drive
 					"Unable to initialize video driver");
 		} else {
 			Vector<String> drivers;
-			if (tested_drivers.has_flag(DRIVER_ID_COMPAT_OPENGL3)) {
-				drivers.push_back("OpenGL 3.3");
-			}
 			OS::get_singleton()->alert(
 					vformat(
 							"Your video card drivers seem not to support the required %s version.\n\n"

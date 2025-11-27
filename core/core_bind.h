@@ -172,7 +172,6 @@ protected:
 public:
 	enum RenderingDriver {
 		RENDERING_DRIVER_VULKAN,
-		RENDERING_DRIVER_OPENGL3,
 		RENDERING_DRIVER_METAL,
 	};
 

@@ -36,10 +36,6 @@
 
 #include "thirdparty/misc/smolv.h"
 
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-#include "thirdparty/swappy-frame-pacing/swappyVk.h"
-#endif
-
 #define ARRAY_SIZE(a) std::size(a)
 
 #define PRINT_NATIVE_COMMANDS 0
@@ -565,37 +561,6 @@ Error RenderingDeviceDriverVulkan::_initialize_device_extensions() {
 	device_extensions.resize(device_extension_count);
 	err = vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &device_extension_count, device_extensions.ptr());
 	ERR_FAIL_COND_V(err != VK_SUCCESS, ERR_CANT_CREATE);
-
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-	if (swappy_frame_pacer_enable) {
-		char **swappy_required_extensions;
-		uint32_t swappy_required_extensions_count = 0;
-		// Determine number of extensions required by Swappy frame pacer.
-		SwappyVk_determineDeviceExtensions(physical_device, device_extension_count, device_extensions.ptr(), &swappy_required_extensions_count, nullptr);
-
-		if (swappy_required_extensions_count < device_extension_count) {
-			// Determine the actual extensions.
-			swappy_required_extensions = (char **)malloc(swappy_required_extensions_count * sizeof(char *));
-			char *pRequiredExtensionsData = (char *)malloc(swappy_required_extensions_count * (VK_MAX_EXTENSION_NAME_SIZE + 1));
-			for (uint32_t i = 0; i < swappy_required_extensions_count; i++) {
-				swappy_required_extensions[i] = &pRequiredExtensionsData[i * (VK_MAX_EXTENSION_NAME_SIZE + 1)];
-			}
-			SwappyVk_determineDeviceExtensions(physical_device, device_extension_count,
-					device_extensions.ptr(), &swappy_required_extensions_count, swappy_required_extensions);
-
-			// Enable extensions requested by Swappy.
-			for (uint32_t i = 0; i < swappy_required_extensions_count; i++) {
-				CharString extension_name(swappy_required_extensions[i]);
-				if (requested_device_extensions.has(extension_name)) {
-					enabled_device_extension_names.insert(extension_name);
-				}
-			}
-
-			free(pRequiredExtensionsData);
-			free(swappy_required_extensions);
-		}
-	}
-#endif
 
 #ifdef DEV_ENABLED
 	for (uint32_t i = 0; i < device_extension_count; i++) {
@@ -1559,18 +1524,6 @@ Error RenderingDeviceDriverVulkan::initialize(uint32_t p_device_index, uint32_t 
 
 #if defined(DEBUG_ENABLED) || defined(DEV_ENABLED)
 	breadcrumb_buffer = buffer_create(2u * sizeof(uint32_t) * BREADCRUMB_BUFFER_ENTRIES, BufferUsageBits::BUFFER_USAGE_TRANSFER_TO_BIT, MemoryAllocationType::MEMORY_ALLOCATION_TYPE_CPU);
-#endif
-
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-	swappy_frame_pacer_enable = GLOBAL_GET("display/window/frame_pacing/android/enable_frame_pacing");
-	swappy_mode = GLOBAL_GET("display/window/frame_pacing/android/swappy_mode");
-
-	if (VulkanHooks::get_singleton() != nullptr) {
-		// Hooks control device creation & possibly presentation
-		// (e.g. OpenXR) thus it's too risky to use Swappy.
-		swappy_frame_pacer_enable = false;
-		OS::get_singleton()->print("VulkanHooks detected (e.g. OpenXR): Force-disabling Swappy Frame Pacing.\n");
-	}
 #endif
 
 	shader_container_format.set_debug_info_enabled(Engine::get_singleton()->is_generate_spirv_debug_info_enabled());
@@ -2645,14 +2598,6 @@ RDD::CommandQueueID RenderingDeviceDriverVulkan::command_queue_create(CommandQue
 
 	ERR_FAIL_COND_V_MSG(picked_queue_index >= queue_family.size(), CommandQueueID(), "A queue in the picked family could not be found.");
 
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-	if (swappy_frame_pacer_enable) {
-		VkQueue selected_queue;
-		vkGetDeviceQueue(vk_device, family_index, picked_queue_index, &selected_queue);
-		SwappyVk_setQueueFamilyIndex(vk_device, selected_queue, family_index);
-	}
-#endif
-
 	// Create the virtual queue.
 	CommandQueue *command_queue = memnew(CommandQueue);
 	command_queue->queue_family = family_index;
@@ -2784,15 +2729,7 @@ Error RenderingDeviceDriverVulkan::command_queue_execute_and_present(CommandQueu
 		present_info.pResults = results.ptr();
 
 		device_queue.submit_mutex.lock();
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-		if (swappy_frame_pacer_enable) {
-			err = SwappyVk_queuePresent(device_queue.queue, &present_info);
-		} else {
-			err = device_functions.QueuePresentKHR(device_queue.queue, &present_info);
-		}
-#else
 		err = device_functions.QueuePresentKHR(device_queue.queue, &present_info);
-#endif
 
 		device_queue.submit_mutex.unlock();
 
@@ -3002,14 +2939,6 @@ void RenderingDeviceDriverVulkan::_swap_chain_release(SwapChain *swap_chain) {
 	swap_chain->framebuffers.clear();
 
 	if (swap_chain->vk_swapchain != VK_NULL_HANDLE) {
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-		if (swappy_frame_pacer_enable) {
-			// Swappy has a bug where the ANativeWindow will be leaked if we call
-			// SwappyVk_destroySwapchain, so we must release it by hand.
-			SwappyVk_setWindow(vk_device, swap_chain->vk_swapchain, nullptr);
-			SwappyVk_destroySwapchain(vk_device, swap_chain->vk_swapchain);
-		}
-#endif
 		device_functions.DestroySwapchainKHR(vk_device, swap_chain->vk_swapchain, VKC::get_allocation_callbacks(VK_OBJECT_TYPE_SWAPCHAIN_KHR));
 		swap_chain->vk_swapchain = VK_NULL_HANDLE;
 	}
@@ -3277,36 +3206,6 @@ Error RenderingDeviceDriverVulkan::swap_chain_resize(CommandQueueID p_cmd_queue,
 	err = device_functions.CreateSwapchainKHR(vk_device, &swap_create_info, VKC::get_allocation_callbacks(VK_OBJECT_TYPE_SWAPCHAIN_KHR), &swap_chain->vk_swapchain);
 	ERR_FAIL_COND_V(err != VK_SUCCESS, ERR_CANT_CREATE);
 
-#if defined(SWAPPY_FRAME_PACING_ENABLED)
-	if (swappy_frame_pacer_enable) {
-		SwappyVk_initAndGetRefreshCycleDuration(get_jni_env(), static_cast<OS_Android *>(OS::get_singleton())->get_godot_java()->get_activity(), physical_device,
-				vk_device, swap_chain->vk_swapchain, &swap_chain->refresh_duration);
-		SwappyVk_setWindow(vk_device, swap_chain->vk_swapchain, static_cast<OS_Android *>(OS::get_singleton())->get_native_window());
-		SwappyVk_setSwapIntervalNS(vk_device, swap_chain->vk_swapchain, swap_chain->refresh_duration);
-
-		enum SwappyModes {
-			PIPELINE_FORCED_ON,
-			AUTO_FPS_PIPELINE_FORCED_ON,
-			AUTO_FPS_AUTO_PIPELINE,
-		};
-
-		switch (swappy_mode) {
-			case PIPELINE_FORCED_ON:
-				SwappyVk_setAutoSwapInterval(true);
-				SwappyVk_setAutoPipelineMode(true);
-				break;
-			case AUTO_FPS_PIPELINE_FORCED_ON:
-				SwappyVk_setAutoSwapInterval(true);
-				SwappyVk_setAutoPipelineMode(false);
-				break;
-			case AUTO_FPS_AUTO_PIPELINE:
-				SwappyVk_setAutoSwapInterval(false);
-				SwappyVk_setAutoPipelineMode(false);
-				break;
-		}
-	}
-#endif
-
 	uint32_t image_count = 0;
 	err = device_functions.GetSwapchainImagesKHR(vk_device, swap_chain->vk_swapchain, &image_count, nullptr);
 	ERR_FAIL_COND_V(err != VK_SUCCESS, ERR_CANT_CREATE);
@@ -3475,18 +3374,6 @@ RDD::DataFormat RenderingDeviceDriverVulkan::swap_chain_get_format(SwapChainID p
 
 void RenderingDeviceDriverVulkan::swap_chain_set_max_fps(SwapChainID p_swap_chain, int p_max_fps) {
 	DEV_ASSERT(p_swap_chain.id != 0);
-
-#ifdef SWAPPY_FRAME_PACING_ENABLED
-	if (!swappy_frame_pacer_enable) {
-		return;
-	}
-
-	SwapChain *swap_chain = (SwapChain *)(p_swap_chain.id);
-	if (swap_chain->vk_swapchain != VK_NULL_HANDLE) {
-		const uint64_t max_time = p_max_fps > 0 ? uint64_t((1000.0 * 1000.0 * 1000.0) / p_max_fps) : 0;
-		SwappyVk_setSwapIntervalNS(vk_device, swap_chain->vk_swapchain, MAX(swap_chain->refresh_duration, max_time));
-	}
-#endif
 }
 
 void RenderingDeviceDriverVulkan::swap_chain_free(SwapChainID p_swap_chain) {
@@ -5904,7 +5791,7 @@ bool RenderingDeviceDriverVulkan::has_feature(Features p_feature) {
 		case SUPPORTS_BUFFER_DEVICE_ADDRESS:
 			return buffer_device_address_support;
 		case SUPPORTS_IMAGE_ATOMIC_32_BIT:
-#if (defined(MACOS_ENABLED) || defined(APPLE_EMBEDDED_ENABLED))
+#if defined(MACOS_ENABLED)
 			// MoltenVK has previously had issues with 32-bit atomics on images.
 			return false;
 #else

@@ -28,7 +28,7 @@ namespace GodotTools.ProjectEditor
 
             // Non-gradle builds require .NET 9 to match the jar libraries included in the export template.
             var net9 = mainGroup.AddProperty("TargetFramework", "net9.0");
-            net9.Condition = " '$(GodotTargetPlatform)' == 'android' ";
+            net9.Condition = " false ";
 
             mainGroup.AddProperty("EnableDynamicLoading", "true");
 

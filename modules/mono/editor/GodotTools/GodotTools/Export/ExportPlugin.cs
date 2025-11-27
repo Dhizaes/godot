@@ -404,17 +404,10 @@ namespace GodotTools.Export
                                 }
                                 else
                                 {
-                                    if (platform == OS.Platforms.iOS && path.EndsWith(".dat", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        AddAppleEmbeddedPlatformBundleFile(path);
-                                    }
-                                    else
-                                    {
-                                        AddSharedObject(path, tags: null,
-                                            Path.Join(projectDataDirName,
-                                                Path.GetRelativePath(publishOutputDir,
-                                                    Path.GetDirectoryName(path)!)));
-                                    }
+                                    AddSharedObject(path, tags: null,
+                                        Path.Join(projectDataDirName,
+                                            Path.GetRelativePath(publishOutputDir,
+                                                Path.GetDirectoryName(path)!)));
                                 }
                             }
                         });
@@ -452,8 +445,6 @@ namespace GodotTools.Export
                 {
                     throw new InvalidOperationException("Failed to generate xcframework.");
                 }
-
-                AddAppleEmbeddedPlatformEmbeddedFramework(xcFrameworkPath);
             }
         }
 

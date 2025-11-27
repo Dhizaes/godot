@@ -83,12 +83,7 @@ void light_compute(hvec3 N, hvec3 L, hvec3 V, half A, hvec3 light_color, bool is
 	// Light is written by the user shader.
 	mat4 inv_view_matrix = scene_data_block.data.inv_view_matrix;
 	mat4 read_view_matrix = scene_data_block.data.view_matrix;
-
-#ifdef USING_MOBILE_RENDERER
-	mat4 read_model_matrix = instances.data[draw_call.instance_index].transform;
-#else
 	mat4 read_model_matrix = instances.data[instance_index_interp].transform;
-#endif
 
 #undef projection_matrix
 #define projection_matrix scene_data_block.data.projection_matrix

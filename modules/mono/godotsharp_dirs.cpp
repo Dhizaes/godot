@@ -100,9 +100,6 @@ static const char *platform_name_map[][2] = {
 	{ "FreeBSD", "linuxbsd" },
 	{ "NetBSD", "linuxbsd" },
 	{ "BSD", "linuxbsd" },
-	{ "Android", "android" },
-	{ "iOS", "ios" },
-	{ "Web", "web" },
 	{ nullptr, nullptr }
 };
 

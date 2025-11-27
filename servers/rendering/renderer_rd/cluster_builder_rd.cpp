@@ -67,7 +67,7 @@ ClusterBuilderSharedDataRD::ClusterBuilderSharedDataRD() {
 		if (rd->has_feature(RD::SUPPORTS_FRAGMENT_SHADER_WITH_ONLY_SIDE_EFFECTS)) {
 			fb_format = rd->framebuffer_format_create_empty();
 			blend_state = RD::PipelineColorBlendState::create_disabled();
-#if (defined(MACOS_ENABLED) || defined(APPLE_EMBEDDED_ENABLED))
+#if defined(MACOS_ENABLED)
 			if (rd->get_device_capabilities().device_family == RDD::DEVICE_VULKAN) {
 				shader_variant = ClusterRender::SHADER_NORMAL_MOLTENVK;
 			} else if (rd->has_feature(RD::SUPPORTS_IMAGE_ATOMIC_32_BIT)) {
@@ -88,7 +88,7 @@ ClusterBuilderSharedDataRD::ClusterBuilderSharedDataRD() {
 			afs.write[0].usage_flags = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 			fb_format = rd->framebuffer_format_create(afs);
 			blend_state = RD::PipelineColorBlendState::create_blend();
-#if (defined(MACOS_ENABLED) || defined(APPLE_EMBEDDED_ENABLED))
+#if defined(MACOS_ENABLED)
 			if (rd->get_device_capabilities().device_family == RDD::DEVICE_VULKAN) {
 				shader_variant = ClusterRender::SHADER_USE_ATTACHMENT_MOLTENVK;
 			} else if (rd->has_feature(RD::SUPPORTS_IMAGE_ATOMIC_32_BIT)) {
@@ -106,7 +106,7 @@ ClusterBuilderSharedDataRD::ClusterBuilderSharedDataRD() {
 		}
 
 		cluster_render.cluster_render_shader.initialize(variants);
-#if (defined(MACOS_ENABLED) || defined(APPLE_EMBEDDED_ENABLED))
+#if defined(MACOS_ENABLED)
 		if (rd->get_device_capabilities().device_family == RDD::DEVICE_VULKAN) {
 			cluster_render.cluster_render_shader.set_variant_enabled(ClusterRender::SHADER_NORMAL, false);
 			cluster_render.cluster_render_shader.set_variant_enabled(ClusterRender::SHADER_USE_ATTACHMENT, false);

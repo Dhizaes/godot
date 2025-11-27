@@ -2266,10 +2266,7 @@ void VisualShaderEditor::_update_options_menu() {
 
 	bool is_first_item = true;
 
-	Color unsupported_color = get_theme_color(SNAME("error_color"), EditorStringName(Editor));
 	Color supported_color = get_theme_color(SNAME("warning_color"), EditorStringName(Editor));
-
-	static bool low_driver = GLOBAL_GET("rendering/renderer/rendering_method") == "gl_compatibility";
 
 	HashMap<String, TreeItem *> folders;
 
@@ -2410,9 +2407,7 @@ void VisualShaderEditor::_update_options_menu() {
 		}
 
 		TreeItem *item = members->create_item(category);
-		if (options[i].highend && low_driver) {
-			item->set_custom_color(0, unsupported_color);
-		} else if (options[i].highend) {
+		if (options[i].highend) {
 			item->set_custom_color(0, supported_color);
 		}
 		item->set_text(0, options[i].name);

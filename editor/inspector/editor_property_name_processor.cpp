@@ -214,10 +214,7 @@ EditorPropertyNameProcessor::EditorPropertyNameProcessor() {
 	capitalize_string_remaps["image@2x"] = "Image @2x";
 	capitalize_string_remaps["image@3x"] = "Image @3x";
 	capitalize_string_remaps["iod"] = "IOD";
-	capitalize_string_remaps["ios"] = "iOS";
 	capitalize_string_remaps["ip"] = "IP";
-	capitalize_string_remaps["ipad"] = "iPad";
-	capitalize_string_remaps["iphone"] = "iPhone";
 	capitalize_string_remaps["ipv6"] = "IPv6";
 	capitalize_string_remaps["ir"] = "IR";
 	capitalize_string_remaps["itunes"] = "iTunes";
@@ -302,7 +299,6 @@ EditorPropertyNameProcessor::EditorPropertyNameProcessor() {
 	capitalize_string_remaps["uv1"] = "UV1";
 	capitalize_string_remaps["uv2"] = "UV2";
 	capitalize_string_remaps["vector2"] = "Vector2";
-	capitalize_string_remaps["visionos"] = "visionOS";
 	capitalize_string_remaps["vpn"] = "VPN";
 	capitalize_string_remaps["vram"] = "VRAM";
 	capitalize_string_remaps["vrs"] = "VRS";

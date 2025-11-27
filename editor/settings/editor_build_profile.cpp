@@ -50,7 +50,6 @@ const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 	"disable_navigation_2d",
 	"disable_navigation_3d",
 	"wayland",
-	"x11",
 	"rendering_device", // FIXME: There's no scons option to disable rendering device.
 	"forward_plus_renderer",
 	"vulkan",
@@ -74,13 +73,10 @@ const bool EditorBuildProfile::build_option_disabled_by_default[BUILD_OPTION_MAX
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
 	false, // WAYLAND
-	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
-	false, // MOBILE_RENDERER
 	false, // VULKAN
 	false, // METAL
-	false, // OPENGL
 	false, // PHYSICS_2D
 	false, // PHYSICS_GODOT_2D
 	false, // PHYSICS_3D
@@ -100,13 +96,10 @@ const bool EditorBuildProfile::build_option_disable_values[BUILD_OPTION_MAX] = {
 	true, // NAVIGATION_2D
 	true, // NAVIGATION_3D
 	false, // WAYLAND
-	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
-	false, // MOBILE_RENDERER
 	false, // VULKAN
 	false, // METAL
-	false, // OPENGL
 	true, // PHYSICS_2D
 	false, // PHYSICS_GODOT_2D
 	true, // PHYSICS_3D
@@ -126,13 +119,10 @@ const bool EditorBuildProfile::build_option_explicit_use[BUILD_OPTION_MAX] = {
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
 	false, // WAYLAND
-	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
-	false, // MOBILE_RENDERER
 	false, // VULKAN
 	false, // METAL
-	false, // OPENGL
 	false, // PHYSICS_2D
 	false, // PHYSICS_GODOT_2D
 	false, // PHYSICS_3D
@@ -151,13 +141,10 @@ const EditorBuildProfile::BuildOptionCategory EditorBuildProfile::build_option_c
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_2D
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_3D
 	BUILD_OPTION_CATEGORY_GENERAL, // WAYLAND
-	BUILD_OPTION_CATEGORY_GENERAL, // X11
 	BUILD_OPTION_CATEGORY_GRAPHICS, // RENDERING_DEVICE
 	BUILD_OPTION_CATEGORY_GRAPHICS, // FORWARD_RENDERER
-	BUILD_OPTION_CATEGORY_GRAPHICS, // MOBILE_RENDERER
 	BUILD_OPTION_CATEGORY_GRAPHICS, // VULKAN
 	BUILD_OPTION_CATEGORY_GRAPHICS, // METAL
-	BUILD_OPTION_CATEGORY_GRAPHICS, // OPENGL
 	BUILD_OPTION_CATEGORY_PHYSICS, // PHYSICS_2D
 	BUILD_OPTION_CATEGORY_PHYSICS, // PHYSICS_GODOT_2D
 	BUILD_OPTION_CATEGORY_PHYSICS, // PHYSICS_3D
@@ -180,16 +167,11 @@ const HashMap<EditorBuildProfile::BuildOption, LocalVector<EditorBuildProfile::B
 	{ BUILD_OPTION_FORWARD_RENDERER, {
 			BUILD_OPTION_RENDERING_DEVICE,
 	} },
-	{ BUILD_OPTION_MOBILE_RENDERER, {
-			BUILD_OPTION_RENDERING_DEVICE,
-	} },
 	{ BUILD_OPTION_VULKAN, {
-			BUILD_OPTION_FORWARD_RENDERER,
-			BUILD_OPTION_MOBILE_RENDERER,
+			BUILD_OPTION_FORWARD_RENDERER
 	} },
 	{ BUILD_OPTION_METAL, {
-			BUILD_OPTION_FORWARD_RENDERER,
-			BUILD_OPTION_MOBILE_RENDERER,
+			BUILD_OPTION_FORWARD_RENDERER
 	} },
 	{ BUILD_OPTION_PHYSICS_GODOT_2D, {
 			BUILD_OPTION_PHYSICS_2D,
@@ -345,13 +327,10 @@ String EditorBuildProfile::get_build_option_name(BuildOption p_build_option) {
 		TTRC("Navigation (2D)"),
 		TTRC("Navigation (3D)"),
 		TTRC("Wayland"),
-		TTRC("X11"),
 		TTRC("RenderingDevice"),
 		TTRC("Forward+ Renderer"),
-		TTRC("Mobile Renderer"),
 		TTRC("Vulkan"),
 		TTRC("Metal"),
-		TTRC("OpenGL"),
 		TTRC("Physics Server (2D)"),
 		TTRC("Godot Physics (2D)"),
 		TTRC("Physics Server (3D)"),
@@ -375,13 +354,10 @@ String EditorBuildProfile::get_build_option_description(BuildOption p_build_opti
 		TTRC("Navigation Server and capabilities for 2D."),
 		TTRC("Navigation Server and capabilities for 3D."),
 		TTRC("Wayland display (Linux only)."),
-		TTRC("X11 display (Linux only)."),
 		TTRC("RenderingDevice based rendering (if disabled, the OpenGL backend is required)."),
 		TTRC("Forward+ renderer for advanced 3D graphics."),
-		TTRC("Mobile renderer for less advanced 3D graphics."),
 		TTRC("Vulkan backend of RenderingDevice."),
 		TTRC("Metal backend of RenderingDevice (Apple arm64 only)."),
-		TTRC("OpenGL backend (if disabled, the RenderingDevice backend is required)."),
 		TTRC("Physics Server and capabilities for 2D."),
 		TTRC("Godot Physics backend (2D)."),
 		TTRC("Physics Server and capabilities for 3D."),
@@ -544,13 +520,10 @@ void EditorBuildProfile::_bind_methods() {
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_2D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_3D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_WAYLAND);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_X11);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_RENDERING_DEVICE);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_FORWARD_RENDERER);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_MOBILE_RENDERER);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_VULKAN);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_METAL);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_OPENGL);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_PHYSICS_2D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_PHYSICS_GODOT_2D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_PHYSICS_3D);
@@ -578,14 +551,8 @@ EditorBuildProfile::EditorBuildProfile() {
 		{ "display/display_server/driver.linuxbsd", { "default", "wayland" } },
 	};
 	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_wayland);
-	HashMap<String, LocalVector<Variant>> settings_x11 = {
-		{ "display/display_server/driver.linuxbsd", { "default", "x11" } },
-	};
-	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_x11);
 	HashMap<String, LocalVector<Variant>> settings_rd = {
-		{ "rendering/renderer/rendering_method", { "forward_plus" } },
-		{ "rendering/renderer/rendering_method.mobile", { "forward_plus" } },
-		{ "rendering/renderer/rendering_method.web", { "forward_plus" } },
+		{ "rendering/renderer/rendering_method", { "forward_plus" } }
 	};
 	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_rd);
 	HashMap<String, LocalVector<Variant>> settings_vulkan = {

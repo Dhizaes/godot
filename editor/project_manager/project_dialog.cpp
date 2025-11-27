@@ -1006,10 +1006,6 @@ ProjectDialog::ProjectDialog() {
 
 	rendering_device_supported = DisplayServer::is_rendering_device_supported();
 
-	if (!rendering_device_supported) {
-		default_renderer_type = "gl_compatibility";
-	}
-
 	Button *rs_button = memnew(CheckBox);
 	rs_button->set_button_group(renderer_button_group);
 	rs_button->set_text(TTRC("Forward+"));

@@ -296,7 +296,6 @@ void ProjectListItemControl::set_is_missing(bool p_missing) {
 		explore_button->set_tooltip_text(TTRC("Show in File Manager"));
 		// Opening the system file manager is not supported on the Android and web editors.
 		explore_button->hide();
-#endif
 	}
 }
 

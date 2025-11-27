@@ -794,7 +794,6 @@ public:
 
 	enum DeviceFamily {
 		DEVICE_UNKNOWN,
-		DEVICE_OPENGL,
 		DEVICE_VULKAN,
 		DEVICE_METAL,
 	};

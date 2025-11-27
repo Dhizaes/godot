@@ -3161,12 +3161,6 @@
 			This can be overridden using the [code]--rendering-method &lt;method&gt;[/code] command line argument.
 			[b]Note:[/b] The actual rendering method may be automatically changed by the engine as a result of a fallback, or a user-specified command line argument. To get the actual rendering method that is used at runtime, use [method RenderingServer.get_current_rendering_method] instead of reading this project setting's value.
 		</member>
-		<member name="rendering/renderer/rendering_method.mobile" type="String" setter="" getter="" default="&quot;mobile&quot;">
-			Override for [member rendering/renderer/rendering_method] on mobile devices.
-		</member>
-		<member name="rendering/renderer/rendering_method.web" type="String" setter="" getter="" default="&quot;gl_compatibility&quot;">
-			Override for [member rendering/renderer/rendering_method] on web.
-		</member>
 		<member name="rendering/rendering_device/d3d12/agility_sdk_version" type="int" setter="" getter="" default="613">
 			Version code of the [url=https://devblogs.microsoft.com/directx/directx12agility/]Direct3D 12 Agility SDK[/url] to use ([code]D3D12SDKVersion[/code]). This must match the [i]minor[/i] version that is installed next to the editor binary and in the export templates directory for the current editor version. For example, if you have [code]1.613.3[/code] installed, you need to input [code]613[/code] here.
 		</member>

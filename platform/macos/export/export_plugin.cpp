@@ -105,9 +105,7 @@ String EditorExportPlatformMacOS::get_export_option_warning(const EditorExportPr
 
 		if (p_name == "shader_baker/enabled" && bool(p_preset->get("shader_baker/enabled"))) {
 			String export_renderer = GLOBAL_GET("rendering/renderer/rendering_method");
-			if (OS::get_singleton()->get_current_rendering_method() == "gl_compatibility") {
-				return TTR("\"Shader Baker\" is not supported when using the Compatibility renderer.");
-			} else if (OS::get_singleton()->get_current_rendering_method() != export_renderer) {
+			if (OS::get_singleton()->get_current_rendering_method() != export_renderer) {
 				return vformat(TTR("The editor is currently using a different renderer than what the target platform will use. \"Shader Baker\" won't be able to include core shaders. Switch to the \"%s\" renderer temporarily to fix this."), export_renderer);
 			}
 		}
@@ -347,7 +345,6 @@ bool EditorExportPlatformMacOS::get_export_option_visibility(const EditorExportP
 				p_option == "custom_template/debug" ||
 				p_option == "custom_template/release" ||
 				p_option == "application/additional_plist_content" ||
-				p_option == "application/export_angle" ||
 				p_option == "application/icon_interpolation" ||
 				p_option == "application/signature" ||
 				p_option == "display/high_res" ||
@@ -478,7 +475,6 @@ void EditorExportPlatformMacOS::get_export_options(List<ExportOption> *r_options
 	r_options->push_back(ExportOption(PropertyInfo(Variant::DICTIONARY, "application/copyright_localized", PROPERTY_HINT_LOCALIZABLE_STRING), Dictionary()));
 	r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/min_macos_version_x86_64"), "10.12"));
 	r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/min_macos_version_arm64"), "11.00"));
-	r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "application/export_angle", PROPERTY_HINT_ENUM, "Auto,Yes,No"), 0, true));
 	r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "display/high_res"), true));
 
 	r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "shader_baker/enabled"), false));
@@ -1792,14 +1788,6 @@ Error EditorExportPlatformMacOS::export_project(const Ref<EditorExportPreset> &p
 	// Now process our template.
 	bool found_binary = false;
 
-	int export_angle = p_preset->get("application/export_angle");
-	bool include_angle_libs = false;
-	if (export_angle == 0) {
-		include_angle_libs = String(get_project_setting(p_preset, "rendering/gl_compatibility/driver.macos")) == "opengl3_angle";
-	} else if (export_angle == 1) {
-		include_angle_libs = true;
-	}
-
 	while (ret == UNZ_OK && err == OK) {
 		// Get filename.
 		unz_file_info info;
@@ -1848,17 +1836,13 @@ Error EditorExportPlatformMacOS::export_project(const Ref<EditorExportPreset> &p
 		}
 
 		if (file == "Contents/Frameworks/libEGL.dylib") {
-			if (!include_angle_libs) {
-				ret = unzGoToNextFile(src_pkg_zip);
-				continue; // skip
-			}
+			ret = unzGoToNextFile(src_pkg_zip);
+			continue; // skip
 		}
 
 		if (file == "Contents/Frameworks/libGLESv2.dylib") {
-			if (!include_angle_libs) {
-				ret = unzGoToNextFile(src_pkg_zip);
-				continue; // skip
-			}
+			ret = unzGoToNextFile(src_pkg_zip);
+			continue; // skip
 		}
 
 		if (file == "Contents/Info.plist") {

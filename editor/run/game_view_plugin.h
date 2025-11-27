@@ -237,6 +237,9 @@ public:
 class GameViewPluginBase : public EditorPlugin {
 	GDCLASS(GameViewPluginBase, EditorPlugin);
 
+	GameView *game_view = nullptr;
+	WindowWrapper *window_wrapper = nullptr;
+
 	Ref<GameViewDebugger> debugger;
 
 	String last_editor;

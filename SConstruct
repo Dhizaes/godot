@@ -44,7 +44,6 @@ def _helper_module(name, path):
         setattr(parent_module, child_name, child_module)
 
 
-_helper_module("gles3_builders", "gles3_builders.py")
 _helper_module("glsl_builders", "glsl_builders.py")
 _helper_module("methods", "methods.py")
 _helper_module("platform_methods", "platform_methods.py")
@@ -54,7 +53,6 @@ _helper_module("main.main_builders", "main/main_builders.py")
 _helper_module("misc.utility.color", "misc/utility/color.py")
 
 # Local
-import gles3_builders
 import glsl_builders
 import methods
 import scu_builders
@@ -195,7 +193,6 @@ opts.Add(BoolVariable("minizip", "Enable ZIP archive support using minizip", Tru
 opts.Add(BoolVariable("brotli", "Enable Brotli for decompression and WOFF2 fonts support", True))
 opts.Add(BoolVariable("xaudio2", "Enable the XAudio2 audio driver on supported platforms", False))
 opts.Add(BoolVariable("vulkan", "Enable the Vulkan rendering driver", True))
-opts.Add(BoolVariable("opengl3", "Enable the OpenGL/GLES3 rendering driver", True))
 opts.Add(BoolVariable("d3d12", "Enable the Direct3D 12 rendering driver on supported platforms", False))
 opts.Add(BoolVariable("metal", "Enable the Metal rendering driver on supported platforms (Apple arm64 only)", False))
 opts.Add(BoolVariable("use_volk", "Use the volk library to load the Vulkan loader dynamically", True))
@@ -614,8 +611,7 @@ if env["dev_mode"]:
 if env["production"]:
     env["use_static_cpp"] = methods.get_cmdline_bool("use_static_cpp", True)
     env["debug_symbols"] = methods.get_cmdline_bool("debug_symbols", False)
-    if env["platform"] == "android":
-        env["swappy"] = methods.get_cmdline_bool("swappy", True)
+
     # LTO "auto" means we handle the preferred option in each platform detect.py.
     env["lto"] = ARGUMENTS.get("lto", "auto")
 
@@ -1081,11 +1077,6 @@ GLSL_BUILDERS = {
     ),
     "GLSL_HEADER": env.Builder(
         action=env.Run(glsl_builders.build_raw_headers),
-        suffix="glsl.gen.h",
-        src_suffix=".glsl",
-    ),
-    "GLES3_GLSL": env.Builder(
-        action=env.Run(gles3_builders.build_gles3_headers),
         suffix="glsl.gen.h",
         src_suffix=".glsl",
     ),

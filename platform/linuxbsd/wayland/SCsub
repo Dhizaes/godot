@@ -95,7 +95,6 @@ objects = [
 ]
 
 source_files = [
-    "detect_prime_egl.cpp",
     "display_server_wayland.cpp",
     "key_mapping_xkb.cpp",
     "wayland_thread.cpp",
@@ -116,10 +115,6 @@ if env["use_sowrap"]:
 
 if env["vulkan"]:
     source_files.append("rendering_context_driver_vulkan_wayland.cpp")
-
-if env["opengl3"]:
-    source_files.append("egl_manager_wayland.cpp")
-    source_files.append("egl_manager_wayland_gles.cpp")
 
 for source_file in source_files:
     objects.append(env.Object(source_file))

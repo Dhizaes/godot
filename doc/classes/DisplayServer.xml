@@ -3232,24 +3232,6 @@
 			- macOS: [code]NSView*[/code] for the window main view.
 			- iOS: [code]UIView*[/code] for the window main view.
 		</constant>
-		<constant name="OPENGL_CONTEXT" value="3" enum="HandleType">
-			OpenGL context (only with the Compatibility renderer):
-			- Windows: [code]HGLRC[/code] for the window (native GL), or [code]EGLContext[/code] for the window (ANGLE).
-			- Linux (X11): [code]GLXContext*[/code] for the window.
-			- Linux (Wayland): [code]EGLContext[/code] for the window.
-			- macOS: [code]NSOpenGLContext*[/code] for the window (native GL), or [code]EGLContext[/code] for the window (ANGLE).
-			- Android: [code]EGLContext[/code] for the window.
-		</constant>
-		<constant name="EGL_DISPLAY" value="4" enum="HandleType">
-			- Windows: [code]EGLDisplay[/code] for the window (ANGLE).
-			- macOS: [code]EGLDisplay[/code] for the window (ANGLE).
-			- Linux (Wayland): [code]EGLDisplay[/code] for the window.
-		</constant>
-		<constant name="EGL_CONFIG" value="5" enum="HandleType">
-			- Windows: [code]EGLConfig[/code] for the window (ANGLE).
-			- macOS: [code]EGLConfig[/code] for the window (ANGLE).
-			- Linux (Wayland): [code]EGLConfig[/code] for the window.
-		</constant>
 		<constant name="TTS_UTTERANCE_STARTED" value="0" enum="TTSUtteranceEvent">
 			Utterance has begun to be spoken.
 		</constant>
