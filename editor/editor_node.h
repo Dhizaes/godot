@@ -352,7 +352,7 @@ private:
 
 	Timer *system_theme_timer = nullptr;
 	bool follow_system_theme = false;
-	bool use_system_accent_color = false;
+	bool use_system_accent_color = true;
 	bool last_dark_mode_state = false;
 	Color last_system_base_color = Color(0, 0, 0, 0);
 	Color last_system_accent_color = Color(0, 0, 0, 0);
