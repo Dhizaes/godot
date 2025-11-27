@@ -798,10 +798,8 @@ void DisplayServerWayland::show_window(WindowID p_window_id) {
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			if (rendering_driver == "vulkan") {
-				wpd.vulkan.surface = wayland_thread.window_get_wl_surface(wd.id);
-				wpd.vulkan.display = wayland_thread.get_wl_display();
-			}
+			wpd.vulkan.surface = wayland_thread.window_get_wl_surface(wd.id);
+			wpd.vulkan.display = wayland_thread.get_wl_display();
 #endif
 			Error err = rendering_context->window_create(wd.id, &wpd);
 			ERR_FAIL_COND_MSG(err != OK, vformat("Can't create a %s window", rendering_driver));
@@ -1773,8 +1771,6 @@ Vector<String> DisplayServerWayland::get_rendering_drivers_func() {
 	drivers.push_back("vulkan");
 #endif
 
-	drivers.push_back("dummy");
-
 	return drivers;
 }
 
@@ -1849,9 +1845,7 @@ DisplayServerWayland::DisplayServerWayland(const String &p_rendering_driver, Win
 
 #ifdef RD_ENABLED
 #ifdef VULKAN_ENABLED
-	if (rendering_driver == "vulkan") {
-		rendering_context = memnew(RenderingContextDriverVulkanWayland);
-	}
+	rendering_context = memnew(RenderingContextDriverVulkanWayland);
 #endif // VULKAN_ENABLED
 
 	if (rendering_context) {
@@ -1861,16 +1855,14 @@ DisplayServerWayland::DisplayServerWayland(const String &p_rendering_driver, Win
 			{
 				r_error = ERR_CANT_CREATE;
 
-				if (p_rendering_driver == "vulkan") {
-					OS::get_singleton()->alert(
-							vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
-									"If possible, consider updating your video card drivers or using the OpenGL 3 driver.\n\n"
-									"You can enable the OpenGL 3 driver by starting the engine from the\n"
-									"command line with the command:\n\n    \"%s\" --rendering-driver opengl3\n\n"
-									"If you recently updated your video card drivers, try rebooting.",
-									executable_name),
-							"Unable to initialize Vulkan video driver");
-				}
+				OS::get_singleton()->alert(
+						vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
+								"If possible, consider updating your video card drivers or using the OpenGL 3 driver.\n\n"
+								"You can enable the OpenGL 3 driver by starting the engine from the\n"
+								"command line with the command:\n\n    \"%s\" --rendering-driver opengl3\n\n"
+								"If you recently updated your video card drivers, try rebooting.",
+								executable_name),
+						"Unable to initialize Vulkan video driver");
 
 				ERR_FAIL_MSG(vformat("Could not initialize %s", rendering_driver));
 			}

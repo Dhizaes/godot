@@ -169,9 +169,7 @@ DisplayServerMacOS::WindowID DisplayServerMacOS::_create_window(WindowMode p_mod
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			if (rendering_driver == "vulkan") {
-				wpd.vulkan.layer_ptr = (CAMetalLayer *const *)&layer;
-			}
+			wpd.vulkan.layer_ptr = (CAMetalLayer *const *)&layer;
 #endif
 #ifdef METAL_ENABLED
 			if (rendering_driver == "metal") {
@@ -3407,26 +3405,11 @@ bool DisplayServerMacOS::is_window_transparency_available() const {
 DisplayServer *DisplayServerMacOS::create_func(const String &p_rendering_driver, WindowMode p_mode, VSyncMode p_vsync_mode, uint32_t p_flags, const Vector2i *p_position, const Vector2i &p_resolution, int p_screen, Context p_context, int64_t p_parent_window, Error &r_error) {
 	DisplayServer *ds = memnew(DisplayServerMacOS(p_rendering_driver, p_mode, p_vsync_mode, p_flags, p_position, p_resolution, p_screen, p_context, p_parent_window, r_error));
 	if (r_error != OK) {
-		if (p_rendering_driver == "vulkan") {
-			String executable_command;
-			if (OS::get_singleton()->get_bundle_resource_dir() == OS::get_singleton()->get_executable_path().get_base_dir()) {
-				executable_command = vformat("\"%s\" --rendering-driver opengl3", OS::get_singleton()->get_executable_path());
-			} else {
-				executable_command = vformat("open \"%s\" --args --rendering-driver opengl3", OS::get_singleton()->get_bundle_resource_dir().path_join("../..").simplify_path());
-			}
-			OS::get_singleton()->alert(
-					vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
-							"If possible, consider updating your macOS version or using the OpenGL 3 driver.\n\n"
-							"You can enable the OpenGL 3 driver by starting the engine from the\n"
-							"command line with the command:\n\n    %s",
-							executable_command),
-					"Unable to initialize Vulkan video driver");
-		} else {
-			OS::get_singleton()->alert(
-					"Your video card drivers seem not to support the required OpenGL 3.3 version.\n\n"
-					"If possible, consider updating your macOS version.",
-					"Unable to initialize OpenGL video driver");
-		}
+		OS::get_singleton()->alert(
+				vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
+						"If possible, consider updating your macOS version.
+						"),
+				"Unable to initialize Vulkan video driver");
 	}
 	return ds;
 }

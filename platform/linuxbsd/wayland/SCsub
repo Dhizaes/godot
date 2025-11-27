@@ -112,9 +112,7 @@ if env["use_sowrap"]:
     if env["libdecor"]:
         source_files.append("dynwrappers/libdecor-so_wrap.c")
 
-
-if env["vulkan"]:
-    source_files.append("rendering_context_driver_vulkan_wayland.cpp")
+source_files.append("rendering_context_driver_vulkan_wayland.cpp")
 
 for source_file in source_files:
     objects.append(env.Object(source_file))

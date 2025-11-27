@@ -2161,10 +2161,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	renderer_hints = "forward_plus";
 #endif
 
-	if (renderer_hints.is_empty()) {
-		renderer_hints = "dummy";
-	}
-
 	if (!rendering_driver.is_empty()) {
 		// As the rendering drivers available may depend on the display driver and renderer
 		// selected, we can't do an exhaustive check here, but we can look through all

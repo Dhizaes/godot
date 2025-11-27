@@ -397,10 +397,9 @@ def configure_msvc(env: "SConsEnvironment"):
             env.Append(CPPDEFINES=["ACCESSKIT_DYNAMIC"])
         env.Append(CPPDEFINES=["ACCESSKIT_ENABLED"])
 
-    if env["vulkan"]:
-        env.AppendUnique(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-        if not env["use_volk"]:
-            LIBS += ["vulkan"]
+    env.AppendUnique(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+    if not env["use_volk"]:
+        LIBS += ["vulkan"]
 
     if env["sdl"]:
         env.Append(CPPDEFINES=["SDL_ENABLED"])
@@ -770,10 +769,9 @@ def configure_mingw(env: "SConsEnvironment"):
     if env.debug_features:
         env.Append(LIBS=["psapi", "dbghelp"])
 
-    if env["vulkan"]:
-        env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-        if not env["use_volk"]:
-            env.Append(LIBS=["vulkan"])
+    env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+    if not env["use_volk"]:
+        env.Append(LIBS=["vulkan"])
 
     if env["sdl"]:
         env.Append(CPPDEFINES=["SDL_ENABLED"])

@@ -41,8 +41,8 @@ if env["platform"] in ["macos"]:
 SConscript("winmidi/SCsub")
 
 # Graphics drivers
-if env["vulkan"]:
-    SConscript("vulkan/SCsub")
+SConscript("vulkan/SCsub")
+
 if env["metal"]:
     if "metal" not in supported:
         print_error("Target platform '{}' does not support the Metal rendering driver".format(env["platform"]))

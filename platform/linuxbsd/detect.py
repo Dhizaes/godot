@@ -471,13 +471,12 @@ def configure(env: "SConsEnvironment"):
             env.Append(CPPDEFINES=["ACCESSKIT_DYNAMIC"])
         env.Append(CPPDEFINES=["ACCESSKIT_ENABLED"])
 
-    if env["vulkan"]:
-        env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-        if not env["use_volk"]:
-            env.ParseConfig("pkg-config vulkan --cflags --libs")
-        if not env["builtin_glslang"]:
-            # No pkgconfig file so far, hardcode expected lib name.
-            env.Append(LIBS=["glslang", "SPIRV"])
+    env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+    if not env["use_volk"]:
+        env.ParseConfig("pkg-config vulkan --cflags --libs")
+    if not env["builtin_glslang"]:
+        # No pkgconfig file so far, hardcode expected lib name.
+        env.Append(LIBS=["glslang", "SPIRV"])
 
     env.Append(LIBS=["pthread"])
 

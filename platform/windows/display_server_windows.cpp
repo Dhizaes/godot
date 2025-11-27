@@ -6374,10 +6374,8 @@ DisplayServer::WindowID DisplayServerWindows::_create_window(WindowMode p_mode, 
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			if (rendering_driver == "vulkan") {
-				wpd.vulkan.window = wd.hWnd;
-				wpd.vulkan.instance = hInstance;
-			}
+			wpd.vulkan.window = wd.hWnd;
+			wpd.vulkan.instance = hInstance;
 #endif
 			if (rendering_context->window_create(id, &wpd) != OK) {
 				ERR_PRINT(vformat("Failed to create %s window.", rendering_driver));
@@ -6848,10 +6846,8 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 #if defined(RD_ENABLED)
 
 #if defined(VULKAN_ENABLED)
-	if (rendering_driver == "vulkan") {
-		rendering_context = memnew(RenderingContextDriverVulkanWindows);
-		tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
-	}
+	rendering_context = memnew(RenderingContextDriverVulkanWindows);
+	tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
 #endif
 
 	if (rendering_context) {
