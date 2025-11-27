@@ -696,8 +696,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 				// This produces suboptimal results because the image will be modified by spatial upscaling after
 				// debanding has been applied. Ideally, debanding should be applied as the final step before quantization
 				// to integer values, but in the case of MetalFX, it may not be worth the performance cost of creating a new
-				// intermediate buffer. In the case of FSR 1.0, the work of adding debanding support hasn't been done yet.
-				// Assume that the DataFormat that will be used by spatial_upscaler is the same as render_target_get_color_format.
+				// intermediate buffer. 
 				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, tonemap.convert_to_srgb);
 			}
 		} else {

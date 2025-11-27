@@ -3620,7 +3620,6 @@ void RenderingServer::init() {
 
 	GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "rendering/reflections/sky_reflections/roughness_layers", PROPERTY_HINT_RANGE, "1,32,1"), 8); // Assumes a 256x256 cubemap
 	GLOBAL_DEF_RST("rendering/reflections/sky_reflections/texture_array_reflections", true);
-	GLOBAL_DEF("rendering/reflections/sky_reflections/texture_array_reflections.mobile", false);
 	GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "rendering/reflections/sky_reflections/ggx_samples", PROPERTY_HINT_RANGE, "0,256,1"), 32);
 	GLOBAL_DEF("rendering/reflections/sky_reflections/fast_filter_high_quality", false);
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/reflections/reflection_atlas/reflection_size", PROPERTY_HINT_RANGE, "0,4096,1"), 256);
@@ -3633,7 +3632,6 @@ void RenderingServer::init() {
 
 	GLOBAL_DEF_RST("rendering/shading/overrides/force_vertex_shading", false);
 	GLOBAL_DEF("rendering/shading/overrides/force_lambert_over_burley", false);
-	GLOBAL_DEF("rendering/shading/overrides/force_lambert_over_burley.mobile", true);
 
 	GLOBAL_DEF_RST("rendering/driver/depth_prepass/enable", true);
 	GLOBAL_DEF_RST("rendering/driver/depth_prepass/disable_for_vendors", "PowerVR,Mali,Adreno,Apple");
@@ -3675,10 +3673,9 @@ void RenderingServer::init() {
 		String mode_hints;
 		String mode_hints_metal;
 		{
-			Vector<String> mode_hints_arr = { "Bilinear (Fastest)", "FSR 1.0 (Fast)", "FSR 2.2 (Slow)" };
+			Vector<String> mode_hints_arr = { "Bilinear (Fast)", "FSR 2.2 (Slow)" };
 			mode_hints = String(",").join(mode_hints_arr);
 
-			mode_hints_arr.push_back("MetalFX (Spatial)");
 			mode_hints_arr.push_back("MetalFX (Temporal)");
 			mode_hints_metal = String(",").join(mode_hints_arr);
 		}
