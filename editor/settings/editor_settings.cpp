@@ -1034,10 +1034,6 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 
 	EDITOR_SETTING(Variant::INT, PROPERTY_HINT_RANGE, "run/output/max_lines", 10000, "100,100000,1")
 
-	// Platform
-	_initial_set("run/platforms/linuxbsd/prefer_wayland", false, true);
-	set_restart_if_changed("run/platforms/linuxbsd/prefer_wayland", true);
-
 	/* Network */
 
 	// General
