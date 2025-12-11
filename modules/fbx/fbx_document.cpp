@@ -1561,27 +1561,6 @@ Light3D *FBXDocument::_generate_light(Ref<FBXState> p_state, const GLTFNodeIndex
 			light->set_param(OmniLight3D::PARAM_RANGE, 4096);
 		}
 
-// This is "correct", but FBX files may have unexpected decay modes.
-// Also does not match with what FBX2glTF does, so it might be better to not do any of this..
-#if 0
-		if (omni_light || spot_light) {
-			float attenuation = 1.0f;
-			if (additional_data.has("decay")) {
-				String decay_type = additional_data["decay"];
-				if (decay_type == "none") {
-					attenuation = 0.001f;
-				} else if (decay_type == "linear") {
-					attenuation = 1.0f;
-				} else if (decay_type == "quadratic") {
-					attenuation = 2.0f;
-				} else if (decay_type == "cubic") {
-					attenuation = 3.0f;
-				}
-			}
-			light->set_param(Light3D::PARAM_ATTENUATION, attenuation);
-		}
-#endif
-
 		if (spot_light) {
 			// Line of best fit derived from guessing, see https://www.desmos.com/calculator/biiflubp8b
 			// The points in desmos are not exact, except for (1, infinity).

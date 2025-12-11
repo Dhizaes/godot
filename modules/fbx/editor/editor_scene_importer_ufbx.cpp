@@ -31,7 +31,6 @@
 #include "editor_scene_importer_ufbx.h"
 
 #include "../fbx_document.h"
-#include "editor_scene_importer_fbx2gltf.h"
 
 #include "core/config/project_settings.h"
 
@@ -43,16 +42,7 @@ Node *EditorSceneFormatImporterUFBX::import_scene(const String &p_path, uint32_t
 		const HashMap<StringName, Variant> &p_options,
 		List<String> *r_missing_deps, Error *r_err) {
 	// FIXME: Hack to work around GH-86309.
-	if (p_options.has("fbx/importer") && int(p_options["fbx/importer"]) == FBX_IMPORTER_FBX2GLTF && GLOBAL_GET_CACHED(bool, "filesystem/import/fbx2gltf/enabled")) {
-		Ref<EditorSceneFormatImporterFBX2GLTF> fbx2gltf_importer;
-		fbx2gltf_importer.instantiate();
-		Node *scene = fbx2gltf_importer->import_scene(p_path, p_flags, p_options, r_missing_deps, r_err);
-		if (r_err && *r_err == OK) {
-			return scene;
-		} else {
-			return nullptr;
-		}
-	}
+
 	Ref<FBXDocument> fbx;
 	fbx.instantiate();
 	Ref<FBXState> state;
@@ -95,7 +85,7 @@ void EditorSceneFormatImporterUFBX::get_import_options(const String &p_path,
 		List<ResourceImporter::ImportOption> *r_options) {
 	// Returns all the options when path is empty because that means it's for the Project Settings.
 	if (p_path.is_empty() || p_path.get_extension().to_lower() == "fbx") {
-		r_options->push_back(ResourceImporterScene::ImportOption(PropertyInfo(Variant::INT, "fbx/importer", PROPERTY_HINT_ENUM, "ufbx,FBX2glTF"), FBX_IMPORTER_UFBX));
+		r_options->push_back(ResourceImporterScene::ImportOption(PropertyInfo(Variant::INT, "fbx/importer", PROPERTY_HINT_ENUM, "ufbx"), FBX_IMPORTER_UFBX));
 		r_options->push_back(ResourceImporterScene::ImportOption(PropertyInfo(Variant::BOOL, "fbx/allow_geometry_helper_nodes"), false));
 		r_options->push_back(ResourceImporterScene::ImportOption(PropertyInfo(Variant::INT, "fbx/embedded_image_handling", PROPERTY_HINT_ENUM, "Discard All Textures,Extract Textures,Embed as Basis Universal,Embed as Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), FBXState::HANDLE_BINARY_EXTRACT_TEXTURES));
 		r_options->push_back(ResourceImporterScene::ImportOption(PropertyInfo(Variant::INT, "fbx/naming_version", PROPERTY_HINT_ENUM, "Godot 4.0 or 4.1,Godot 4.2 to 4.4,Godot 4.5 or later"), 2));
@@ -103,9 +93,6 @@ void EditorSceneFormatImporterUFBX::get_import_options(const String &p_path,
 }
 
 void EditorSceneFormatImporterUFBX::handle_compatibility_options(HashMap<StringName, Variant> &p_import_params) const {
-	if (!p_import_params.has("fbx/importer")) {
-		p_import_params["fbx/importer"] = EditorSceneFormatImporterUFBX::FBX_IMPORTER_FBX2GLTF;
-	}
 	if (!p_import_params.has("fbx/naming_version")) {
 		// If a .fbx's existing import file is missing the FBX
 		// naming compatibility version, we need to use version 1.

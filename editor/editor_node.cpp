@@ -115,7 +115,6 @@
 #include "editor/import/3d/scene_import_settings.h"
 #include "editor/import/audio_stream_import_settings.h"
 #include "editor/import/dynamic_font_import_settings.h"
-#include "editor/import/fbx_importer_manager.h"
 #include "editor/import/resource_importer_bitmask.h"
 #include "editor/import/resource_importer_bmfont.h"
 #include "editor/import/resource_importer_csv_translation.h"
@@ -3349,9 +3348,6 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 		} break;
 		case EDITOR_MANAGE_EXPORT_TEMPLATES: {
 			export_template_manager->popup_manager();
-		} break;
-		case EDITOR_CONFIGURE_FBX_IMPORTER: {
-			fbx_importer_manager->show_dialog();
 		} break;
 		case EDITOR_MANAGE_FEATURE_PROFILES: {
 			feature_profile_manager->popup_centered_clamped(Size2(900, 800) * EDSCALE, 0.8);
@@ -7868,9 +7864,6 @@ EditorNode::EditorNode() {
 	about = memnew(EditorAbout);
 	gui_base->add_child(about);
 	feature_profile_manager->connect("current_feature_profile_changed", callable_mp(this, &EditorNode::_feature_profile_changed));
-
-	fbx_importer_manager = memnew(FBXImporterManager);
-	gui_base->add_child(fbx_importer_manager);
 
 	warning = memnew(AcceptDialog);
 	warning->set_unparent_when_invisible(true);

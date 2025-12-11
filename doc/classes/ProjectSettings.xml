@@ -1132,10 +1132,6 @@
 			If [code]true[/code], Blender 3D scene files with the [code].blend[/code] extension will be imported by converting them to glTF 2.0.
 			This requires configuring a path to a Blender executable in the [member EditorSettings.filesystem/import/blender/blender_path] setting. Blender 3.0 or later is required.
 		</member>
-		<member name="filesystem/import/fbx2gltf/enabled" type="bool" setter="" getter="" default="true">
-			If [code]true[/code], Autodesk FBX 3D scene files with the [code].fbx[/code] extension will be imported by converting them to glTF 2.0.
-			This requires configuring a path to an FBX2glTF executable in the editor settings at [member EditorSettings.filesystem/import/fbx/fbx2gltf_path].
-		</member>
 		<member name="gui/common/default_scroll_deadzone" type="int" setter="" getter="" default="0">
 			Default value for [member ScrollContainer.scroll_deadzone], which will be used for all [ScrollContainer]s unless overridden.
 		</member>

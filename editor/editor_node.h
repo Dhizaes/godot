@@ -264,8 +264,6 @@ private:
 	ProjectExportDialog *project_export = nullptr;
 	ProjectSettingsEditor *project_settings_editor = nullptr;
 
-	FBXImporterManager *fbx_importer_manager = nullptr;
-
 	Vector<EditorPlugin *> editor_plugins;
 	bool _initializing_plugins = false;
 	HashMap<String, EditorPlugin *> addon_name_to_plugin;

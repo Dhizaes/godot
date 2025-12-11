@@ -40,8 +40,7 @@ class EditorSceneFormatImporterUFBX : public EditorSceneFormatImporter {
 
 public:
 	enum FBX_IMPORTER_TYPE {
-		FBX_IMPORTER_UFBX,
-		FBX_IMPORTER_FBX2GLTF,
+		FBX_IMPORTER_UFBX
 	};
 	virtual void get_extensions(List<String> *r_extensions) const override;
 	virtual Node *import_scene(const String &p_path, uint32_t p_flags,

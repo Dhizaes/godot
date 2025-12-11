@@ -9,7 +9,6 @@ def configure(env):
 
 def get_doc_classes():
     return [
-        "EditorSceneFormatImporterFBX2GLTF",
         "EditorSceneFormatImporterUFBX",
         "FBXDocument",
         "FBXState",
