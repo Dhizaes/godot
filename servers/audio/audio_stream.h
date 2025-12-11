@@ -67,7 +67,7 @@ public:
 	Ref<AudioStream> stream;
 	Vector<AudioFrame> data;
 	int num_channels = 1;
-	int sample_rate = 44100;
+	int sample_rate = 48000;
 	LoopMode loop_mode = LOOP_DISABLED;
 	int loop_begin = 0;
 	int loop_end = 0;
@@ -130,7 +130,7 @@ class AudioStreamPlaybackResampled : public AudioStreamPlayback {
 		FP_BITS = 16, //fixed point used for resampling
 		FP_LEN = (1 << FP_BITS),
 		FP_MASK = FP_LEN - 1,
-		INTERNAL_BUFFER_LEN = 128, // 128 warrants 3ms positional jitter at much at 44100hz
+		INTERNAL_BUFFER_LEN = 128, // 128 warrants 3ms positional jitter at much at 48000hz
 		CUBIC_INTERP_HISTORY = 4
 	};
 

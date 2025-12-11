@@ -321,7 +321,7 @@ Reverb::Reverb() {
 	params.damp = 0.5;
 	params.dry = 1.0;
 	params.wet = 0.0;
-	params.mix_rate = 44100;
+	params.mix_rate = 48000;
 	params.extra_spread_base = 0;
 	params.extra_spread = 1.0;
 	params.predelay = 150;

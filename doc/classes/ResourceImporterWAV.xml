@@ -46,7 +46,7 @@
 			If set to a value greater than [code]0[/code], forces the audio's sample rate to be reduced to a value lower than or equal to the value specified in [member force/max_rate_hz].
 			This can decrease file size noticeably on certain sounds, without impacting quality depending on the actual sound's contents. See [url=$DOCS_URL/tutorials/assets_pipeline/importing_audio_samples.html#doc-importing-audio-samples-best-practices]Best practices[/url] for more information.
 		</member>
-		<member name="force/max_rate_hz" type="float" setter="" getter="" default="44100">
+		<member name="force/max_rate_hz" type="float" setter="" getter="" default="48000">
 			The frequency to limit the imported audio sample to (in Hz). Only effective if [member force/max_rate] is [code]true[/code].
 		</member>
 		<member name="force/mono" type="bool" setter="" getter="" default="false">

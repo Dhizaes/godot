@@ -169,7 +169,7 @@ class AudioDriverManager {
 	static AudioDriverDummy dummy_driver;
 
 public:
-	static const int DEFAULT_MIX_RATE = 44100;
+	static const int DEFAULT_MIX_RATE = 48000;
 
 	static void add_driver(AudioDriver *p_driver);
 	static void initialize(int p_driver);

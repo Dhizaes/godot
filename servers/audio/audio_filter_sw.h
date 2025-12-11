@@ -77,7 +77,7 @@ private:
 	float cutoff = 5000.0f;
 	float resonance = 0.5f;
 	float gain = 1.0f;
-	float sampling_rate = 44100.0f;
+	float sampling_rate = 48000.0f;
 	int stages = 1;
 	Mode mode = LOWPASS;
 

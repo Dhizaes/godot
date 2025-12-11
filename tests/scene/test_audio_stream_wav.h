@@ -39,7 +39,7 @@
 namespace TestAudioStreamWAV {
 
 // Default wav rate for test cases.
-constexpr float WAV_RATE = 44100;
+constexpr float WAV_RATE = 48000;
 /* Default wav count for test cases. 1 second of audio is used so that the file can be listened
 to manually if needed. */
 constexpr int WAV_COUNT = WAV_RATE;
@@ -195,7 +195,7 @@ TEST_CASE("[Audio][AudioStreamWAV] Default values") {
 	CHECK(stream->get_loop_mode() == AudioStreamWAV::LOOP_DISABLED);
 	CHECK(stream->get_loop_begin() == 0);
 	CHECK(stream->get_loop_end() == 0);
-	CHECK(stream->get_mix_rate() == 44100);
+	CHECK(stream->get_mix_rate() == 48000);
 	CHECK(stream->is_stereo() == false);
 	CHECK(stream->get_length() == 0);
 	CHECK(stream->is_monophonic() == false);

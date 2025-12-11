@@ -46,7 +46,7 @@ public:
 
 private:
 	AudioStreamGeneratorMixRate mix_rate_mode = MIX_RATE_CUSTOM;
-	float mix_rate = 44100;
+	float mix_rate = 48000;
 	float buffer_len = 0.5;
 
 protected:

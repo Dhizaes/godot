@@ -77,7 +77,7 @@ void ResourceImporterWAV::get_import_options(const String &p_path, List<ImportOp
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "force/8_bit"), false));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "force/mono"), false));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "force/max_rate", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), false));
-	r_options->push_back(ImportOption(PropertyInfo(Variant::FLOAT, "force/max_rate_hz", PROPERTY_HINT_RANGE, "11025,192000,1,exp"), 44100));
+	r_options->push_back(ImportOption(PropertyInfo(Variant::FLOAT, "force/max_rate_hz", PROPERTY_HINT_RANGE, "11025,192000,1,exp"), 48000));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "edit/trim"), false));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "edit/normalize"), false));
 	// Keep the `edit/loop_mode` enum in sync with AudioStreamWAV::LoopMode (note: +1 offset due to "Detect From WAV").

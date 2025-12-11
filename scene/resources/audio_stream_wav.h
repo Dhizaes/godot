@@ -120,7 +120,7 @@ private:
 	bool stereo = false;
 	int loop_begin = 0;
 	int loop_end = 0;
-	int mix_rate = 44100;
+	int mix_rate = 48000;
 	TightLocalVector<uint8_t> data;
 	uint32_t data_bytes = 0;
 

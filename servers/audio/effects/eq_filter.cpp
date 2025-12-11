@@ -194,7 +194,7 @@ EQ::BandProcess EQ::get_band_processor(int p_band) const {
 }
 
 EQ::EQ() {
-	mix_rate = 44100;
+	mix_rate = 48000;
 }
 
 EQ::~EQ() {

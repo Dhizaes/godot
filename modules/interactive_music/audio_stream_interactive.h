@@ -74,7 +74,7 @@ public:
 
 private:
 	friend class AudioStreamPlaybackInteractive;
-	int sample_rate = 44100;
+	int sample_rate = 48000;
 	bool stereo = true;
 	int initial_clip = 0;
 
