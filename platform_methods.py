@@ -10,9 +10,7 @@ import methods
 
 
 compatibility_platform_aliases = {
-    "osx": "macos",
-    "x11": "linuxbsd",
-    "javascript": "web",
+    "osx": "macos"
 }
 
 # CPU architecture options.

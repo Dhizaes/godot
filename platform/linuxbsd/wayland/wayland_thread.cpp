@@ -30,8 +30,6 @@
 
 #include "wayland_thread.h"
 
-#ifdef WAYLAND_ENABLED
-
 #ifdef __FreeBSD__
 #include <dev/evdev/input-event-codes.h>
 #else
@@ -5076,5 +5074,3 @@ void WaylandThread::destroy() {
 		wl_display_disconnect(wl_display);
 	}
 }
-
-#endif // WAYLAND_ENABLED

@@ -2426,13 +2426,13 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	/* Determine audio and video drivers */
 
-	// Display driver, e.g. X11, Wayland.
+	// Display driver, e.g. Wayland.
 	// Make sure that headless is the last one, which it is assumed to be by design.
 	DEV_ASSERT(NULL_DISPLAY_DRIVER == DisplayServer::get_create_function_name(DisplayServer::get_create_function_count() - 1));
 
 	GLOBAL_DEF_NOVAL("display/display_server/driver", "default");
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.windows", PROPERTY_HINT_ENUM_SUGGESTION, "default,windows,headless"), "default");
-	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.linuxbsd", PROPERTY_HINT_ENUM_SUGGESTION, "default,x11,wayland,headless"), "default");
+	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.linuxbsd", PROPERTY_HINT_ENUM_SUGGESTION, "default,wayland,headless"), "default");
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.macos", PROPERTY_HINT_ENUM_SUGGESTION, "default,macos,headless"), "default");
 
 	GLOBAL_DEF_RST_NOVAL("audio/driver/driver", AudioDriverManager::get_driver(0)->get_name());
@@ -2656,9 +2656,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 					bool screen_found = false;
 					String screen_property;
 
-					bool prefer_wayland_found = false;
-					bool prefer_wayland = false;
-
 					bool tablet_found = false;
 
 					bool ac_found = false;
@@ -2672,12 +2669,7 @@ Error Main::setup2(bool p_show_boot_logo) {
 						screen_found = true;
 					}
 
-					if (!display_driver.is_empty()) {
-						// Skip.
-						prefer_wayland_found = true;
-					}
-
-					while (!screen_found || !init_expand_to_title_found || !init_display_scale_found || !init_custom_scale_found || !prefer_wayland_found || !tablet_found || !ac_found) {
+					while (!screen_found || !init_expand_to_title_found || !init_display_scale_found || !init_custom_scale_found || !tablet_found || !ac_found) {
 						assign = Variant();
 						next_tag.fields.clear();
 						next_tag.name = String();
@@ -2708,9 +2700,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 							} else if (!init_custom_scale_found && assign == "interface/editor/custom_display_scale") {
 								init_custom_scale = value;
 								init_custom_scale_found = true;
-							} else if (!prefer_wayland_found && assign == "run/platforms/linuxbsd/prefer_wayland") {
-								prefer_wayland = value;
-								prefer_wayland_found = true;
 							} else if (!tablet_found && assign == "interface/editor/tablet_driver") {
 								tablet_driver_editor = value;
 								tablet_found = true;
@@ -2719,11 +2708,7 @@ Error Main::setup2(bool p_show_boot_logo) {
 					}
 
 					if (display_driver.is_empty()) {
-						if (prefer_wayland) {
-							display_driver = "wayland";
-						} else {
-							display_driver = "default";
-						}
+						display_driver = "wayland";
 					}
 				}
 			}

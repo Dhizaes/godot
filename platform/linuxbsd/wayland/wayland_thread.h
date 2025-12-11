@@ -30,8 +30,6 @@
 
 #pragma once
 
-#ifdef WAYLAND_ENABLED
-
 #include "key_mapping_xkb.h"
 
 #ifdef SOWRAP_ENABLED
@@ -1107,5 +1105,3 @@ public:
 	Error init();
 	void destroy();
 };
-
-#endif // WAYLAND_ENABLED

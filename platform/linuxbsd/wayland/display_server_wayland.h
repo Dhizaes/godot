@@ -30,8 +30,6 @@
 
 #pragma once
 
-#ifdef WAYLAND_ENABLED
-
 #include "wayland/wayland_thread.h"
 
 #ifdef RD_ENABLED
@@ -342,5 +340,3 @@ public:
 	DisplayServerWayland(const String &p_rendering_driver, WindowMode p_mode, VSyncMode p_vsync_mode, uint32_t p_flags, const Vector2i &p_resolution, Context p_context, int64_t p_parent_window, Error &r_error);
 	~DisplayServerWayland();
 };
-
-#endif // WAYLAND_ENABLED

@@ -107,7 +107,7 @@
 			<return type="int" />
 			<description>
 				Returns [code]1[/code] if a high-contrast user interface theme should be used, [code]0[/code] otherwise. Returns [code]-1[/code] if status is unknown.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland, GNOME), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland, GNOME), macOS, and Windows.
 			</description>
 		</method>
 		<method name="accessibility_should_reduce_animation" qualifiers="const">
@@ -638,7 +638,7 @@
 			<return type="void" />
 			<description>
 				Plays the beep sound from the operative system, if possible. Because it comes from the OS, the beep sound will be audible even if the application is muted. It may also be disabled for the entire OS by the user.
-				[b]Note:[/b] This method is implemented on macOS, Linux (X11/Wayland), and Windows.
+				[b]Note:[/b] This method is implemented on macOS, Linux (Wayland), and Windows.
 			</description>
 		</method>
 		<method name="clipboard_get" qualifiers="const">
@@ -658,7 +658,7 @@
 			<return type="String" />
 			<description>
 				Returns the user's [url=https://unix.stackexchange.com/questions/139191/whats-the-difference-between-primary-selection-and-clipboard-buffer]primary[/url] clipboard as a string if possible. This is the clipboard that is set when the user selects text in any application, rather than when pressing [kbd]Ctrl + C[/kbd]. The clipboard data can then be pasted by clicking the middle mouse button in any application that supports the primary clipboard mechanism.
-				[b]Note:[/b] This method is only implemented on Linux (X11/Wayland).
+				[b]Note:[/b] This method is only implemented on Linux (Wayland).
 			</description>
 		</method>
 		<method name="clipboard_has" qualifiers="const">
@@ -685,7 +685,7 @@
 			<param index="0" name="clipboard_primary" type="String" />
 			<description>
 				Sets the user's [url=https://unix.stackexchange.com/questions/139191/whats-the-difference-between-primary-selection-and-clipboard-buffer]primary[/url] clipboard content to the given string. This is the clipboard that is set when the user selects text in any application, rather than when pressing [kbd]Ctrl + C[/kbd]. The clipboard data can then be pasted by clicking the middle mouse button in any application that supports the primary clipboard mechanism.
-				[b]Note:[/b] This method is only implemented on Linux (X11/Wayland).
+				[b]Note:[/b] This method is only implemented on Linux (Wayland).
 			</description>
 		</method>
 		<method name="color_picker">
@@ -695,7 +695,7 @@
 				Displays OS native color picker.
 				Callbacks have the following arguments: [code]status: bool, color: Color[/code].
 				[b]Note:[/b] This method is implemented if the display server has the [constant FEATURE_NATIVE_COLOR_PICKER] feature.
-				[b]Note:[/b] This method is only implemented on Linux (X11/Wayland).
+				[b]Note:[/b] This method is only implemented on Linux (Wayland).
 			</description>
 		</method>
 		<method name="create_status_indicator">
@@ -782,7 +782,7 @@
 				Displays OS native dialog for selecting files or directories in the file system.
 				Each filter string in the [param filters] array should be formatted like this: [code]*.png,*.jpg,*.jpeg;Image Files;image/png,image/jpeg[/code]. The description text of the filter is optional and can be omitted. It is recommended to set both file extension and MIME type. See also [member FileDialog.filters].
 				Callbacks have the following arguments: [code]status: bool, selected_paths: PackedStringArray, selected_filter_index: int[/code]. [b]On Android,[/b] the third callback argument ([code]selected_filter_index[/code]) is always [code]0[/code].
-				[b]Note:[/b] This method is implemented if the display server has the [constant FEATURE_NATIVE_DIALOG_FILE] feature. Supported platforms include Linux (X11/Wayland), Windows, macOS, and Android (API level 29+).
+				[b]Note:[/b] This method is implemented if the display server has the [constant FEATURE_NATIVE_DIALOG_FILE] feature. Supported platforms include Linux (Wayland), Windows, macOS, and Android (API level 29+).
 				[b]Note:[/b] [param current_directory] might be ignored.
 				[b]Note:[/b] Embedded file dialog and Windows file dialog support only file extensions, while Android, Linux, and macOS file dialogs also support MIME types.
 				[b]Note:[/b] On Android and Linux, [param show_hidden] is ignored.
@@ -810,7 +810,7 @@
 				- [code]"values"[/code] - [PackedStringArray] of values. If empty, boolean option (check box) is used.
 				- [code]"default"[/code] - default selected option index ([int]) or default boolean value ([bool]).
 				Callbacks have the following arguments: [code]status: bool, selected_paths: PackedStringArray, selected_filter_index: int, selected_option: Dictionary[/code].
-				[b]Note:[/b] This method is implemented if the display server has the [constant FEATURE_NATIVE_DIALOG_FILE_EXTRA] feature. Supported platforms include Linux (X11/Wayland), Windows, and macOS.
+				[b]Note:[/b] This method is implemented if the display server has the [constant FEATURE_NATIVE_DIALOG_FILE_EXTRA] feature. Supported platforms include Linux (Wayland), Windows, and macOS.
 				[b]Note:[/b] [param current_directory] might be ignored.
 				[b]Note:[/b] Embedded file dialog and Windows file dialog support only file extensions, while Android, Linux, and macOS file dialogs also support MIME types.
 				[b]Note:[/b] On Linux (X11), [param show_hidden] is ignored.
@@ -829,7 +829,7 @@
 			<return type="Color" />
 			<description>
 				Returns OS theme accent color. Returns [code]Color(0, 0, 0, 0)[/code], if accent color is unknown.
-				[b]Note:[/b] This method is implemented on macOS, Windows, Android, and Linux (X11/Wayland).
+				[b]Note:[/b] This method is implemented on macOS, Windows, Android, and Linux (Wayland).
 			</description>
 		</method>
 		<method name="get_base_color" qualifiers="const">
@@ -1578,14 +1578,14 @@
 			<return type="bool" />
 			<description>
 				Returns [code]true[/code] if OS is using dark mode.
-				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (X11/Wayland).
+				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (Wayland).
 			</description>
 		</method>
 		<method name="is_dark_mode_supported" qualifiers="const">
 			<return type="bool" />
 			<description>
 				Returns [code]true[/code] if OS supports dark mode.
-				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (X11/Wayland).
+				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (Wayland).
 			</description>
 		</method>
 		<method name="is_touchscreen_available" qualifiers="const">
@@ -1604,7 +1604,7 @@
 			<return type="int" />
 			<description>
 				Returns active keyboard layout index.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="keyboard_get_keycode_from_physical" qualifiers="const">
@@ -1612,7 +1612,7 @@
 			<param index="0" name="keycode" type="int" enum="Key" />
 			<description>
 				Converts a physical (US QWERTY) [param keycode] to one in the active keyboard layout.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="keyboard_get_label_from_physical" qualifiers="const">
@@ -1620,14 +1620,14 @@
 			<param index="0" name="keycode" type="int" enum="Key" />
 			<description>
 				Converts a physical (US QWERTY) [param keycode] to localized label printed on the key in the active keyboard layout.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="keyboard_get_layout_count" qualifiers="const">
 			<return type="int" />
 			<description>
 				Returns the number of keyboard layouts.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="keyboard_get_layout_language" qualifiers="const">
@@ -1635,7 +1635,7 @@
 			<param index="0" name="index" type="int" />
 			<description>
 				Returns the ISO-639/BCP-47 language code of the keyboard layout at position [param index].
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="keyboard_get_layout_name" qualifiers="const">
@@ -1643,7 +1643,7 @@
 			<param index="0" name="index" type="int" />
 			<description>
 				Returns the localized name of the keyboard layout at position [param index].
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="keyboard_set_current_layout">
@@ -1651,7 +1651,7 @@
 			<param index="0" name="index" type="int" />
 			<description>
 				Sets the active keyboard layout.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS and Windows.
 			</description>
 		</method>
 		<method name="mouse_get_button_state" qualifiers="const">
@@ -1709,7 +1709,7 @@
 				 xxhdpi - 480 dpi
 				xxxhdpi - 640 dpi
 				[/codeblock]
-				[b]Note:[/b] This method is implemented on Android, iOS, Linux (X11/Wayland), macOS, Web, and Windows. On other platforms, this method always returns [code]72[/code].
+				[b]Note:[/b] This method is implemented on Android, iOS, Linux (Wayland), macOS, Web, and Windows. On other platforms, this method always returns [code]72[/code].
 			</description>
 		</method>
 		<method name="screen_get_image" qualifiers="const">
@@ -1870,7 +1870,7 @@
 			<param index="0" name="callable" type="Callable" />
 			<description>
 				Sets the [param callable] that should be called when system theme settings are changed. Callback method should have zero arguments.
-				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (X11/Wayland).
+				[b]Note:[/b] This method is implemented on Android, iOS, macOS, Windows, and Linux (Wayland).
 			</description>
 		</method>
 		<method name="show_emoji_and_symbol_picker" qualifiers="const">
@@ -1969,7 +1969,7 @@
 				- [code]id[/code] is voice identifier.
 				- [code]language[/code] is language code in [code]lang_Variant[/code] format. The [code]lang[/code] part is a 2 or 3-letter code based on the ISO-639 standard, in lowercase. The [code skip-lint]Variant[/code] part is an engine-dependent string describing country, region or/and dialect.
 				Note that Godot depends on system libraries for text-to-speech functionality. These libraries are installed by default on Windows and macOS, but not on all Linux distributions. If they are not present, this method will return an empty list. This applies to both Godot users on Linux, as well as end-users on Linux running Godot games that use text-to-speech.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_get_voices_for_language" qualifiers="const">
@@ -1977,35 +1977,35 @@
 			<param index="0" name="language" type="String" />
 			<description>
 				Returns a [PackedStringArray] of voice identifiers for the [param language].
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_is_paused" qualifiers="const">
 			<return type="bool" />
 			<description>
 				Returns [code]true[/code] if the synthesizer is in a paused state.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_is_speaking" qualifiers="const">
 			<return type="bool" />
 			<description>
 				Returns [code]true[/code] if the synthesizer is generating speech, or have utterance waiting in the queue.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_pause">
 			<return type="void" />
 			<description>
 				Puts the synthesizer into a paused state.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_resume">
 			<return type="void" />
 			<description>
 				Resumes the synthesizer if it was paused.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_set_utterance_callback">
@@ -2017,7 +2017,7 @@
 				- [constant TTS_UTTERANCE_STARTED], [constant TTS_UTTERANCE_ENDED], and [constant TTS_UTTERANCE_CANCELED] callable's method should take one [int] parameter, the utterance ID.
 				- [constant TTS_UTTERANCE_BOUNDARY] callable's method should take two [int] parameters, the index of the character and the utterance ID.
 				[b]Note:[/b] The granularity of the boundary callbacks is engine dependent.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_speak">
@@ -2036,16 +2036,16 @@
 				- [param pitch] ranges from [code]0.0[/code] (lowest) to [code]2.0[/code] (highest), [code]1.0[/code] is default pitch for the current voice.
 				- [param rate] ranges from [code]0.1[/code] (lowest) to [code]10.0[/code] (highest), [code]1.0[/code] is a normal speaking rate. Other values act as a percentage relative.
 				- [param utterance_id] is passed as a parameter to the callback functions.
-				[b]Note:[/b] On Windows and Linux (X11/Wayland), utterance [param text] can use SSML markup. SSML support is engine and voice dependent. If the engine does not support SSML, you should strip out all XML markup before calling [method tts_speak].
+				[b]Note:[/b] On Windows and Linux (Wayland), utterance [param text] can use SSML markup. SSML support is engine and voice dependent. If the engine does not support SSML, you should strip out all XML markup before calling [method tts_speak].
 				[b]Note:[/b] The granularity of pitch, rate, and volume is engine and voice dependent. Values may be truncated.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="tts_stop">
 			<return type="void" />
 			<description>
 				Stops synthesis in progress and removes all utterances from the queue.
-				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, iOS, Web, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="unregister_additional_output">
@@ -2092,7 +2092,7 @@
 			<param index="0" name="position" type="Vector2i" />
 			<description>
 				Sets the mouse cursor position to the given [param position] relative to an origin at the upper left corner of the currently focused game Window Manager window.
-				[b]Note:[/b] [method warp_mouse] is only supported on Windows, macOS, and Linux (X11/Wayland). It has no effect on Android, iOS, and Web.
+				[b]Note:[/b] [method warp_mouse] is only supported on Windows, macOS, and Linux (Wayland). It has no effect on Android, iOS, and Web.
 			</description>
 		</method>
 		<method name="window_can_draw" qualifiers="const">
@@ -2158,7 +2158,7 @@
 			<param index="1" name="window_id" type="int" default="0" />
 			<description>
 				Returns internal structure pointers for use in plugins.
-				[b]Note:[/b] This method is implemented on Android, Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Android, Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="window_get_popup_safe_rect" qualifiers="const">
@@ -2278,7 +2278,7 @@
 			<description>
 				Sets the [param callback] that should be called when files are dropped from the operating system's file manager to the window specified by [param window_id]. [param callback] should take one [PackedStringArray] argument, which is the list of dropped files.
 				[b]Warning:[/b] Advanced users only! Adding such a callback to a [Window] node will override its default implementation, which can introduce bugs.
-				[b]Note:[/b] This method is implemented on Windows, macOS, Linux (X11/Wayland), and Web.
+				[b]Note:[/b] This method is implemented on Windows, macOS, Linux (Wayland), and Web.
 			</description>
 		</method>
 		<method name="window_set_exclusive">
@@ -2496,7 +2496,7 @@
 			<param index="0" name="window_id" type="int" default="0" />
 			<description>
 				Starts an interactive drag operation on the window with the given [param window_id], using the current mouse position. Call this method when handling a mouse button being pressed to simulate a pressed event on the window's title bar. Using this method allows the window to participate in space switching, tiling, and other system features.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 		<method name="window_start_resize">
@@ -2505,7 +2505,7 @@
 			<param index="1" name="window_id" type="int" default="0" />
 			<description>
 				Starts an interactive resize operation on the window with the given [param window_id], using the current mouse position. Call this method when handling a mouse button being pressed to simulate a pressed event on the window's edge.
-				[b]Note:[/b] This method is implemented on Linux (X11/Wayland), macOS, and Windows.
+				[b]Note:[/b] This method is implemented on Linux (Wayland), macOS, and Windows.
 			</description>
 		</method>
 	</methods>
@@ -2520,22 +2520,22 @@
 			Display server supports touchscreen input. [b]Windows, Linux (X11), Android, iOS, Web[/b]
 		</constant>
 		<constant name="FEATURE_MOUSE" value="3" enum="Feature">
-			Display server supports mouse input. [b]Windows, macOS, Linux (X11/Wayland), Android, Web[/b]
+			Display server supports mouse input. [b]Windows, macOS, Linux (Wayland), Android, Web[/b]
 		</constant>
 		<constant name="FEATURE_MOUSE_WARP" value="4" enum="Feature">
-			Display server supports warping mouse coordinates to keep the mouse cursor constrained within an area, but looping when one of the edges is reached. [b]Windows, macOS, Linux (X11/Wayland)[/b]
+			Display server supports warping mouse coordinates to keep the mouse cursor constrained within an area, but looping when one of the edges is reached. [b]Windows, macOS, Linux (Wayland)[/b]
 		</constant>
 		<constant name="FEATURE_CLIPBOARD" value="5" enum="Feature">
-			Display server supports setting and getting clipboard data. See also [constant FEATURE_CLIPBOARD_PRIMARY]. [b]Windows, macOS, Linux (X11/Wayland), Android, iOS, Web[/b]
+			Display server supports setting and getting clipboard data. See also [constant FEATURE_CLIPBOARD_PRIMARY]. [b]Windows, macOS, Linux (Wayland), Android, iOS, Web[/b]
 		</constant>
 		<constant name="FEATURE_VIRTUAL_KEYBOARD" value="6" enum="Feature">
 			Display server supports popping up a virtual keyboard when requested to input text without a physical keyboard. [b]Android, iOS, Web[/b]
 		</constant>
 		<constant name="FEATURE_CURSOR_SHAPE" value="7" enum="Feature">
-			Display server supports setting the mouse cursor shape to be different from the default. [b]Windows, macOS, Linux (X11/Wayland), Android, Web[/b]
+			Display server supports setting the mouse cursor shape to be different from the default. [b]Windows, macOS, Linux (Wayland), Android, Web[/b]
 		</constant>
 		<constant name="FEATURE_CUSTOM_CURSOR_SHAPE" value="8" enum="Feature">
-			Display server supports setting the mouse cursor shape to a custom image. [b]Windows, macOS, Linux (X11/Wayland), Web[/b]
+			Display server supports setting the mouse cursor shape to a custom image. [b]Windows, macOS, Linux (Wayland), Web[/b]
 		</constant>
 		<constant name="FEATURE_NATIVE_DIALOG" value="9" enum="Feature">
 			Display server supports spawning text dialogs using the operating system's native look-and-feel. See [method dialog_show]. [b]Windows, macOS[/b]
@@ -2544,7 +2544,7 @@
 			Display server supports [url=https://en.wikipedia.org/wiki/Input_method]Input Method Editor[/url], which is commonly used for inputting Chinese/Japanese/Korean text. This is handled by the operating system, rather than by Godot. [b]Windows, macOS, Linux (X11)[/b]
 		</constant>
 		<constant name="FEATURE_WINDOW_TRANSPARENCY" value="11" enum="Feature">
-			Display server supports windows can use per-pixel transparency to make windows behind them partially or fully visible. [b]Windows, macOS, Linux (X11/Wayland), Android[/b]
+			Display server supports windows can use per-pixel transparency to make windows behind them partially or fully visible. [b]Windows, macOS, Linux (Wayland), Android[/b]
 		</constant>
 		<constant name="FEATURE_HIDPI" value="12" enum="Feature">
 			Display server supports querying the operating system's display scale factor. This allows automatically detecting the hiDPI display [i]reliably[/i], instead of guessing based on the screen resolution and the display's reported DPI (which might be unreliable due to broken monitor EDID). [b]Windows, Linux (Wayland), macOS[/b]
@@ -2559,13 +2559,13 @@
 			Display server supports changing the screen orientation. [b]Android, iOS[/b]
 		</constant>
 		<constant name="FEATURE_SWAP_BUFFERS" value="16" enum="Feature">
-			Display server supports V-Sync status can be changed from the default (which is forced to be enabled platforms not supporting this feature). [b]Windows, macOS, Linux (X11/Wayland)[/b]
+			Display server supports V-Sync status can be changed from the default (which is forced to be enabled platforms not supporting this feature). [b]Windows, macOS, Linux (Wayland)[/b]
 		</constant>
 		<constant name="FEATURE_CLIPBOARD_PRIMARY" value="18" enum="Feature">
-			Display server supports Primary clipboard can be used. This is a different clipboard from [constant FEATURE_CLIPBOARD]. [b]Linux (X11/Wayland)[/b]
+			Display server supports Primary clipboard can be used. This is a different clipboard from [constant FEATURE_CLIPBOARD]. [b]Linux (Wayland)[/b]
 		</constant>
 		<constant name="FEATURE_TEXT_TO_SPEECH" value="19" enum="Feature">
-			Display server supports text-to-speech. See [code]tts_*[/code] methods. [b]Windows, macOS, Linux (X11/Wayland), Android, iOS, Web[/b]
+			Display server supports text-to-speech. See [code]tts_*[/code] methods. [b]Windows, macOS, Linux (Wayland), Android, iOS, Web[/b]
 		</constant>
 		<constant name="FEATURE_EXTEND_TO_TITLE" value="20" enum="Feature">
 			Display server supports expanding window content to the title. See [constant WINDOW_FLAG_EXTEND_TO_TITLE]. [b]macOS[/b]
@@ -2583,10 +2583,10 @@
 			Display server supports spawning text input dialogs using the operating system's native look-and-feel. See [method dialog_input_text]. [b]Windows, macOS[/b]
 		</constant>
 		<constant name="FEATURE_NATIVE_DIALOG_FILE" value="25" enum="Feature">
-			Display server supports spawning dialogs for selecting files or directories using the operating system's native look-and-feel. See [method file_dialog_show]. [b]Windows, macOS, Linux (X11/Wayland), Android[/b]
+			Display server supports spawning dialogs for selecting files or directories using the operating system's native look-and-feel. See [method file_dialog_show]. [b]Windows, macOS, Linux (Wayland), Android[/b]
 		</constant>
 		<constant name="FEATURE_NATIVE_DIALOG_FILE_EXTRA" value="26" enum="Feature">
-			The display server supports all features of [constant FEATURE_NATIVE_DIALOG_FILE], with the added functionality of Options and native dialog file access to [code]res://[/code] and [code]user://[/code] paths. See [method file_dialog_show] and [method file_dialog_with_options_show]. [b]Windows, macOS, Linux (X11/Wayland)[/b]
+			The display server supports all features of [constant FEATURE_NATIVE_DIALOG_FILE], with the added functionality of Options and native dialog file access to [code]res://[/code] and [code]user://[/code] paths. See [method file_dialog_show] and [method file_dialog_with_options_show]. [b]Windows, macOS, Linux (Wayland)[/b]
 		</constant>
 		<constant name="FEATURE_WINDOW_DRAG" value="27" enum="Feature">
 			The display server supports initiating window drag and resize operations on demand. See [method window_start_drag] and [method window_start_resize].
@@ -2604,13 +2604,13 @@
 			Display server supports system emoji and symbol picker. [b]Windows, macOS[/b]
 		</constant>
 		<constant name="FEATURE_NATIVE_COLOR_PICKER" value="32" enum="Feature">
-			Display server supports native color picker. [b]Linux (X11/Wayland)[/b]
+			Display server supports native color picker. [b]Linux (Wayland)[/b]
 		</constant>
 		<constant name="FEATURE_SELF_FITTING_WINDOWS" value="33" enum="Feature">
 			Display server automatically fits popups according to the screen boundaries. Window nodes should not attempt to do that themselves.
 		</constant>
 		<constant name="FEATURE_ACCESSIBILITY_SCREEN_READER" value="34" enum="Feature">
-			Display server supports interaction with screen reader or Braille display. [b]Linux (X11/Wayland), macOS, Windows[/b]
+			Display server supports interaction with screen reader or Braille display. [b]Linux (Wayland), macOS, Windows[/b]
 		</constant>
 		<constant name="ROLE_UNKNOWN" value="0" enum="AccessibilityRole">
 			Unknown or custom role.
@@ -3099,7 +3099,7 @@
 		<constant name="WINDOW_FLAG_TRANSPARENT" value="3" enum="WindowFlags">
 			The window background can be transparent.
 			[b]Note:[/b] This flag has no effect if [method is_window_transparency_available] returns [code]false[/code].
-			[b]Note:[/b] Transparency support is implemented on Linux (X11/Wayland), macOS, and Windows, but availability might vary depending on GPU driver, display manager, and compositor capabilities.
+			[b]Note:[/b] Transparency support is implemented on Linux (Wayland), macOS, and Windows, but availability might vary depending on GPU driver, display manager, and compositor capabilities.
 			[b]Note:[/b] Transparency support is implemented on Android, but can only be enabled via [member ProjectSettings.display/window/per_pixel_transparency/allowed]. This flag has no effect on Android.
 		</constant>
 		<constant name="WINDOW_FLAG_NO_FOCUS" value="4" enum="WindowFlags">
