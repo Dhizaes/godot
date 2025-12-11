@@ -2513,7 +2513,6 @@
 		</constant>
 		<constant name="JOY_BUTTON_MAX" value="128" enum="JoyButton">
 			The maximum number of game controller buttons supported by the engine. The actual limit may be lower on specific platforms:
-			- [b]Android:[/b] Up to 36 buttons.
 			- [b]Linux:[/b] Up to 80 buttons.
 			- [b]Windows[/b] and [b]macOS:[/b] Up to 128 buttons.
 		</constant>

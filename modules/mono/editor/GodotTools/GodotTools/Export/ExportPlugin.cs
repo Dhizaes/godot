@@ -39,24 +39,6 @@ namespace GodotTools.Export
         {
             var exportOptionList = new Godot.Collections.Array<Godot.Collections.Dictionary>();
 
-            if (platform.GetOsName().Equals(OS.Platforms.Android, StringComparison.OrdinalIgnoreCase))
-            {
-                exportOptionList.Add
-                (
-                    new Godot.Collections.Dictionary()
-                    {
-                        {
-                            "option", new Godot.Collections.Dictionary()
-                            {
-                                { "name", "dotnet/android_use_linux_bionic" },
-                                { "type", (int)Variant.Type.Bool }
-                            }
-                        },
-                        { "default_value", false }
-                    }
-                );
-            }
-
             exportOptionList.Add
             (
                 new Godot.Collections.Dictionary()
@@ -185,14 +167,13 @@ namespace GodotTools.Export
                 throw new NotImplementedException("Target platform not yet implemented.");
             }
 
-            bool useAndroidLinuxBionic = (bool)GetOption("dotnet/android_use_linux_bionic");
             PublishConfig publishConfig = new()
             {
                 BuildConfig = isDebug ? "ExportDebug" : "ExportRelease",
                 IncludeDebugSymbols = (bool)GetOption("dotnet/include_debug_symbols"),
-                RidOS = DetermineRuntimeIdentifierOS(platform, useAndroidLinuxBionic),
+                RidOS = DetermineRuntimeIdentifierOS(platform),
                 Archs = [],
-                UseTempDir = platform != OS.Platforms.iOS, // xcode project links directly to files in the publish dir, so use one that sticks around.
+                UseTempDir = true, // xcode project links directly to files in the publish dir, so use one that sticks around.
                 BundleOutputs = true,
             };
 
@@ -227,22 +208,9 @@ namespace GodotTools.Export
 
             var targets = new List<PublishConfig> { publishConfig };
 
-            if (platform == OS.Platforms.iOS)
-            {
-                targets.Add(new PublishConfig
-                {
-                    BuildConfig = publishConfig.BuildConfig,
-                    Archs = ["arm64", "x86_64"],
-                    BundleOutputs = false,
-                    IncludeDebugSymbols = publishConfig.IncludeDebugSymbols,
-                    RidOS = OS.DotNetOS.iOSSimulator,
-                    UseTempDir = false,
-                });
-            }
-
             List<string> outputPaths = new();
 
-            bool embedBuildResults = ((bool)GetOption("dotnet/embed_build_outputs") || platform == OS.Platforms.Android) && platform != OS.Platforms.MacOS;
+            bool embedBuildResults = ((bool)GetOption("dotnet/embed_build_outputs")) && platform != OS.Platforms.MacOS;
 
             var exportedJars = new HashSet<string>();
 
@@ -292,7 +260,7 @@ namespace GodotTools.Export
                     string soExt = ridOS switch
                     {
                         OS.DotNetOS.Win or OS.DotNetOS.Win10 => "dll",
-                        OS.DotNetOS.OSX or OS.DotNetOS.iOS or OS.DotNetOS.iOSSimulator => "dylib",
+                        OS.DotNetOS.OSX => "dylib",
                         _ => "so"
                     };
 
@@ -316,32 +284,14 @@ namespace GodotTools.Export
                     RecursePublishContents(publishOutputDir,
                         filterDir: dir =>
                         {
-                            if (platform == OS.Platforms.iOS)
-                            {
-                                // Exclude dsym folders.
-                                return !dir.EndsWith(".dsym", StringComparison.OrdinalIgnoreCase);
-                            }
-
                             return true;
                         },
                         filterFile: file =>
                         {
-                            if (platform == OS.Platforms.iOS)
-                            {
-                                // Exclude the dylib artifact, since it's included separately as an xcframework.
-                                return Path.GetFileName(file) != $"{GodotSharpDirs.ProjectAssemblyName}.dylib";
-                            }
-
                             return true;
                         },
                         recurseDir: dir =>
                         {
-                            if (platform == OS.Platforms.iOS)
-                            {
-                                // Don't recurse into dsym folders.
-                                return !dir.EndsWith(".dsym", StringComparison.OrdinalIgnoreCase);
-                            }
-
                             return true;
                         },
                         addEntry: (path, isFile) =>
@@ -351,49 +301,6 @@ namespace GodotTools.Export
                             {
                                 if (embedBuildResults)
                                 {
-                                    if (platform == OS.Platforms.Android)
-                                    {
-                                        string fileName = Path.GetFileName(path);
-
-                                        if (IsSharedObject(fileName))
-                                        {
-                                            if (fileName.EndsWith(".so") && !fileName.StartsWith("lib"))
-                                            {
-                                                // Add 'lib' prefix required for all native libraries in Android.
-                                                string newPath = string.Concat(path.AsSpan(0, path.Length - fileName.Length), "lib", fileName);
-                                                Godot.DirAccess.RenameAbsolute(path, newPath);
-                                                path = newPath;
-                                            }
-
-                                            AddSharedObject(path, tags: new string[] { arch },
-                                                Path.Join(projectDataDirName,
-                                                    Path.GetRelativePath(publishOutputDir,
-                                                        Path.GetDirectoryName(path)!)));
-
-                                            return;
-                                        }
-
-                                        bool IsSharedObject(string fileName)
-                                        {
-                                            if (fileName.EndsWith(".jar"))
-                                            {
-                                                // Don't export the same jar twice. Otherwise we will have conflicts.
-                                                // This can happen when exporting for multiple architectures. Dotnet
-                                                // stores the jars in .godot/mono/temp/bin/Export[Debug|Release] per
-                                                // target architecture. Jars are cpu agnostic so only 1 is needed.
-                                                var jarName = Path.GetFileName(fileName);
-                                                return exportedJars.Add(jarName);
-                                            }
-
-                                            if (fileName.EndsWith(".so") || fileName.EndsWith(".a") || fileName.EndsWith(".dex"))
-                                            {
-                                                return true;
-                                            }
-
-                                            return false;
-                                        }
-                                    }
-
                                     string filePath = SanitizeSlashes(Path.GetRelativePath(publishOutputDir, path));
                                     byte[] fileData = File.ReadAllBytes(path);
                                     string hash = Convert.ToBase64String(SHA512.HashData(fileData));
@@ -417,33 +324,6 @@ namespace GodotTools.Export
                         byte[] fileData = Encoding.Default.GetBytes(manifest.ToString());
                         AddFile($"res://.godot/mono/publish/{arch}/.dotnet-publish-manifest", fileData, false);
                     }
-                }
-            }
-
-            if (platform == OS.Platforms.iOS)
-            {
-                if (outputPaths.Count > 2)
-                {
-                    // lipo the simulator binaries together
-
-                    string outputPath = Path.Combine(outputPaths[1], $"{GodotSharpDirs.ProjectAssemblyName}.dylib");
-                    string[] files = outputPaths
-                        .Skip(1)
-                        .Select(path => Path.Combine(path, $"{GodotSharpDirs.ProjectAssemblyName}.dylib"))
-                        .ToArray();
-
-                    if (!Internal.LipOCreateFile(outputPath, files))
-                    {
-                        throw new InvalidOperationException($"Failed to 'lipo' simulator binaries.");
-                    }
-
-                    outputPaths.RemoveRange(2, outputPaths.Count - 2);
-                }
-
-                string xcFrameworkPath = Path.Combine(GodotSharpDirs.ProjectBaseOutputPath, publishConfig.BuildConfig, $"{GodotSharpDirs.ProjectAssemblyName}_aot.xcframework");
-                if (!BuildManager.GenerateXCFrameworkBlocking(outputPaths, xcFrameworkPath))
-                {
-                    throw new InvalidOperationException("Failed to generate xcframework.");
                 }
             }
         }
@@ -480,12 +360,8 @@ namespace GodotTools.Export
             return path;
         }
 
-        private string DetermineRuntimeIdentifierOS(string platform, bool useAndroidLinuxBionic)
+        private string DetermineRuntimeIdentifierOS(string platform)
         {
-            if (platform == OS.Platforms.Android && useAndroidLinuxBionic)
-            {
-                return OS.DotNetOS.LinuxBionic;
-            }
             return OS.DotNetOSPlatformMap[platform];
         }
 

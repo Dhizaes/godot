@@ -709,6 +709,10 @@ void ScriptTextEditor::set_edit_state(const Variant &p_state) {
 			_change_syntax_highlighter(idx);
 		}
 	}
+
+	if (editor_enabled) {
+		ensure_focus();
+	}
 }
 
 Variant ScriptTextEditor::get_navigation_state() {

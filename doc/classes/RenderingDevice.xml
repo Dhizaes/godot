@@ -1148,13 +1148,11 @@
 		<constant name="DRIVER_RESOURCE_LOGICAL_DEVICE" value="0" enum="DriverResource">
 			Specific device object based on a physical device ([code]rid[/code] parameter is ignored).
 			- Vulkan: Vulkan device driver resource ([code]VkDevice[/code]).
-			- D3D12: D3D12 device driver resource ([code]ID3D12Device[/code]).
 			- Metal: Metal device driver resource ([code]MTLDevice[/code]).
 		</constant>
 		<constant name="DRIVER_RESOURCE_PHYSICAL_DEVICE" value="1" enum="DriverResource">
 			Physical device the specific logical device is based on ([code]rid[/code] parameter is ignored).
 			- Vulkan: [code]VkPhysicalDevice[/code].
-			- D3D12: [code]IDXGIAdapter[/code].
 		</constant>
 		<constant name="DRIVER_RESOURCE_TOPMOST_OBJECT" value="2" enum="DriverResource">
 			Top-most graphics API entry object ([code]rid[/code] parameter is ignored).
@@ -1175,12 +1173,10 @@
 		<constant name="DRIVER_RESOURCE_TEXTURE_VIEW" value="6" enum="DriverResource">
 			The view of an owned or shared texture.
 			- Vulkan: [code]VkImageView[/code].
-			- D3D12: [code]ID3D12Resource[/code].
 		</constant>
 		<constant name="DRIVER_RESOURCE_TEXTURE_DATA_FORMAT" value="7" enum="DriverResource">
 			The native id of the data format of the texture.
 			- Vulkan: [code]VkFormat[/code].
-			- D3D12: [code]DXGI_FORMAT[/code].
 		</constant>
 		<constant name="DRIVER_RESOURCE_SAMPLER" value="8" enum="DriverResource">
 			- Vulkan: [code]VkSampler[/code].
@@ -1191,7 +1187,6 @@
 		<constant name="DRIVER_RESOURCE_BUFFER" value="10" enum="DriverResource">
 			Buffer of any kind of (storage, vertex, etc.).
 			- Vulkan: [code]VkBuffer[/code].
-			- D3D12: [code]ID3D12Resource[/code].
 		</constant>
 		<constant name="DRIVER_RESOURCE_COMPUTE_PIPELINE" value="11" enum="DriverResource">
 			- Vulkan: [code]VkPipeline[/code].

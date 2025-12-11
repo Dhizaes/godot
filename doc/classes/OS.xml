@@ -300,9 +300,7 @@
 		<method name="get_granted_permissions" qualifiers="const">
 			<return type="PackedStringArray" />
 			<description>
-				On Android devices: Returns the list of dangerous permissions that have been granted.
 				On macOS: Returns the list of granted permissions and user selected folders accessible to the application (sandboxed applications only). Use the native file dialog to request folder access permission.
-				On iOS, visionOS: Returns the list of granted permissions.
 			</description>
 		</method>
 		<method name="get_keycode_string" qualifiers="const">
@@ -403,9 +401,6 @@
 					case "OpenBSD":
 					case "BSD":
 						GD.Print("Welcome to Linux/BSD!");
-						break;
-					case "Web":
-						GD.Print("Welcome to the Web!");
 						break;
 				}
 				[/csharp]
@@ -783,12 +778,7 @@
 			<description>
 				Requests permission from the OS for the given [param name]. Returns [code]true[/code] if the permission has already been granted. See also [signal MainLoop.on_request_permissions_result].
 				The [param name] must be the full permission name. For example:
-				- [code]OS.request_permission("android.permission.READ_EXTERNAL_STORAGE")[/code]
-				- [code]OS.request_permission("android.permission.POST_NOTIFICATIONS")[/code]
 				- [code]OS.request_permission("macos.permission.RECORD_SCREEN")[/code]
-				- [code]OS.request_permission("appleembedded.permission.AUDIO_RECORD")[/code]
-				[b]Note:[/b] On Android, permission must be checked during export.
-				[b]Note:[/b] This method is implemented on Android, macOS, and visionOS platforms.
 			</description>
 		</method>
 		<method name="request_permissions">

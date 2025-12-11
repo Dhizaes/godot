@@ -324,7 +324,20 @@ RendererCompositorRD::RendererCompositorRD() {
 	fog = memnew(RendererRD::Fog);
 	canvas = memnew(RendererCanvasRenderRD());
 
-	scene = memnew(RendererSceneRenderImplementation::RenderForwardClustered());
+	String rendering_method = OS::get_singleton()->get_current_rendering_method();
+	uint64_t textures_per_stage = RD::get_singleton()->limit_get(RD::LIMIT_MAX_TEXTURES_PER_SHADER_STAGE);
+
+	if (textures_per_stage < 48) {
+		if (rendering_method == "forward_plus") {
+			WARN_PRINT_ONCE("Platform supports less than 48 textures per stage which is less than required by the Clustered renderer. Please quit the application.");
+		}
+	} else if (rendering_method == "forward_plus") {
+		scene = memnew(RendererSceneRenderImplementation::RenderForwardClustered());
+	} else {
+		// Fall back to our high end renderer.
+		ERR_PRINT(vformat("Cannot instantiate RenderingDevice-based renderer with renderer type '%s'. Defaulting to Forward+ renderer.", rendering_method));
+		scene = memnew(RendererSceneRenderImplementation::RenderForwardClustered());
+	}
 
 	scene->init();
 }

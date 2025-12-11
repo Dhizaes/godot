@@ -798,8 +798,10 @@ void DisplayServerWayland::show_window(WindowID p_window_id) {
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			wpd.vulkan.surface = wayland_thread.window_get_wl_surface(wd.id);
-			wpd.vulkan.display = wayland_thread.get_wl_display();
+			if (rendering_driver == "vulkan") {
+				wpd.vulkan.surface = wayland_thread.window_get_wl_surface(wd.id);
+				wpd.vulkan.display = wayland_thread.get_wl_display();
+			}
 #endif
 			Error err = rendering_context->window_create(wd.id, &wpd);
 			ERR_FAIL_COND_MSG(err != OK, vformat("Can't create a %s window", rendering_driver));
@@ -1324,7 +1326,6 @@ void DisplayServerWayland::window_set_vsync_mode(DisplayServer::VSyncMode p_vsyn
 		}
 	}
 #endif // VULKAN_ENABLED
-
 }
 
 DisplayServer::VSyncMode DisplayServerWayland::window_get_vsync_mode(DisplayServer::WindowID p_window_id) const {
@@ -1771,6 +1772,8 @@ Vector<String> DisplayServerWayland::get_rendering_drivers_func() {
 	drivers.push_back("vulkan");
 #endif
 
+	drivers.push_back("dummy");
+
 	return drivers;
 }
 
@@ -1838,24 +1841,33 @@ DisplayServerWayland::DisplayServerWayland(const String &p_rendering_driver, Win
 	bool driver_found = false;
 	String executable_name = OS::get_singleton()->get_executable_path().get_file();
 
+	if (rendering_driver == "dummy") {
+		RasterizerDummy::make_current();
+		driver_found = true;
+	}
+
 #ifdef RD_ENABLED
 #ifdef VULKAN_ENABLED
-	rendering_context = memnew(RenderingContextDriverVulkanWayland);
+	if (rendering_driver == "vulkan") {
+		rendering_context = memnew(RenderingContextDriverVulkanWayland);
+	}
 #endif // VULKAN_ENABLED
 
 	if (rendering_context) {
 		if (rendering_context->initialize() != OK) {
 			memdelete(rendering_context);
 			rendering_context = nullptr;
+
 			{
 				r_error = ERR_CANT_CREATE;
 
-				OS::get_singleton()->alert(
-						vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
-								"If possible, consider updating your video card drivers.\n\n"
-								"If you recently updated your video card drivers, try rebooting.",
-								executable_name),
-						"Unable to initialize Vulkan video driver");
+				if (p_rendering_driver == "vulkan") {
+					OS::get_singleton()->alert(
+							vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
+									"If you recently updated your video card drivers, try rebooting.",
+									executable_name),
+							"Unable to initialize Vulkan video driver");
+				}
 
 				ERR_FAIL_MSG(vformat("Could not initialize %s", rendering_driver));
 			}

@@ -169,7 +169,9 @@ DisplayServerMacOS::WindowID DisplayServerMacOS::_create_window(WindowMode p_mod
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			wpd.vulkan.layer_ptr = (CAMetalLayer *const *)&layer;
+			if (rendering_driver == "vulkan") {
+				wpd.vulkan.layer_ptr = (CAMetalLayer *const *)&layer;
+			}
 #endif
 #ifdef METAL_ENABLED
 			if (rendering_driver == "metal") {
@@ -283,6 +285,7 @@ void DisplayServerMacOS::set_window_per_pixel_transparency_enabled(bool p_enable
 			[layer setBackgroundColor:[NSColor clearColor].CGColor];
 			[layer setOpaque:NO];
 		}
+
 	} else {
 		NSColor *bg_color = [NSColor windowBackgroundColor];
 		Color _bg_color;
@@ -2795,6 +2798,7 @@ int64_t DisplayServerMacOS::window_get_native_handle(HandleType p_handle_type, W
 		case WINDOW_VIEW: {
 			return (int64_t)windows[p_window].window_view;
 		}
+
 		default: {
 			return 0;
 		}
@@ -2821,7 +2825,6 @@ void DisplayServerMacOS::gl_window_make_current(DisplayServer::WindowID p_window
 
 void DisplayServerMacOS::window_set_vsync_mode(DisplayServer::VSyncMode p_vsync_mode, WindowID p_window) {
 	_THREAD_SAFE_METHOD_
-
 #if defined(RD_ENABLED)
 	if (rendering_context) {
 		rendering_context->window_set_vsync_mode(p_window, p_vsync_mode);
@@ -3405,11 +3408,17 @@ bool DisplayServerMacOS::is_window_transparency_available() const {
 DisplayServer *DisplayServerMacOS::create_func(const String &p_rendering_driver, WindowMode p_mode, VSyncMode p_vsync_mode, uint32_t p_flags, const Vector2i *p_position, const Vector2i &p_resolution, int p_screen, Context p_context, int64_t p_parent_window, Error &r_error) {
 	DisplayServer *ds = memnew(DisplayServerMacOS(p_rendering_driver, p_mode, p_vsync_mode, p_flags, p_position, p_resolution, p_screen, p_context, p_parent_window, r_error));
 	if (r_error != OK) {
-		OS::get_singleton()->alert(
-				vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
-						"If possible, consider updating your macOS version.
-						"),
-				"Unable to initialize Vulkan video driver");
+		if (p_rendering_driver == "vulkan") {
+			OS::get_singleton()->alert(
+					vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
+							"If possible, consider updating your macOS version or your GPU drivers."),
+					"Unable to initialize Vulkan video driver");
+		} else {
+			OS::get_singleton()->alert(
+					"Your video card drivers seem not to support the required OpenGL 3.3 version.\n\n"
+					"If possible, consider updating your macOS version.",
+					"Unable to initialize OpenGL video driver");
+		}
 	}
 	return ds;
 }
@@ -3423,6 +3432,7 @@ Vector<String> DisplayServerMacOS::get_rendering_drivers_func() {
 #if defined(METAL_ENABLED)
 	drivers.push_back("metal");
 #endif
+	drivers.push_back("dummy");
 
 	return drivers;
 }
@@ -3709,9 +3719,14 @@ DisplayServerMacOS::DisplayServerMacOS(const String &p_rendering_driver, WindowM
 #if defined(RD_ENABLED)
 #if defined(VULKAN_ENABLED)
 #if defined(__x86_64__)
+	bool fallback_to_vulkan = GLOBAL_GET("rendering/rendering_device/fallback_to_vulkan");
+	if (!fallback_to_vulkan) {
+		WARN_PRINT("Metal is not supported on Intel Macs, switching to Vulkan.");
+	}
 	// Metal rendering driver not available on Intel.
 	if (rendering_driver == "metal") {
 		rendering_driver = "vulkan";
+		OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
 	}
 #endif
 	if (rendering_driver == "vulkan") {
@@ -3728,7 +3743,6 @@ DisplayServerMacOS::DisplayServerMacOS(const String &p_rendering_driver, WindowM
 		if (rendering_context->initialize() != OK) {
 			memdelete(rendering_context);
 			rendering_context = nullptr;
-
 			{
 				r_error = ERR_CANT_CREATE;
 				ERR_FAIL_MSG("Could not initialize " + rendering_driver);

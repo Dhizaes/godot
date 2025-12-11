@@ -28,14 +28,6 @@ IncludeCategories:
 IndentCaseLabels: true
 IndentWidth: 4
 InsertBraces: true
-JavaImportGroups:
-  - org.godotengine
-  - android
-  - androidx
-  - com.android
-  - com.google
-  - java
-  - javax
 KeepEmptyLinesAtTheStartOfBlocks: false
 ObjCBlockIndentWidth: 4
 PackConstructorInitializers: NextLine

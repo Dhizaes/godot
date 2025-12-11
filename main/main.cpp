@@ -188,6 +188,7 @@ String display_driver = "";
 String tablet_driver = "";
 String text_driver = "";
 String rendering_driver = "";
+String rendering_method = "";
 static int text_driver_idx = -1;
 static int audio_driver_idx = -1;
 
@@ -609,9 +610,7 @@ void Main::print_help(const char *p_binary) {
 	print_help_option("--position <X>,<Y>", "Request window position.\n");
 	print_help_option("--screen <N>", "Request window screen.\n");
 	print_help_option("--single-window", "Use a single window (no separate subwindows).\n");
-#ifndef _3D_DISABLED
-	print_help_option("--xr-mode <mode>", "Select XR (Extended Reality) mode [\"default\", \"off\", \"on\"].\n");
-#endif
+
 	print_help_option("--wid <window_id>", "Request parented to window.\n");
 	print_help_option("--accessibility <mode>", "Select accessibility mode ['auto' (when screen reader is running, default), 'always', 'disabled'].\n");
 
@@ -1029,6 +1028,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	bool delta_smoothing_override = false;
 	bool load_shell_env = false;
 
+	String default_renderer = "";
 	String renderer_hints = "";
 
 	packed_data = PackedData::get_singleton();
@@ -1080,8 +1080,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		if (arg == "--audio-driver" ||
 				arg == "--display-driver" ||
 				arg == "--rendering-method" ||
-				arg == "--rendering-driver" ||
-				arg == "--xr-mode") {
+				arg == "--rendering-driver"
+			) {
 			if (N) {
 				forwardable_cli_arguments[CLI_SCOPE_TOOL].push_back(arg);
 				forwardable_cli_arguments[CLI_SCOPE_TOOL].push_back(N->get());
@@ -1209,6 +1209,14 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 				N = N->next();
 			} else {
 				OS::get_singleton()->print("Missing display driver argument, aborting.\n");
+				goto error;
+			}
+		} else if (arg == "--rendering-method") {
+			if (N) {
+				rendering_method = N->get();
+				N = N->next();
+			} else {
+				OS::get_singleton()->print("Missing renderer name argument, aborting.\n");
 				goto error;
 			}
 		} else if (arg == "--rendering-driver") {
@@ -2144,22 +2152,45 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	// Rendering drivers configuration.
 
-	// Always include all supported drivers as hint, as this is used by the editor host platform
-	// for project settings. For example, a Linux user should be able to configure that they want
-	// to export for D3D12 on Windows and Metal on macOS even if their host platform can't use those.
-
 	{
 		// RenderingDevice driver overrides per platform.
 		GLOBAL_DEF_RST("rendering/rendering_device/driver", "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.windows", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.linuxbsd", PROPERTY_HINT_ENUM, "vulkan"), "vulkan");
 		GLOBAL_DEF_RST(PropertyInfo(Variant::STRING, "rendering/rendering_device/driver.macos", PROPERTY_HINT_ENUM, "metal,vulkan"), "metal");
+
+		GLOBAL_DEF_RST("rendering/rendering_device/fallback_to_vulkan", true);
 	}
 
 	// Start with RenderingDevice-based backends.
 #ifdef RD_ENABLED
 	renderer_hints = "forward_plus";
 #endif
+
+	if (!rendering_method.is_empty()) {
+		if (rendering_method != "forward_plus" &&
+				rendering_method != "dummy") {
+			OS::get_singleton()->print("Unknown rendering method '%s', aborting.\nValid options are ",
+					rendering_method.utf8().get_data());
+
+			Vector<String> rendering_method_hints = renderer_hints.split(",");
+			rendering_method_hints.push_back("dummy");
+			for (int i = 0; i < rendering_method_hints.size(); i++) {
+				if (i == rendering_method_hints.size() - 1) {
+					OS::get_singleton()->print(" and ");
+				} else if (i != 0) {
+					OS::get_singleton()->print(", ");
+				}
+				OS::get_singleton()->print("'%s'", rendering_method_hints[i].utf8().get_data());
+			}
+
+			OS::get_singleton()->print(".\n");
+			goto error;
+		}
+	}
+	if (renderer_hints.is_empty()) {
+		renderer_hints = "dummy";
+	}
 
 	if (!rendering_driver.is_empty()) {
 		// As the rendering drivers available may depend on the display driver and renderer
@@ -2207,14 +2238,78 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 			goto error;
 		}
+
+		// Set a default renderer if none selected. Try to choose one that matches the driver.
+		if (rendering_method.is_empty()) {
+			if (rendering_driver == "dummy") {
+				rendering_method = "dummy";
+			} else {
+				rendering_method = "forward_plus";
+			}
+		}
+
+		// Now validate whether the selected driver matches with the renderer.
+		bool valid_combination = false;
+		Vector<String> available_drivers;
+		if (rendering_method == "forward_plus") {
+#ifdef VULKAN_ENABLED
+			available_drivers.push_back("vulkan");
+#endif
+
+#ifdef METAL_ENABLED
+			available_drivers.push_back("metal");
+#endif
+		}
+
+		if (rendering_method == "dummy") {
+			available_drivers.push_back("dummy");
+		}
+		if (available_drivers.is_empty()) {
+			OS::get_singleton()->print("Unknown renderer name '%s', aborting.\n", rendering_method.utf8().get_data());
+			goto error;
+		}
+
+		for (int i = 0; i < available_drivers.size(); i++) {
+			if (rendering_driver == available_drivers[i]) {
+				valid_combination = true;
+				break;
+			}
+		}
+
+		if (!valid_combination) {
+			OS::get_singleton()->print("Invalid renderer/driver combination '%s' and '%s', aborting. %s only supports the following drivers ", rendering_method.utf8().get_data(), rendering_driver.utf8().get_data(), rendering_method.utf8().get_data());
+
+			for (int d = 0; d < available_drivers.size(); d++) {
+				OS::get_singleton()->print("'%s', ", available_drivers[d].utf8().get_data());
+			}
+
+			OS::get_singleton()->print(".\n");
+
+			goto error;
+		}
+	}
+
+	default_renderer = renderer_hints.get_slicec(',', 0);
+	GLOBAL_DEF_RST_BASIC(PropertyInfo(Variant::STRING, "rendering/renderer/rendering_method", PROPERTY_HINT_ENUM, renderer_hints), default_renderer);
+
+	// Default to ProjectSettings default if nothing set on the command line.
+	if (rendering_method.is_empty()) {
+		rendering_method = GLOBAL_GET("rendering/renderer/rendering_method");
 	}
 
 	if (rendering_driver.is_empty()) {
-		rendering_driver = GLOBAL_GET("rendering/rendering_device/driver");
+		if (rendering_method == "dummy") {
+			rendering_driver = "dummy";
+		} else {
+			rendering_driver = GLOBAL_GET("rendering/rendering_device/driver");
+		}
 	}
 
 	// always convert to lower case for consistency in the code
 	rendering_driver = rendering_driver.to_lower();
+
+	OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
+	OS::get_singleton()->set_current_rendering_method(rendering_method);
 
 #ifdef TOOLS_ENABLED
 	if (!force_res && project_manager) {
@@ -2337,7 +2432,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	GLOBAL_DEF_NOVAL("display/display_server/driver", "default");
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.windows", PROPERTY_HINT_ENUM_SUGGESTION, "default,windows,headless"), "default");
-	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.linuxbsd", PROPERTY_HINT_ENUM_SUGGESTION, "default,wayland,headless"), "default");
+	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.linuxbsd", PROPERTY_HINT_ENUM_SUGGESTION, "default,x11,wayland,headless"), "default");
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.macos", PROPERTY_HINT_ENUM_SUGGESTION, "default,macos,headless"), "default");
 
 	GLOBAL_DEF_RST_NOVAL("audio/driver/driver", AudioDriverManager::get_driver(0)->get_name());
@@ -2561,6 +2656,9 @@ Error Main::setup2(bool p_show_boot_logo) {
 					bool screen_found = false;
 					String screen_property;
 
+					bool prefer_wayland_found = false;
+					bool prefer_wayland = false;
+
 					bool tablet_found = false;
 
 					bool ac_found = false;
@@ -2574,7 +2672,12 @@ Error Main::setup2(bool p_show_boot_logo) {
 						screen_found = true;
 					}
 
-					while (!screen_found || !init_expand_to_title_found || !init_display_scale_found || !init_custom_scale_found || !tablet_found || !ac_found) {
+					if (!display_driver.is_empty()) {
+						// Skip.
+						prefer_wayland_found = true;
+					}
+
+					while (!screen_found || !init_expand_to_title_found || !init_display_scale_found || !init_custom_scale_found || !prefer_wayland_found || !tablet_found || !ac_found) {
 						assign = Variant();
 						next_tag.fields.clear();
 						next_tag.name = String();
@@ -2605,6 +2708,9 @@ Error Main::setup2(bool p_show_boot_logo) {
 							} else if (!init_custom_scale_found && assign == "interface/editor/custom_display_scale") {
 								init_custom_scale = value;
 								init_custom_scale_found = true;
+							} else if (!prefer_wayland_found && assign == "run/platforms/linuxbsd/prefer_wayland") {
+								prefer_wayland = value;
+								prefer_wayland_found = true;
 							} else if (!tablet_found && assign == "interface/editor/tablet_driver") {
 								tablet_driver_editor = value;
 								tablet_found = true;
@@ -2613,7 +2719,11 @@ Error Main::setup2(bool p_show_boot_logo) {
 					}
 
 					if (display_driver.is_empty()) {
-						display_driver = "wayland";
+						if (prefer_wayland) {
+							display_driver = "wayland";
+						} else {
+							display_driver = "default";
+						}
 					}
 				}
 			}

@@ -179,22 +179,8 @@ void EditorRunBar::_write_movie_toggled(bool p_enabled) {
 	}
 }
 
-Vector<String> EditorRunBar::_get_xr_mode_play_args(int p_xr_mode_id) {
-	Vector<String> play_args;
-	if (p_xr_mode_id == 0) {
-		// Play in regular mode, xr mode off.
-		play_args.push_back("--xr-mode");
-		play_args.push_back("off");
-	} else if (p_xr_mode_id == 1) {
-		// Play in xr mode.
-		play_args.push_back("--xr-mode");
-		play_args.push_back("on");
-	}
-	return play_args;
-}
-
 void EditorRunBar::_quick_run_selected(const String &p_file_path, int p_id) {
-	play_custom_scene(p_file_path, _get_xr_mode_play_args(p_id));
+	play_custom_scene(p_file_path, Vector<String>());
 }
 
 void EditorRunBar::_play_custom_pressed(int p_id) {
@@ -204,22 +190,19 @@ void EditorRunBar::_play_custom_pressed(int p_id) {
 		EditorNode::get_singleton()->get_quick_open_dialog()->popup_dialog({ "PackedScene" }, callable_mp(this, &EditorRunBar::_quick_run_selected).bind(p_id));
 		play_custom_scene_button->set_pressed(false);
 	} else {
-		Vector<String> play_args = _get_xr_mode_play_args(p_id);
-
 		// Reload if already running a custom scene.
 		String last_custom_scene = run_custom_filename; // This is necessary to have a copy of the string.
-		play_custom_scene(last_custom_scene, play_args);
+		play_custom_scene(last_custom_scene, Vector<String>());
 	}
 }
 
 void EditorRunBar::_play_current_pressed(int p_id) {
-	Vector<String> play_args = _get_xr_mode_play_args(p_id);
 
 	if (editor_run.get_status() == EditorRun::STATUS_STOP || current_mode != RunMode::RUN_CURRENT) {
-		play_current_scene(false, play_args);
+		play_current_scene(false, Vector<String>());
 	} else {
 		// Reload if already running the current scene.
-		play_current_scene(true, play_args);
+		play_current_scene(true, Vector<String>());
 	}
 }
 
@@ -620,6 +603,7 @@ EditorRunBar::EditorRunBar() {
 	play_custom_scene_button = memnew(Button);
 	play_custom_scene_button->set_toggle_mode(true);
 	play_custom_scene_button->connect(SceneStringName(pressed), callable_mp(this, &EditorRunBar::_play_custom_pressed).bind(-1));
+
 	main_hbox->add_child(play_custom_scene_button);
 	play_custom_scene_button->set_theme_type_variation("RunBarButton");
 	play_custom_scene_button->set_focus_mode(Control::FOCUS_ACCESSIBILITY);

@@ -112,8 +112,8 @@ CopyEffects::CopyEffects(bool p_prefer_raster_effects) {
 
 		copy_to_fb.shader.initialize(copy_modes);
 
-		copy_to_fb.shader.set_variant_enabled(COPY_TO_FB_MULTIVIEW, false);
-		copy_to_fb.shader.set_variant_enabled(COPY_TO_FB_MULTIVIEW_WITH_DEPTH, false);
+			copy_to_fb.shader.set_variant_enabled(COPY_TO_FB_MULTIVIEW, false);
+			copy_to_fb.shader.set_variant_enabled(COPY_TO_FB_MULTIVIEW_WITH_DEPTH, false);
 
 		copy_to_fb.shader_version = copy_to_fb.shader.version_create();
 
@@ -266,10 +266,10 @@ CopyEffects::CopyEffects(bool p_prefer_raster_effects) {
 
 		specular_merge.shader.initialize(specular_modes);
 
-		specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADD_MULTIVIEW, false);
-		specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_SSR_MULTIVIEW, false);
-		specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADDITIVE_ADD_MULTIVIEW, false);
-		specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADDITIVE_SSR_MULTIVIEW, false);
+			specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADD_MULTIVIEW, false);
+			specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_SSR_MULTIVIEW, false);
+			specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADDITIVE_ADD_MULTIVIEW, false);
+			specular_merge.shader.set_variant_enabled(SPECULAR_MERGE_ADDITIVE_SSR_MULTIVIEW, false);
 
 		specular_merge.shader_version = specular_merge.shader.version_create();
 

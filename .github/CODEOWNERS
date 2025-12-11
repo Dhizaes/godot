@@ -156,12 +156,6 @@
 
 ## XR
 /modules/camera/                              @godotengine/xr
-/modules/mobile_vr/                           @godotengine/xr
-/modules/mobile_vr/doc_classes/               @godotengine/xr @godotengine/documentation
-/modules/openxr/                              @godotengine/xr
-/modules/openxr/doc_classes/                  @godotengine/xr @godotengine/documentation
-/modules/webxr/                               @godotengine/xr
-/modules/webxr/doc_classes/                   @godotengine/xr @godotengine/documentation
 
 ## Misc
 /modules/csg/                                 @godotengine/3d-nodes
@@ -225,14 +219,12 @@
 /servers/**/physics_*                         @godotengine/physics
 /servers/**/rendering_*                       @godotengine/rendering
 /servers/**/text_*                            @godotengine/gui-nodes
-/servers/**/xr_*                              @godotengine/xr
 /servers/audio/                               @godotengine/audio
 /servers/camera/                              @godotengine/xr
 /servers/debugger/                            @godotengine/debugger
 /servers/navigation/                          @godotengine/navigation
 /servers/rendering/                           @godotengine/rendering
 /servers/text/                                @godotengine/gui-nodes
-/servers/xr/                                  @godotengine/xr
 
 # Tests
 

@@ -1832,7 +1832,6 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 
 		if (p_render_data->scene_data->view_count > 1) {
 			color_pass_flags |= COLOR_PASS_FLAG_MULTIVIEW;
-			// Try enabling here in case is_xr_enabled() returns false.
 			scene_shader.shader.enable_group(SceneShaderForwardClustered::SHADER_GROUP_MULTIVIEW);
 
 			// Indicate pipelines for multiview are required.
@@ -4213,15 +4212,7 @@ void RenderForwardClustered::_geometry_instance_update(RenderGeometryInstance *p
 			}
 
 		} break;
-#if 0
-		case RS::INSTANCE_IMMEDIATE: {
-			RasterizerStorageGLES3::Immediate *immediate = storage->immediate_owner.get_or_null(inst->base);
-			ERR_CONTINUE(!immediate);
 
-			_add_geometry(immediate, inst, nullptr, -1, p_depth_pass, p_shadow_pass);
-
-		} break;
-#endif
 		case RS::INSTANCE_PARTICLES: {
 			int draw_passes = particles_storage->particles_get_draw_passes(ginstance->data->base);
 

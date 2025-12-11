@@ -307,11 +307,6 @@ bool RenderingShaderContainerMetal::_set_code_from_spirv(const Vector<RenderingD
 
 	msl_options.platform = device_profile->platform == MetalDeviceProfile::Platform::macOS ? CompilerMSL::Options::macOS : CompilerMSL::Options::iOS;
 
-	if (device_profile->platform == MetalDeviceProfile::Platform::iOS) {
-		msl_options.ios_use_simdgroup_functions = device_profile->features.simdPermute;
-		msl_options.ios_support_base_vertex_instance = true;
-	}
-
 	bool disable_argument_buffers = false;
 	if (String v = OS::get_singleton()->get_environment("GODOT_MTL_DISABLE_ARGUMENT_BUFFERS"); v == "1") {
 		disable_argument_buffers = true;

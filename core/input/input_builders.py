@@ -46,7 +46,7 @@ def make_default_controller_mappings(target, source, env):
         PLATFORM_VARIABLES = {
             "Linux": "LINUXBSD",
             "Windows": "WINDOWS",
-            "Mac OS X": "MACOS"
+            "Mac OS X": "MACOS",
         }
 
         file.write("const char *DefaultControllerMappings::mappings[] = {\n")

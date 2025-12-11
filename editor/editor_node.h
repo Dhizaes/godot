@@ -237,7 +237,6 @@ private:
 		String path;
 		bool debug = false;
 		bool pack_only = false;
-		bool android_build_template = false;
 		bool patch = false;
 		Vector<String> patches;
 	} export_defer;
@@ -277,6 +276,9 @@ private:
 	Control *gui_base = nullptr;
 	VBoxContainer *main_vbox = nullptr;
 	OptionButton *renderer = nullptr;
+
+	VBoxContainer *base_vbox = nullptr; // It only contains the title_bar and main_hbox.
+	HBoxContainer *main_hbox = nullptr; // It only contains the touch_actions_panel and main_vbox.
 
 	ConfirmationDialog *video_restart_dialog = nullptr;
 
@@ -351,8 +353,8 @@ private:
 	Ref<Theme> theme;
 
 	Timer *system_theme_timer = nullptr;
-	bool follow_system_theme = true;
-	bool use_system_accent_color = true;
+	bool follow_system_theme = false;
+	bool use_system_accent_color = false;
 	bool last_dark_mode_state = false;
 	Color last_system_base_color = Color(0, 0, 0, 0);
 	Color last_system_accent_color = Color(0, 0, 0, 0);
@@ -603,6 +605,11 @@ private:
 	void _translation_resources_changed();
 	void _queue_translation_notification();
 	void _propagate_translation_notification();
+
+	void _renderer_selected(int);
+	void _update_renderer_color();
+	void _add_renderer_entry(const String &p_renderer_name, bool p_mark_overridden);
+	void _set_renderer_name_save_and_restart();
 
 	void _exit_editor(int p_exit_code);
 

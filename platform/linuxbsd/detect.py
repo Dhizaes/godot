@@ -46,6 +46,7 @@ def get_opts():
         BoolVariable("speechd", "Use Speech Dispatcher for Text-to-Speech support", True),
         BoolVariable("fontconfig", "Use fontconfig for system fonts support", True),
         BoolVariable("udev", "Use udev for gamepad connection callbacks", True),
+        BoolVariable("x11", "Enable X11 display", True),
         BoolVariable("wayland", "Enable Wayland display", True),
         BoolVariable("libdecor", "Enable libdecor support", True),
         BoolVariable("touch", "Enable touch events", True),
@@ -423,6 +424,38 @@ def configure(env: "SConsEnvironment"):
         ]
     )
 
+    if env["x11"]:
+        if not env["use_sowrap"]:
+            if os.system("pkg-config --exists x11"):
+                print_error("X11 libraries not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config x11 --cflags --libs")
+            if os.system("pkg-config --exists xcursor"):
+                print_error("Xcursor library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xcursor --cflags --libs")
+            if os.system("pkg-config --exists xinerama"):
+                print_error("Xinerama library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xinerama --cflags --libs")
+            if os.system("pkg-config --exists xext"):
+                print_error("Xext library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xext --cflags --libs")
+            if os.system("pkg-config --exists xrandr"):
+                print_error("XrandR library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xrandr --cflags --libs")
+            if os.system("pkg-config --exists xrender"):
+                print_error("XRender library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xrender --cflags --libs")
+            if os.system("pkg-config --exists xi"):
+                print_error("Xi library not found. Aborting.")
+                sys.exit(255)
+            env.ParseConfig("pkg-config xi --cflags --libs")
+        env.Append(CPPDEFINES=["X11_ENABLED"])
+
     if env["wayland"]:
         if not env["use_sowrap"]:
             if os.system("pkg-config --exists libdecor-0"):
@@ -471,12 +504,13 @@ def configure(env: "SConsEnvironment"):
             env.Append(CPPDEFINES=["ACCESSKIT_DYNAMIC"])
         env.Append(CPPDEFINES=["ACCESSKIT_ENABLED"])
 
-    env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-    if not env["use_volk"]:
-        env.ParseConfig("pkg-config vulkan --cflags --libs")
-    if not env["builtin_glslang"]:
-        # No pkgconfig file so far, hardcode expected lib name.
-        env.Append(LIBS=["glslang", "SPIRV"])
+    if env["vulkan"]:
+        env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+        if not env["use_volk"]:
+            env.ParseConfig("pkg-config vulkan --cflags --libs")
+        if not env["builtin_glslang"]:
+            # No pkgconfig file so far, hardcode expected lib name.
+            env.Append(LIBS=["glslang", "SPIRV"])
 
     env.Append(LIBS=["pthread"])
 

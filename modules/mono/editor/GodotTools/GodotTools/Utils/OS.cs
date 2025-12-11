@@ -49,7 +49,6 @@ namespace GodotTools.Utils
             public const string Linux = "linux";
             public const string Win10 = "win10";
             public const string LinuxBionic = "linux-bionic";
-            public const string Browser = "browser";
         }
 
         public static readonly Dictionary<string, string> PlatformFeatureMap = new Dictionary<string, string>(
@@ -59,7 +58,7 @@ namespace GodotTools.Utils
         {
             ["Windows"] = Platforms.Windows,
             ["macOS"] = Platforms.MacOS,
-            ["Linux"] = Platforms.LinuxBSD,
+            ["Linux"] = Platforms.LinuxBSD
         };
 
         public static readonly Dictionary<string, string> PlatformNameMap = new Dictionary<string, string>
@@ -80,7 +79,7 @@ namespace GodotTools.Utils
             // Does .NET 6 support BSD variants? If it does, it may need the name `unix`
             // instead of `linux` in the runtime identifier. This would be a problem as
             // Godot has a single export profile for both, named LinuxBSD.
-            [Platforms.LinuxBSD] = DotNetOS.Linux,
+            [Platforms.LinuxBSD] = DotNetOS.Linux
         };
         private static bool IsOS(string name)
         {
@@ -106,7 +105,7 @@ namespace GodotTools.Utils
             new[] { Names.Linux, Names.FreeBSD, Names.NetBSD, Names.BSD };
 
         private static readonly IEnumerable<string> UnixLikePlatforms =
-            new[] { Names.MacOS, Names.Android, Names.iOS }
+            new[] { Names.MacOS }
                 .Concat(LinuxBSDPlatforms).ToArray();
 
         private static readonly Lazy<bool> _isWindows = new(() => IsOS(Names.Windows));
@@ -119,7 +118,6 @@ namespace GodotTools.Utils
         [SupportedOSPlatformGuard("osx")] public static bool IsMacOS => _isMacOS.Value;
 
         [SupportedOSPlatformGuard("linux")] public static bool IsLinuxBSD => _isLinuxBSD.Value;
-        
         public static bool IsUnixLike => _isUnixLike.Value;
 
         public static char PathSep => IsWindows ? ';' : ':';

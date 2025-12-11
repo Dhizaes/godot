@@ -69,7 +69,6 @@ void QuickSettingsDialog::_fetch_setting_values() {
 }
 
 void QuickSettingsDialog::_update_current_values() {
-
 	// Theme options.
 	{
 		const String current_theme = EDITOR_GET("interface/theme/preset");

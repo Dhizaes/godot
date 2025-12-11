@@ -294,8 +294,6 @@ void ProjectListItemControl::set_is_missing(bool p_missing) {
 	} else {
 		explore_button->set_button_icon(get_editor_theme_icon(SNAME("Load")));
 		explore_button->set_tooltip_text(TTRC("Show in File Manager"));
-		// Opening the system file manager is not supported on the Android and web editors.
-		explore_button->hide();
 	}
 }
 
@@ -996,7 +994,6 @@ void ProjectList::_create_project_item_control(int p_index) {
 
 	hb->connect(SceneStringName(gui_input), callable_mp(this, &ProjectList::_list_item_input).bind(hb));
 	hb->connect("favorite_pressed", callable_mp(this, &ProjectList::_on_favorite_pressed).bind(hb));
-
 	hb->connect("explore_pressed", callable_mp(this, &ProjectList::_on_explore_pressed).bind(item.path));
 
 	project_list_vbox->add_child(hb);

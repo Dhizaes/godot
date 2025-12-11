@@ -4579,6 +4579,11 @@ void RenderingDevice::draw_list_bind_render_pipeline(DrawListID p_list, RID p_re
 						}
 					}
 				} break;
+				case RDD::SHADER_CHANGE_INVALIDATION_ALL_OR_NONE_ACCORDING_TO_LAYOUT_HASH: {
+					if (draw_list.state.pipeline_shader_layout_hash != pipeline->shader_layout_hash) {
+						first_invalid_set = 0;
+					}
+				} break;
 			}
 		}
 
@@ -5159,6 +5164,11 @@ void RenderingDevice::compute_list_bind_compute_pipeline(ComputeListID p_list, R
 						first_invalid_set = i;
 						break;
 					}
+				}
+			} break;
+			case RDD::SHADER_CHANGE_INVALIDATION_ALL_OR_NONE_ACCORDING_TO_LAYOUT_HASH: {
+				if (compute_list.state.pipeline_shader_layout_hash != pipeline->shader_layout_hash) {
+					first_invalid_set = 0;
 				}
 			} break;
 		}
@@ -6860,9 +6870,8 @@ Error RenderingDevice::initialize(RenderingContextDriver *p_context, DisplayServ
 	bool project_pipeline_cache_enable = GLOBAL_GET("rendering/rendering_device/pipeline_cache/enable");
 	if (is_main_instance && project_pipeline_cache_enable) {
 		// Only the instance that is not a local device and is also the singleton is allowed to manage a pipeline cache.
-		String current_rendering_method = "forward_plus";
 		pipeline_cache_file_path = vformat("user://vulkan/pipelines.%s.%s",
-				current_rendering_method,
+				OS::get_singleton()->get_current_rendering_method(),
 				device.name.validate_filename().replace_char(' ', '_').to_lower());
 		if (Engine::get_singleton()->is_editor_hint()) {
 			pipeline_cache_file_path += ".editor";

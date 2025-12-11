@@ -644,7 +644,7 @@ void GameView::_update_ui() {
 			break;
 		case EMBED_NOT_AVAILABLE_FEATURE_NOT_SUPPORTED:
 			if (DisplayServer::get_singleton()->get_name() == "Wayland") {
-				state_label->set_text(TTRC("Game embedding not available on Wayland."));
+				state_label->set_text(TTRC("Game embedding not available on Wayland.\nWayland can be disabled in the Editor Settings (Run > Platforms > Linux/*BSD > Prefer Wayland)."));
 			} else {
 				state_label->set_text(TTRC("Game embedding not available on your OS."));
 			}
@@ -1259,7 +1259,6 @@ GameView::GameView(Ref<GameViewDebugger> p_debugger, EmbeddedProcessBase *p_embe
 void GameViewPluginBase::selected_notify() {
 	if (_is_window_wrapper_enabled()) {
 		notify_main_screen_changed(get_plugin_name());
-		window_wrapper->grab_window_focus();
 		_focus_another_editor();
 	}
 }
@@ -1300,6 +1299,7 @@ void GameViewPluginBase::setup(Ref<GameViewDebugger> p_debugger, EmbeddedProcess
 void GameViewPluginBase::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_TRANSLATION_CHANGED: {
+			window_wrapper->set_window_title(vformat(TTR("%s - Godot Engine"), TTR("Game Workspace")));
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
 			add_debugger_plugin(debugger);

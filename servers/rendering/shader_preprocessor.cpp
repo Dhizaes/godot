@@ -1341,7 +1341,12 @@ Error ShaderPreprocessor::preprocess(const String &p_code, const String &p_filen
 
 	// Built-in defines.
 	{
-		insert_builtin_define("CURRENT_RENDERER", _MKSTR(2), pp_state);
+		const String rendering_method = OS::get_singleton()->get_current_rendering_method();
+
+		if (rendering_method == "forward_plus") {
+			insert_builtin_define("CURRENT_RENDERER", _MKSTR(2), pp_state);
+		}
+
 		insert_builtin_define("RENDERER_FORWARD_PLUS", _MKSTR(2), pp_state);
 	}
 

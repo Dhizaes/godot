@@ -1115,6 +1115,14 @@ Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_cust
 	if (project_features.is_empty()) {
 		project_features = ProjectSettings::get_required_features();
 	}
+	// Check the rendering API.
+	const String rendering_api = has_setting("rendering/renderer/rendering_method") ? (String)get_setting("rendering/renderer/rendering_method") : String();
+	if (!rendering_api.is_empty()) {
+		// Add the rendering API as a project feature if it doesn't already exist.
+		if (!project_features.has(rendering_api)) {
+			project_features.append(rendering_api);
+		}
+	}
 	// Check for the existence of a csproj file.
 	if (_csproj_exists(get_resource_path())) {
 		// If there is a csproj file, add the C# feature if it doesn't already exist.
@@ -1594,7 +1602,6 @@ ProjectSettings::ProjectSettings() {
 
 	GLOBAL_DEF_BASIC(PropertyInfo(Variant::STRING, "audio/buses/default_bus_layout", PROPERTY_HINT_FILE, "*.tres"), "res://default_bus_layout.tres");
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "audio/general/default_playback_type", PROPERTY_HINT_ENUM, "Stream,Sample"), 0);
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "audio/general/default_playback_type.web", PROPERTY_HINT_ENUM, "Stream,Sample"), 1);
 	GLOBAL_DEF_RST("audio/general/text_to_speech", false);
 	GLOBAL_DEF_RST(PropertyInfo(Variant::FLOAT, "audio/general/2d_panning_strength", PROPERTY_HINT_RANGE, "0,2,0.01"), 0.5f);
 	GLOBAL_DEF_RST(PropertyInfo(Variant::FLOAT, "audio/general/3d_panning_strength", PROPERTY_HINT_RANGE, "0,2,0.01"), 0.5f);

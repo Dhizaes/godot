@@ -100,9 +100,6 @@ class EditorRunBar : public MarginContainer {
 
 	void _profiler_autostart_indicator_pressed();
 
-private:
-	static Vector<String> _get_xr_mode_play_args(int p_xr_mode_id);
-
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();

@@ -176,7 +176,6 @@ def get_opts():
         BoolVariable("debug_crt", "Compile with MSVC's debug CRT (/MDd)", False),
         BoolVariable("incremental_link", "Use MSVC incremental linking. May increase or decrease build times.", False),
         BoolVariable("silence_msvc", "Silence MSVC's cl/link stdout bloat, redirecting any errors to stderr.", True),
-        ("angle_libs", "Path to the ANGLE static libraries", "")
     ]
 
 
@@ -397,35 +396,13 @@ def configure_msvc(env: "SConsEnvironment"):
             env.Append(CPPDEFINES=["ACCESSKIT_DYNAMIC"])
         env.Append(CPPDEFINES=["ACCESSKIT_ENABLED"])
 
-    env.AppendUnique(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-    if not env["use_volk"]:
-        LIBS += ["vulkan"]
+    if env["vulkan"]:
+        env.AppendUnique(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+        if not env["use_volk"]:
+            LIBS += ["vulkan"]
 
     if env["sdl"]:
         env.Append(CPPDEFINES=["SDL_ENABLED"])
-
-        env.AppendUnique(CPPDEFINES=["RD_ENABLED"])
-        LIBS += ["version"]  # Mesa dependency.
-
-        # Needed for avoiding C1128.
-        if env["target"] == "release_debug":
-            env.Append(CXXFLAGS=["/bigobj"])
-
-        # PIX
-        if env["arch"] not in ["x86_64", "arm64"] or env["pix_path"] == "" or not os.path.exists(env["pix_path"]):
-            env["use_pix"] = False
-
-        if env["use_pix"]:
-            arch_subdir = "arm64" if env["arch"] == "arm64" else "x64"
-
-            env.Append(LIBPATH=[env["pix_path"] + "/bin/" + arch_subdir])
-            LIBS += ["WinPixEventRuntime"]
-
-        if os.path.exists(env["mesa_libs"] + "-" + env["arch"] + "-msvc"):
-            env.Append(LIBPATH=[env["mesa_libs"] + "-" + env["arch"] + "-msvc/bin"])
-        else:
-            env.Append(LIBPATH=[env["mesa_libs"] + "/bin"])
-        LIBS += ["libNIR.windows." + env["arch"] + prebuilt_lib_extra_suffix]
 
     if env["target"] in ["editor", "template_debug"]:
         LIBS += ["psapi", "dbghelp"]
@@ -769,31 +746,13 @@ def configure_mingw(env: "SConsEnvironment"):
     if env.debug_features:
         env.Append(LIBS=["psapi", "dbghelp"])
 
-    env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
-    if not env["use_volk"]:
-        env.Append(LIBS=["vulkan"])
+    if env["vulkan"]:
+        env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
+        if not env["use_volk"]:
+            env.Append(LIBS=["vulkan"])
 
     if env["sdl"]:
         env.Append(CPPDEFINES=["SDL_ENABLED"])
-
-        # PIX
-        if env["arch"] not in ["x86_64", "arm64"] or env["pix_path"] == "" or not os.path.exists(env["pix_path"]):
-            env["use_pix"] = False
-
-        if env["use_pix"]:
-            arch_subdir = "arm64" if env["arch"] == "arm64" else "x64"
-
-            env.Append(LIBPATH=[env["pix_path"] + "/bin/" + arch_subdir])
-            env.Append(LIBS=["WinPixEventRuntime"])
-
-        if env["use_llvm"] and os.path.exists(env["mesa_libs"] + "-" + env["arch"] + "-llvm"):
-            env.Append(LIBPATH=[env["mesa_libs"] + "-" + env["arch"] + "-llvm/bin"])
-        elif not env["use_llvm"] and os.path.exists(env["mesa_libs"] + "-" + env["arch"] + "-gcc"):
-            env.Append(LIBPATH=[env["mesa_libs"] + "-" + env["arch"] + "-gcc/bin"])
-        else:
-            env.Append(LIBPATH=[env["mesa_libs"] + "/bin"])
-        env.Append(LIBS=["libNIR.windows." + env["arch"]])
-        env.Append(LIBS=["version"])  # Mesa dependency.
 
     env.Append(CPPDEFINES=["MINGW_ENABLED", ("MINGW_HAS_SECURE_API", 1)])
 
@@ -842,3 +801,4 @@ def configure(env: "SConsEnvironment"):
         configure_msvc(env)
     else:
         configure_mingw(env)
+

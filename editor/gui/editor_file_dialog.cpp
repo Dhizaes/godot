@@ -829,13 +829,13 @@ void EditorFileDialog::_item_list_item_rmb_clicked(int p_item, const Vector2 &p_
 		item_menu->add_icon_item(theme_cache.action_delete, TTRC("Delete"), ITEM_MENU_DELETE, Key::KEY_DELETE);
 	}
 
-	// Opening the system file manager is not supported on the Android and web editors.
 	if (single_item_selected) {
 		item_menu->add_separator();
 		Dictionary item_meta = item_list->get_item_metadata(p_item);
 		String item_text = item_meta["dir"] ? TTRC("Open in File Manager") : TTRC("Show in File Manager");
 		item_menu->add_icon_item(theme_cache.filesystem, item_text, ITEM_MENU_SHOW_IN_EXPLORER);
 	}
+
 	if (single_item_selected) {
 		Dictionary item_meta = item_list->get_item_metadata(p_item);
 		if (item_meta["bundle"]) {
@@ -871,7 +871,6 @@ void EditorFileDialog::_item_list_empty_clicked(const Vector2 &p_pos, MouseButto
 		item_menu->add_icon_item(theme_cache.folder, TTRC("New Folder..."), ITEM_MENU_NEW_FOLDER, KeyModifierMask::CMD_OR_CTRL | Key::N);
 	}
 	item_menu->add_icon_item(theme_cache.reload, TTRC("Refresh"), ITEM_MENU_REFRESH, Key::F5);
-	// Opening the system file manager is not supported on the Android and web editors.
 	item_menu->add_separator();
 	item_menu->add_icon_item(theme_cache.filesystem, TTRC("Open in File Manager"), ITEM_MENU_SHOW_IN_EXPLORER);
 

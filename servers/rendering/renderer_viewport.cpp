@@ -144,6 +144,7 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 			if (scaling_3d_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL && !RD::get_singleton()->has_feature(RD::SUPPORTS_METALFX_TEMPORAL)) {
 				scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_FSR2;
 				WARN_PRINT_ONCE("MetalFX upscaling is not supported by the current renderer or hardware. Falling back to FSR 2 scaling.");
+
 				scaling_type = RS::scaling_3d_mode_type(scaling_3d_mode);
 			}
 
@@ -784,16 +785,11 @@ void RendererViewport::draw_viewports(bool p_swap_buffers) {
 					blit.dst_rect.size = vp->size;
 				}
 
-				if (RSG::rasterizer->is_opengl()) {
-					RSG::rasterizer->blit_render_targets_to_screen(vp->viewport_to_screen, &blit, 1);
-					RSG::rasterizer->gl_end_frame(p_swap_buffers);
-				} else {
-					Vector<BlitToScreen> *blits = blit_to_screen_list.getptr(vp->viewport_to_screen);
-					if (blits == nullptr) {
-						blits = &blit_to_screen_list.insert(vp->viewport_to_screen, Vector<BlitToScreen>())->value;
-					}
-					blits->push_back(blit);
+				Vector<BlitToScreen> *blits = blit_to_screen_list.getptr(vp->viewport_to_screen);
+				if (blits == nullptr) {
+					blits = &blit_to_screen_list.insert(vp->viewport_to_screen, Vector<BlitToScreen>())->value;
 				}
+				blits->push_back(blit);
 			}
 		}
 
@@ -842,27 +838,14 @@ void RendererViewport::viewport_initialize(RID p_rid) {
 	viewport->fsr_enabled = !RSG::rasterizer->is_low_end() && !viewport->disable_3d;
 }
 
-void RendererViewport::viewport_set_use_xr(RID p_viewport, bool p_use_xr) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_NULL(viewport);
-
-	if (viewport->use_xr == p_use_xr) {
-		return;
-	}
-
-	viewport->use_xr = p_use_xr;
-
-	// Re-configure the 3D render buffers when disabling XR. They'll get
-	// re-configured when enabling XR in draw_viewports().
-	if (!p_use_xr) {
-		viewport->view_count = 1;
-		_configure_3d_render_buffers(viewport);
-	}
-}
-
 void RendererViewport::viewport_set_scaling_3d_mode(RID p_viewport, RS::ViewportScaling3DMode p_mode) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
+	const String rendering_method = OS::get_singleton()->get_current_rendering_method();
+	if (rendering_method != "forward_plus") {
+		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_FSR2, "FSR2 is only available when using the Forward+ renderer.");
+		ERR_FAIL_COND_EDMSG(p_mode == RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL, "MetalFX Temporal is only available when using the Forward+ renderer.");
+	}
 
 	if (viewport->scaling_3d_mode == p_mode) {
 		return;
@@ -923,7 +906,6 @@ void RendererViewport::viewport_set_size(RID p_viewport, int p_width, int p_heig
 
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
-	ERR_FAIL_COND_MSG(viewport->use_xr, "Cannot set viewport size when using XR");
 
 	_viewport_set_size(viewport, p_width, p_height, 1);
 }
@@ -1265,6 +1247,7 @@ void RendererViewport::viewport_set_screen_space_aa(RID p_viewport, RS::Viewport
 void RendererViewport::viewport_set_use_taa(RID p_viewport, bool p_use_taa) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
+	ERR_FAIL_COND_EDMSG(OS::get_singleton()->get_current_rendering_method() != "forward_plus", "TAA is only available when using the Forward+ renderer.");
 
 	if (viewport->use_taa == p_use_taa) {
 		return;

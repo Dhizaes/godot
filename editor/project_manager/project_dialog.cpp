@@ -444,6 +444,33 @@ void ProjectDialog::_reset_name() {
 	project_name->set_text(TTR("New Game Project"));
 }
 
+void ProjectDialog::_renderer_selected() {
+	ERR_FAIL_NULL(renderer_button_group->get_pressed_button());
+
+	String renderer_type = renderer_button_group->get_pressed_button()->get_meta(SNAME("rendering_method"));
+
+	bool rd_error = false;
+
+	if (renderer_type == "forward_plus") {
+		renderer_info->set_text(
+				String::utf8("•  ") + TTR("Supports desktop platforms only.") +
+				String::utf8("\n•  ") + TTR("Advanced 3D graphics available.") +
+				String::utf8("\n•  ") + TTR("Can scale to large complex scenes.") +
+				String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
+				String::utf8("\n•  ") + TTR("Slower rendering of simple scenes."));
+		rd_error = !rendering_device_supported;
+	} else {
+		WARN_PRINT("Unknown renderer type. Please report this as a bug on GitHub.");
+	}
+
+	rd_not_supported->set_visible(rd_error);
+	get_ok_button()->set_disabled(rd_error);
+	if (rd_error) {
+		// Needs to be set here since theme colors aren't available at startup.
+		rd_not_supported->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
+	}
+}
+
 void ProjectDialog::_nonempty_confirmation_ok_pressed() {
 	is_folder_empty = true;
 	ok_pressed();
@@ -478,9 +505,19 @@ void ProjectDialog::ok_pressed() {
 		PackedStringArray project_features = ProjectSettings::get_required_features();
 		ProjectSettings::CustomMap initial_settings;
 
-		project_features.push_back("Forward Plus");
+		// Be sure to change this code if/when renderers are changed.
+		// Default value is "forward_plus" for the main setting.
+		String renderer_type = renderer_button_group->get_pressed_button()->get_meta(SNAME("rendering_method"));
+		initial_settings["rendering/renderer/rendering_method"] = renderer_type;
 
+		EditorSettings::get_singleton()->set("project_manager/default_renderer", renderer_type);
 		EditorSettings::get_singleton()->save();
+
+		if (renderer_type == "forward_plus") {
+			project_features.push_back("Forward Plus");
+		} else {
+			WARN_PRINT("Unknown renderer type. Please report this as a bug on GitHub.");
+		}
 
 		project_features.sort();
 		initial_settings["application/config/features"] = project_features;
@@ -837,6 +874,7 @@ void ProjectDialog::show_dialog(bool p_reset_name) {
 void ProjectDialog::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_TRANSLATION_CHANGED: {
+			_renderer_selected();
 		} break;
 
 		case NOTIFICATION_THEME_CHANGED: {
@@ -946,6 +984,73 @@ ProjectDialog::ProjectDialog() {
 	msg->set_custom_minimum_size(Size2(200, 0) * EDSCALE);
 	msg->set_autowrap_mode(TextServer::AUTOWRAP_WORD_SMART);
 	vb->add_child(msg);
+
+	// Renderer selection.
+	renderer_container = memnew(VBoxContainer);
+	vb->add_child(renderer_container);
+	l = memnew(Label);
+	l->set_text(TTRC("Renderer:"));
+	renderer_container->add_child(l);
+	HBoxContainer *rshc = memnew(HBoxContainer);
+	renderer_container->add_child(rshc);
+	renderer_button_group.instantiate();
+
+	// Left hand side, used for checkboxes to select renderer.
+	Container *rvb = memnew(VBoxContainer);
+	rshc->add_child(rvb);
+
+	String default_renderer_type = "forward_plus";
+	if (EditorSettings::get_singleton()->has_setting("project_manager/default_renderer")) {
+		default_renderer_type = EditorSettings::get_singleton()->get_setting("project_manager/default_renderer");
+	}
+
+	rendering_device_supported = DisplayServer::is_rendering_device_supported();
+
+	Button *rs_button = memnew(CheckBox);
+	rs_button->set_button_group(renderer_button_group);
+	rs_button->set_text(TTRC("Forward+"));
+#ifndef RD_ENABLED
+	rs_button->set_disabled(true);
+#endif
+	rs_button->set_meta(SNAME("rendering_method"), "forward_plus");
+	rs_button->connect(SceneStringName(pressed), callable_mp(this, &ProjectDialog::_renderer_selected));
+	rvb->add_child(rs_button);
+	if (default_renderer_type == "forward_plus") {
+		rs_button->set_pressed(true);
+	}
+
+	rshc->add_child(memnew(VSeparator));
+
+	// Right hand side, used for text explaining each choice.
+	rvb = memnew(VBoxContainer);
+	rvb->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+	rshc->add_child(rvb);
+	renderer_info = memnew(Label);
+	renderer_info->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
+	renderer_info->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
+	renderer_info->set_modulate(Color(1, 1, 1, 0.7));
+	rvb->add_child(renderer_info);
+
+	rd_not_supported = memnew(Label);
+	rd_not_supported->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
+	rd_not_supported->set_text(vformat(TTRC("RenderingDevice-based methods not available on this GPU:\n%s\nPlease use the Compatibility renderer."), RenderingServer::get_singleton()->get_video_adapter_name()));
+	rd_not_supported->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
+	rd_not_supported->set_custom_minimum_size(Size2(200, 0) * EDSCALE);
+	rd_not_supported->set_autowrap_mode(TextServer::AUTOWRAP_WORD_SMART);
+	rd_not_supported->set_visible(false);
+	renderer_container->add_child(rd_not_supported);
+
+	_renderer_selected();
+
+	l = memnew(Label);
+	l->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
+	l->set_text(TTRC("The renderer can be changed later, but scenes may need to be adjusted."));
+	// Add some extra spacing to separate it from the list above and the buttons below.
+	l->set_custom_minimum_size(Size2(0, 40) * EDSCALE);
+	l->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
+	l->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
+	l->set_modulate(Color(1, 1, 1, 0.7));
+	renderer_container->add_child(l);
 
 	default_files_container = memnew(HBoxContainer);
 	vb->add_child(default_files_container);

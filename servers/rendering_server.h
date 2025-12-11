@@ -976,7 +976,6 @@ public:
 		return VIEWPORT_SCALING_3D_TYPE_NONE;
 	}
 
-	virtual void viewport_set_use_xr(RID p_viewport, bool p_use_xr) = 0;
 	virtual void viewport_set_size(RID p_viewport, int p_width, int p_height) = 0;
 	virtual void viewport_set_active(RID p_viewport, bool p_active) = 0;
 	virtual void viewport_set_parent_viewport(RID p_viewport, RID p_parent_viewport) = 0;
@@ -1744,6 +1743,7 @@ public:
 		GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
 		GLOBAL_VAR_TYPE_SAMPLER3D,
 		GLOBAL_VAR_TYPE_SAMPLERCUBE,
+		GLOBAL_VAR_TYPE_SAMPLEREXT,
 		GLOBAL_VAR_TYPE_MAX
 	};
 
@@ -1865,6 +1865,9 @@ public:
 
 	virtual bool is_on_render_thread() = 0;
 	virtual void call_on_render_thread(const Callable &p_callable) = 0;
+
+	String get_current_rendering_driver_name() const;
+	String get_current_rendering_method() const;
 
 #ifdef TOOLS_ENABLED
 	virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;

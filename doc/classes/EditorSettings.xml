@@ -1179,6 +1179,9 @@
 			If [code]true[/code], enable TLSv1.3 negotiation.
 			[b]Note:[/b] Only supported when using Mbed TLS 3.0 or later (Linux distribution packages may be compiled against older system Mbed TLS packages), otherwise the maximum supported TLS version is always TLSv1.2.
 		</member>
+		<member name="project_manager/default_renderer" type="String" setter="" getter="">
+			The renderer type that will be checked off by default when creating a new project. Accepted string is "forward_plus".
+		</member>
 		<member name="project_manager/directory_naming_convention" type="int" setter="" getter="">
 			Directory naming convention for the project manager. Options are "No convention" (project name is directory name), "kebab-case" (default), "snake_case", "camelCase", "PascalCase", or "Title Case".
 		</member>
@@ -1204,6 +1207,9 @@
 		</member>
 		<member name="run/output/max_lines" type="int" setter="" getter="">
 			Maximum number of lines to show at any one time in the Output panel.
+		</member>
+		<member name="run/platforms/linuxbsd/prefer_wayland" type="bool" setter="" getter="">
+			If [code]true[/code], on Linux/BSD, the editor will check for Wayland first instead of X11 (if available).
 		</member>
 		<member name="run/window_placement/game_embed_mode" type="int" setter="" getter="">
 			Overrides game embedding setting for all newly opened projects. If enabled, game embedding settings are not saved.

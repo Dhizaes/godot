@@ -671,6 +671,8 @@ void EditorNode::_update_theme(bool p_skip_creation) {
 		if (EditorDebuggerNode::get_singleton()->is_visible()) {
 			bottom_panel->add_theme_style_override(SceneStringName(panel), theme->get_stylebox(SNAME("BottomPanelDebuggerOverride"), EditorStringName(EditorStyles)));
 		}
+
+		_update_renderer_color();
 	}
 
 	editor_dock_manager->update_tab_styles();
@@ -835,7 +837,6 @@ void EditorNode::_notification(int p_what) {
 			get_tree()->get_root()->set_snap_2d_transforms_to_pixel(false);
 			get_tree()->get_root()->set_snap_2d_vertices_to_pixel(false);
 			get_tree()->set_auto_accept_quit(false);
-			get_tree()->set_quit_on_go_back(false);
 			get_tree()->get_root()->connect("files_dropped", callable_mp(this, &EditorNode::_dropped_files));
 
 			command_palette->register_shortcuts_as_command();
@@ -1231,6 +1232,7 @@ void EditorNode::_fs_changed() {
 				} else { // Normal project export.
 					String config_error;
 					bool missing_templates;
+
 					if (!platform->can_export(export_preset, config_error, missing_templates, export_defer.debug)) {
 						ERR_PRINT(vformat("Cannot export project with preset \"%s\" due to configuration errors:\n%s", preset_name, config_error));
 						err = missing_templates ? ERR_FILE_NOT_FOUND : ERR_UNCONFIGURED;
@@ -3216,6 +3218,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 		case PROJECT_FIND_IN_FILES: {
 			ScriptEditor::get_singleton()->open_find_in_files_dialog("");
 		} break;
+
 		case PROJECT_OPEN_USER_DATA_FOLDER: {
 			// Ensure_user_data_dir() to prevent the edge case: "Open User Data Folder" won't work after the project was renamed in ProjectSettingsEditor unless the project is saved.
 			OS::get_singleton()->ensure_user_data_dir();
@@ -3348,9 +3351,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 			export_template_manager->popup_manager();
 		} break;
 		case EDITOR_CONFIGURE_FBX_IMPORTER: {
-#if !defined(WEB_ENABLED)
 			fbx_importer_manager->show_dialog();
-#endif
 		} break;
 		case EDITOR_MANAGE_FEATURE_PROFILES: {
 			feature_profile_manager->popup_centered_clamped(Size2(900, 800) * EDSCALE, 0.8);
@@ -5367,7 +5368,9 @@ String EditorNode::_get_system_info() const {
 	// `remove_char` is necessary, because `capitalize` introduces a whitespace between "x" and "11".
 	display_session_type = OS::get_singleton()->get_environment("XDG_SESSION_TYPE").capitalize().remove_char(' ');
 #endif // LINUXBSD_ENABLED
-	
+	String driver_name = OS::get_singleton()->get_current_rendering_driver_name().to_lower();
+	String rendering_method = OS::get_singleton()->get_current_rendering_method().to_lower();
+
 	const String rendering_device_name = RenderingServer::get_singleton()->get_video_adapter_name();
 
 	RenderingDevice::DeviceType device_type = RenderingServer::get_singleton()->get_video_adapter_type();
@@ -5394,6 +5397,16 @@ String EditorNode::_get_system_info() const {
 
 	const String processor_name = OS::get_singleton()->get_processor_name();
 	const int processor_count = OS::get_singleton()->get_processor_count();
+
+	// Prettify
+	if (rendering_method == "forward_plus") {
+		rendering_method = "Forward+";
+	}
+	if (driver_name == "vulkan") {
+		driver_name = "Vulkan";
+	} else if (driver_name == "metal") {
+		driver_name = "Metal";
+	}
 
 	// Join info.
 	Vector<String> info;
@@ -5425,7 +5438,7 @@ String EditorNode::_get_system_info() const {
 
 	info.push_back(display_driver_window_mode);
 
-	info.push_back(vformat("%s (%s)", "Vulkan", "Forward+"));
+	info.push_back(vformat("%s (%s)", driver_name, rendering_method));
 
 	String graphics;
 	if (!device_type_string.is_empty()) {
@@ -7019,6 +7032,52 @@ Vector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion
 	return ret;
 }
 
+void EditorNode::_update_renderer_color() {
+	String rendering_method = renderer->get_selected_metadata();
+
+	if (rendering_method == "forward_plus") {
+		renderer->add_theme_color_override(SceneStringName(font_color), theme->get_color(SNAME("forward_plus_color"), EditorStringName(Editor)));
+	}
+}
+
+void EditorNode::_renderer_selected(int p_which) {
+	String rendering_method = renderer->get_item_metadata(p_which);
+
+	String current_renderer = GLOBAL_GET("rendering/renderer/rendering_method");
+
+	if (rendering_method == current_renderer) {
+		return;
+	}
+
+	renderer_request = rendering_method;
+	video_restart_dialog->set_text(
+			vformat(TTR("Changing the renderer requires restarting the editor.\n\nChoosing Save & Restart will change the rendering method to:\n- Desktop platforms: %s"),
+					renderer_request));
+	video_restart_dialog->popup_centered();
+	renderer->select(renderer_current);
+	_update_renderer_color();
+}
+
+void EditorNode::_add_renderer_entry(const String &p_renderer_name, bool p_mark_overridden) {
+	String item_text;
+	if (p_renderer_name == "forward_plus") {
+		item_text = TTR("Forward+");
+	}
+	if (p_mark_overridden) {
+		// TRANSLATORS: The placeholder is the rendering method that has overridden the default one.
+		item_text = vformat(TTR("%s (Overridden)"), item_text);
+	}
+	renderer->add_item(item_text);
+}
+
+void EditorNode::_set_renderer_name_save_and_restart() {
+	ProjectSettings::get_singleton()->set("rendering/renderer/rendering_method", renderer_request);
+	ProjectSettings::get_singleton()->save();
+
+	save_all_scenes();
+	restart_editor();
+}
+
 void EditorNode::_resource_saved(Ref<Resource> p_resource, const String &p_path) {
 	if (singleton->saving_resources_in_path.has(p_resource)) {
 		// This is going to be handled by save_resource_in_path when the time is right.
@@ -7810,10 +7869,8 @@ EditorNode::EditorNode() {
 	gui_base->add_child(about);
 	feature_profile_manager->connect("current_feature_profile_changed", callable_mp(this, &EditorNode::_feature_profile_changed));
 
-	#if !defined(WEB_ENABLED)
 	fbx_importer_manager = memnew(FBXImporterManager);
 	gui_base->add_child(fbx_importer_manager);
-#endif
 
 	warning = memnew(AcceptDialog);
 	warning->set_unparent_when_invisible(true);
@@ -7988,9 +8045,7 @@ EditorNode::EditorNode() {
 
 	settings_menu->add_item(TTRC("Manage Editor Features..."), EDITOR_MANAGE_FEATURE_PROFILES);
 	settings_menu->add_item(TTRC("Manage Export Templates..."), EDITOR_MANAGE_EXPORT_TEMPLATES);
-#if !defined(WEB_ENABLED)
 	settings_menu->add_item(TTRC("Configure FBX Importer..."), EDITOR_CONFIGURE_FBX_IMPORTER);
-#endif
 
 	help_menu = memnew(PopupMenu);
 	if (global_menu && NativeMenu::get_singleton()->has_system_menu(NativeMenu::HELP_MENU_ID)) {
@@ -8035,6 +8090,64 @@ EditorNode::EditorNode() {
 	right_menu_hb = memnew(HBoxContainer);
 	right_menu_hb->set_mouse_filter(Control::MOUSE_FILTER_STOP);
 	title_bar->add_child(right_menu_hb);
+
+	renderer = memnew(OptionButton);
+	renderer->set_visible(true);
+	renderer->set_flat(true);
+	renderer->set_theme_type_variation("TopBarOptionButton");
+	renderer->set_fit_to_longest_item(false);
+	renderer->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
+	renderer->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
+	renderer->set_tooltip_auto_translate_mode(AUTO_TRANSLATE_MODE_ALWAYS);
+	renderer->set_tooltip_text(TTRC("Choose a rendering method.\n\nNotes:\n- On mobile platforms, the Mobile rendering method is used if Forward+ is selected here.\n- On the web platform, the Compatibility rendering method is always used."));
+	renderer->set_accessibility_name(TTRC("Rendering Method"));
+
+	right_menu_hb->add_child(renderer);
+
+	if (can_expand) {
+		// Add spacer to avoid other controls under the window minimize/maximize/close buttons (right side).
+		right_menu_spacer = memnew(Control);
+		right_menu_spacer->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+		title_bar->add_child(right_menu_spacer);
+	}
+
+	String current_renderer_ps = GLOBAL_GET("rendering/renderer/rendering_method");
+	current_renderer_ps = current_renderer_ps.to_lower();
+	String current_renderer_os = OS::get_singleton()->get_current_rendering_method().to_lower();
+
+	// Add the renderers name to the UI.
+	if (current_renderer_ps == current_renderer_os) {
+		renderer->connect(SceneStringName(item_selected), callable_mp(this, &EditorNode::_renderer_selected));
+		// As we are doing string comparisons, keep in standard case to prevent problems with capitals
+		// "vulkan" in particular uses lowercase "v" in the code, and uppercase in the UI.
+		PackedStringArray renderers = ProjectSettings::get_singleton()->get_custom_property_info().get(StringName("rendering/renderer/rendering_method")).hint_string.split(",", false);
+		for (int i = 0; i < renderers.size(); i++) {
+			String rendering_method = renderers[i];
+			if (rendering_method == "dummy") {
+				continue;
+			}
+			_add_renderer_entry(rendering_method, false);
+			renderer->set_item_metadata(i, rendering_method);
+			// Lowercase for standard comparison.
+			rendering_method = rendering_method.to_lower();
+			if (current_renderer_ps == rendering_method) {
+				renderer->select(i);
+				renderer_current = i;
+			}
+		}
+	} else {
+		// It's an CLI-overridden rendering method.
+		_add_renderer_entry(current_renderer_os, true);
+		renderer->set_item_metadata(0, current_renderer_os);
+		renderer->select(0);
+		renderer_current = 0;
+	}
+	_update_renderer_color();
+
+	video_restart_dialog = memnew(ConfirmationDialog);
+	video_restart_dialog->set_ok_button_text(TTR("Save & Restart"));
+	video_restart_dialog->connect(SceneStringName(confirmed), callable_mp(this, &EditorNode::_set_renderer_name_save_and_restart));
+	gui_base->add_child(video_restart_dialog);
 
 	progress_hb = memnew(BackgroundProgress);
 

@@ -72,17 +72,15 @@ static DownloadsAvailability _get_downloads_availability() {
 		return DOWNLOADS_NOT_AVAILABLE_FOR_DEV_BUILDS;
 	}
 
-	int returnId = 0;
-
 #ifdef REAL_T_IS_DOUBLE
-	returnId = 2;
+	return DOWNLOADS_NOT_AVAILABLE_FOR_DOUBLE_BUILDS;
 #endif
 
 	if (network_mode == EditorSettings::NETWORK_OFFLINE) {
-		returnId = 1;
+		return DOWNLOADS_NOT_AVAILABLE_IN_OFFLINE_MODE;
 	}
 
-	return returnId == 0 ? DOWNLOADS_AVAILABLE : returnId == 1 ? DOWNLOADS_NOT_AVAILABLE_IN_OFFLINE_MODE : DOWNLOADS_NOT_AVAILABLE_FOR_DOUBLE_BUILDS;
+	return DOWNLOADS_AVAILABLE;
 }
 
 void ExportTemplateManager::_update_template_status() {
@@ -148,7 +146,6 @@ void ExportTemplateManager::_update_template_status() {
 
 		TreeItem *ti = installed_table->create_item(installed_root);
 		ti->set_text(0, version_string);
-
 		ti->add_button(0, get_editor_theme_icon(SNAME("Remove")), UNINSTALL_TEMPLATE, false, TTR("Uninstall these templates."));
 	}
 }

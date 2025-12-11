@@ -103,6 +103,13 @@ String EditorExportPlatformMacOS::get_export_option_warning(const EditorExportPr
 			}
 		}
 
+		if (p_name == "shader_baker/enabled" && bool(p_preset->get("shader_baker/enabled"))) {
+			String export_renderer = GLOBAL_GET("rendering/renderer/rendering_method");
+			if (OS::get_singleton()->get_current_rendering_method() != export_renderer) {
+				return vformat(TTR("The editor is currently using a different renderer than what the target platform will use. \"Shader Baker\" won't be able to include core shaders. Switch to the \"%s\" renderer temporarily to fix this."), export_renderer);
+			}
+		}
+
 		if (p_name == "codesign/certificate_file" || p_name == "codesign/certificate_password" || p_name == "codesign/identity") {
 			if (dist_type == 2) {
 				if (ad_hoc) {
@@ -1826,16 +1833,6 @@ Error EditorExportPlatformMacOS::export_project(const Ref<EditorExportPreset> &p
 
 			ret = unzGoToNextFile(src_pkg_zip);
 			continue; // next
-		}
-
-		if (file == "Contents/Frameworks/libEGL.dylib") {
-			ret = unzGoToNextFile(src_pkg_zip);
-			continue; // skip
-		}
-
-		if (file == "Contents/Frameworks/libGLESv2.dylib") {
-			ret = unzGoToNextFile(src_pkg_zip);
-			continue; // skip
 		}
 
 		if (file == "Contents/Info.plist") {

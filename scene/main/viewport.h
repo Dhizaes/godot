@@ -846,8 +846,6 @@ public:
 	void set_use_own_world_3d(bool p_use_own_world_3d);
 	bool is_using_own_world_3d() const;
 
-	void set_use_xr(bool p_use_xr);
-	bool is_using_xr();
 #endif // _3D_DISABLED
 
 	Viewport();

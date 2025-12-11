@@ -286,9 +286,6 @@ def generate_scu_files(max_includes_per_scu):
     process_folder(["drivers/unix"])
     process_folder(["drivers/png"])
 
-    process_folder(["drivers/gles3/effects"])
-    process_folder(["drivers/gles3/storage"])
-
     process_folder(["editor"], [], 32)
     process_folder(["editor/animation"])
     process_folder(["editor/asset_library"])
@@ -322,11 +319,8 @@ def generate_scu_files(max_includes_per_scu):
     process_folder(["editor/translations"])
     process_folder(["editor/version_control"])
 
-    process_folder(["platform/android/export"])
-    process_folder(["platform/ios/export"])
     process_folder(["platform/linuxbsd/export"])
     process_folder(["platform/macos/export"])
-    process_folder(["platform/web/export"])
     process_folder(["platform/windows/export"])
 
     process_folder(["modules/lightmapper_rd"])
@@ -344,11 +338,6 @@ def generate_scu_files(max_includes_per_scu):
     process_folder(["modules/gridmap"])
     process_folder(["modules/multiplayer"])
     process_folder(["modules/multiplayer/editor"])
-    process_folder(["modules/openxr"], ["register_types"])
-    process_folder(["modules/openxr/action_map"])
-    process_folder(["modules/openxr/editor"])
-    # process_folder(["modules/openxr/extensions"])  # Sensitive include order for platform code.
-    process_folder(["modules/openxr/scene"])
     process_folder(["modules/godot_physics_2d"])
     process_folder(["modules/godot_physics_3d"])
     process_folder(["modules/godot_physics_3d/joints"])

@@ -746,9 +746,9 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 
 				RID dest_texture;
 				RD::DataFormat format_for_debanding;
-				dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
-				// Assume that the DataFormat is the same as render_target_get_color_format.
-				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
+					dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
+					// Assume that the DataFormat is the same as render_target_get_color_format.
+					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
 
 				dest_fb = FramebufferCacheRD::get_singleton()->get_cache(dest_texture);
 
@@ -771,16 +771,16 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 			RID source_texture = rb->get_texture(SNAME("Tonemapper"), SNAME("destination"));
 			RD::DataFormat format_for_debanding;
 
-			if (dest_is_msaa_2d) {
-				dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
-				// Assume that the DataFormat of render_target_get_rd_texture_msaa is the same as render_target_get_color_format.
-				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-				texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
-			} else {
-				dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
-				// Assume that the DataFormat of render_target_get_rd_framebuffer is the same as render_target_get_color_format.
-				format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
-			}
+				if (dest_is_msaa_2d) {
+					dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
+					// Assume that the DataFormat of render_target_get_rd_texture_msaa is the same as render_target_get_color_format.
+					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
+					texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
+				} else {
+					dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
+					// Assume that the DataFormat of render_target_get_rd_framebuffer is the same as render_target_get_color_format.
+					format_for_debanding = texture_storage->render_target_get_color_format(using_hdr, !using_hdr);
+				}
 
 			if (rb->get_use_debanding()) {
 				if (_is_8bit_data_format(format_for_debanding)) {

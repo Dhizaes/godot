@@ -1789,6 +1789,7 @@ int64_t DisplayServerWindows::window_get_native_handle(HandleType p_handle_type,
 		case WINDOW_HANDLE: {
 			return (int64_t)windows[p_window].hWnd;
 		}
+
 		default: {
 			return 0;
 		}
@@ -2330,7 +2331,6 @@ void DisplayServerWindows::_get_window_style(bool p_main_window, bool p_initiali
 
 	r_style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	r_style_ex |= WS_EX_ACCEPTFILES;
-
 }
 
 void DisplayServerWindows::_update_window_style(WindowID p_window, bool p_repaint) {
@@ -3791,9 +3791,11 @@ void DisplayServerWindows::force_process_and_drop_events() {
 }
 
 void DisplayServerWindows::release_rendering_thread() {
+
 }
 
 void DisplayServerWindows::swap_buffers() {
+
 }
 
 void DisplayServerWindows::set_native_icon(const String &p_filename) {
@@ -4158,7 +4160,6 @@ void DisplayServerWindows::window_set_vsync_mode(DisplayServer::VSyncMode p_vsyn
 		rendering_context->window_set_vsync_mode(p_window, p_vsync_mode);
 	}
 #endif
-
 }
 
 DisplayServer::VSyncMode DisplayServerWindows::window_get_vsync_mode(WindowID p_window) const {
@@ -6374,8 +6375,10 @@ DisplayServer::WindowID DisplayServerWindows::_create_window(WindowMode p_mode, 
 #endif
 			} wpd;
 #ifdef VULKAN_ENABLED
-			wpd.vulkan.window = wd.hWnd;
-			wpd.vulkan.instance = hInstance;
+			if (rendering_driver == "vulkan") {
+				wpd.vulkan.window = wd.hWnd;
+				wpd.vulkan.instance = hInstance;
+			}
 #endif
 			if (rendering_context->window_create(id, &wpd) != OK) {
 				ERR_PRINT(vformat("Failed to create %s window.", rendering_driver));
@@ -6844,16 +6847,32 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 	}
 
 #if defined(RD_ENABLED)
+	[[maybe_unused]] bool fallback_to_vulkan = GLOBAL_GET("rendering/rendering_device/fallback_to_vulkan");
 
 #if defined(VULKAN_ENABLED)
-	rendering_context = memnew(RenderingContextDriverVulkanWindows);
-	tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
+	if (rendering_driver == "vulkan") {
+		rendering_context = memnew(RenderingContextDriverVulkanWindows);
+		tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
+	}
 #endif
+	fallback_to_vulkan = true; // Always enable fallback if engine was built w/o other driver support.
 
 	if (rendering_context) {
 		if (rendering_context->initialize() != OK) {
 			bool failed = true;
-
+#if defined(VULKAN_ENABLED)
+			if (failed && fallback_to_vulkan && rendering_driver != "vulkan") {
+				memdelete(rendering_context);
+				rendering_context = memnew(RenderingContextDriverVulkanWindows);
+				tested_drivers.set_flag(DRIVER_ID_RD_VULKAN);
+				if (rendering_context->initialize() == OK) {
+					WARN_PRINT("Your video card drivers seem not to support Direct3D 12, switching to Vulkan.");
+					rendering_driver = "vulkan";
+					OS::get_singleton()->set_current_rendering_driver_name(rendering_driver);
+					failed = false;
+				}
+			}
+#endif
 			if (failed) {
 				memdelete(rendering_context);
 				rendering_context = nullptr;
@@ -7007,6 +7026,7 @@ Vector<String> DisplayServerWindows::get_rendering_drivers_func() {
 #ifdef VULKAN_ENABLED
 	drivers.push_back("vulkan");
 #endif
+
 	drivers.push_back("dummy");
 
 	return drivers;
@@ -7025,12 +7045,8 @@ DisplayServer *DisplayServerWindows::create_func(const String &p_rendering_drive
 			String executable_name = OS::get_singleton()->get_executable_path().get_file();
 			OS::get_singleton()->alert(
 					vformat("Your video card drivers seem not to support the required %s version.\n\n"
-							"If possible, consider updating your video card drivers or using the OpenGL 3 driver.\n\n"
-							"You can enable the OpenGL 3 driver by starting the engine from the\n"
-							"command line with the command:\n\n    \"%s\" --rendering-driver opengl3\n\n"
 							"If you have recently updated your video card drivers, try rebooting.",
-							String(" or ").join(drivers),
-							executable_name),
+							String(" or ").join(drivers)),
 					"Unable to initialize video driver");
 		} else {
 			Vector<String> drivers;
@@ -7140,6 +7156,7 @@ DisplayServerWindows::~DisplayServerWindows() {
 	if (restore_mouse_trails > 1) {
 		SystemParametersInfoA(SPI_SETMOUSETRAILS, restore_mouse_trails, nullptr, 0);
 	}
+
 #ifdef ACCESSKIT_ENABLED
 	if (accessibility_driver) {
 		memdelete(accessibility_driver);

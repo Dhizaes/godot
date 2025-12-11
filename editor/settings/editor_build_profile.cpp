@@ -50,6 +50,7 @@ const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 	"disable_navigation_2d",
 	"disable_navigation_3d",
 	"wayland",
+	"x11",
 	"rendering_device", // FIXME: There's no scons option to disable rendering device.
 	"forward_plus_renderer",
 	"vulkan",
@@ -73,6 +74,7 @@ const bool EditorBuildProfile::build_option_disabled_by_default[BUILD_OPTION_MAX
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
 	false, // WAYLAND
+	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
 	false, // VULKAN
@@ -96,6 +98,7 @@ const bool EditorBuildProfile::build_option_disable_values[BUILD_OPTION_MAX] = {
 	true, // NAVIGATION_2D
 	true, // NAVIGATION_3D
 	false, // WAYLAND
+	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
 	false, // VULKAN
@@ -119,6 +122,7 @@ const bool EditorBuildProfile::build_option_explicit_use[BUILD_OPTION_MAX] = {
 	false, // NAVIGATION_2D
 	false, // NAVIGATION_3D
 	false, // WAYLAND
+	false, // X11
 	false, // RENDERING_DEVICE
 	false, // FORWARD_RENDERER
 	false, // VULKAN
@@ -141,6 +145,7 @@ const EditorBuildProfile::BuildOptionCategory EditorBuildProfile::build_option_c
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_2D
 	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION_3D
 	BUILD_OPTION_CATEGORY_GENERAL, // WAYLAND
+	BUILD_OPTION_CATEGORY_GENERAL, // X11
 	BUILD_OPTION_CATEGORY_GRAPHICS, // RENDERING_DEVICE
 	BUILD_OPTION_CATEGORY_GRAPHICS, // FORWARD_RENDERER
 	BUILD_OPTION_CATEGORY_GRAPHICS, // VULKAN
@@ -168,10 +173,10 @@ const HashMap<EditorBuildProfile::BuildOption, LocalVector<EditorBuildProfile::B
 			BUILD_OPTION_RENDERING_DEVICE,
 	} },
 	{ BUILD_OPTION_VULKAN, {
-			BUILD_OPTION_FORWARD_RENDERER
+			BUILD_OPTION_FORWARD_RENDERER,
 	} },
 	{ BUILD_OPTION_METAL, {
-			BUILD_OPTION_FORWARD_RENDERER
+			BUILD_OPTION_FORWARD_RENDERER,
 	} },
 	{ BUILD_OPTION_PHYSICS_GODOT_2D, {
 			BUILD_OPTION_PHYSICS_2D,
@@ -327,6 +332,7 @@ String EditorBuildProfile::get_build_option_name(BuildOption p_build_option) {
 		TTRC("Navigation (2D)"),
 		TTRC("Navigation (3D)"),
 		TTRC("Wayland"),
+		TTRC("X11"),
 		TTRC("RenderingDevice"),
 		TTRC("Forward+ Renderer"),
 		TTRC("Vulkan"),
@@ -354,6 +360,7 @@ String EditorBuildProfile::get_build_option_description(BuildOption p_build_opti
 		TTRC("Navigation Server and capabilities for 2D."),
 		TTRC("Navigation Server and capabilities for 3D."),
 		TTRC("Wayland display (Linux only)."),
+		TTRC("X11 display (Linux only)."),
 		TTRC("RenderingDevice based rendering (if disabled, the OpenGL backend is required)."),
 		TTRC("Forward+ renderer for advanced 3D graphics."),
 		TTRC("Vulkan backend of RenderingDevice."),
@@ -520,6 +527,7 @@ void EditorBuildProfile::_bind_methods() {
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_2D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION_3D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_WAYLAND);
+	BIND_ENUM_CONSTANT(BUILD_OPTION_X11);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_RENDERING_DEVICE);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_FORWARD_RENDERER);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_VULKAN);
@@ -551,11 +559,20 @@ EditorBuildProfile::EditorBuildProfile() {
 		{ "display/display_server/driver.linuxbsd", { "default", "wayland" } },
 	};
 	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_wayland);
+	HashMap<String, LocalVector<Variant>> settings_x11 = {
+		{ "display/display_server/driver.linuxbsd", { "default", "x11" } },
+	};
+	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_x11);
+	HashMap<String, LocalVector<Variant>> settings_rd = {
+		{ "rendering/renderer/rendering_method", { "forward_plus" } },
+	};
+	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_rd);
 	HashMap<String, LocalVector<Variant>> settings_vulkan = {
 		{ "rendering/rendering_device/driver", { "vulkan" } },
 		{ "rendering/rendering_device/driver.windows", { "vulkan" } },
 		{ "rendering/rendering_device/driver.linuxbsd", { "vulkan" } },
 		{ "rendering/rendering_device/driver.macos", { "vulkan" } },
+		{ "rendering/rendering_device/fallback_to_vulkan", { true } },
 	};
 	build_option_settings.insert(BUILD_OPTION_VULKAN, settings_vulkan);
 	HashMap<String, LocalVector<Variant>> settings_metal = {

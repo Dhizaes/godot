@@ -3215,7 +3215,6 @@
 			Display handle:
 			- Linux (X11): [code]X11::Display*[/code] for the display.
 			- Linux (Wayland): [code]wl_display[/code] for the display.
-			- Android: [code]EGLDisplay[/code] for the display.
 		</constant>
 		<constant name="WINDOW_HANDLE" value="1" enum="HandleType">
 			Window handle:
@@ -3223,8 +3222,6 @@
 			- Linux (X11): [code]X11::Window*[/code] for the window.
 			- Linux (Wayland): [code]wl_surface[/code] for the window.
 			- macOS: [code]NSWindow*[/code] for the window.
-			- iOS: [code]UIViewController*[/code] for the view controller.
-			- Android: [code]jObject[/code] for the activity.
 		</constant>
 		<constant name="WINDOW_VIEW" value="2" enum="HandleType">
 			Window view:

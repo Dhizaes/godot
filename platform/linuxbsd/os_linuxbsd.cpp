@@ -39,6 +39,10 @@
 #include "servers/display_server.h"
 #include "servers/rendering_server.h"
 
+#ifdef X11_ENABLED
+#include "x11/display_server_x11.h"
+#endif
+
 #ifdef WAYLAND_ENABLED
 #include "wayland/display_server_wayland.h"
 #endif
@@ -53,6 +57,9 @@
 #endif
 
 #if defined(VULKAN_ENABLED)
+#ifdef X11_ENABLED
+#include "x11/rendering_context_driver_vulkan_x11.h"
+#endif
 #ifdef WAYLAND_ENABLED
 #include "wayland/rendering_context_driver_vulkan_wayland.h"
 #endif
@@ -1205,6 +1212,11 @@ bool OS_LinuxBSD::_test_create_rendering_device(const String &p_display_driver) 
 	RenderingContextDriver *rcd = nullptr;
 
 #if defined(VULKAN_ENABLED)
+#ifdef X11_ENABLED
+	if (p_display_driver == "x11" || p_display_driver.is_empty()) {
+		rcd = memnew(RenderingContextDriverVulkanX11);
+	}
+#endif
 #ifdef WAYLAND_ENABLED
 	if (p_display_driver == "wayland") {
 		rcd = memnew(RenderingContextDriverVulkanWayland);
@@ -1243,6 +1255,10 @@ OS_LinuxBSD::OS_LinuxBSD() {
 
 #ifdef ALSA_ENABLED
 	AudioDriverManager::add_driver(&driver_alsa);
+#endif
+
+#ifdef X11_ENABLED
+	DisplayServerX11::register_x11_driver();
 #endif
 
 #ifdef WAYLAND_ENABLED

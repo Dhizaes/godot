@@ -68,6 +68,9 @@ class OS {
 	bool restart_on_exit = false;
 	List<String> restart_commandline;
 
+	String _current_rendering_driver_name;
+	String _current_rendering_method;
+
 	RemoteFilesystemClient default_rfs;
 
 	// For tracking benchmark data
@@ -125,6 +128,12 @@ public:
 	typedef int64_t ProcessID;
 
 	static OS *get_singleton();
+
+	void set_current_rendering_driver_name(const String &p_driver_name) { _current_rendering_driver_name = p_driver_name; }
+	void set_current_rendering_method(const String &p_name) { _current_rendering_method = p_name; }
+
+	String get_current_rendering_driver_name() const { return _current_rendering_driver_name; }
+	String get_current_rendering_method() const { return _current_rendering_method; }
 
 	virtual Vector<String> get_video_adapter_driver_info() const = 0;
 	virtual bool get_user_prefers_integrated_gpu() const { return false; }

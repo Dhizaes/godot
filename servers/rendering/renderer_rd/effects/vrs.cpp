@@ -45,7 +45,7 @@ VRS::VRS() {
 
 		vrs_shader.shader.initialize(vrs_modes);
 
-		vrs_shader.shader.set_variant_enabled(VRS_MULTIVIEW, false);
+			vrs_shader.shader.set_variant_enabled(VRS_MULTIVIEW, false);
 
 		vrs_shader.shader_version = vrs_shader.shader.version_create();
 

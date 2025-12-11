@@ -2615,45 +2615,45 @@ void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_bu
 
 	RendererSceneRender::CameraData camera_data;
 
-	// Normal camera
-	Transform3D transform = camera->transform;
-	Projection projection;
-	bool vaspect = camera->vaspect;
-	bool is_orthogonal = false;
-	bool is_frustum = false;
+		// Normal camera
+		Transform3D transform = camera->transform;
+		Projection projection;
+		bool vaspect = camera->vaspect;
+		bool is_orthogonal = false;
+		bool is_frustum = false;
 
-	switch (camera->type) {
-		case Camera::ORTHOGONAL: {
-			projection.set_orthogonal(
-					camera->size,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
-			is_orthogonal = true;
-		} break;
-		case Camera::PERSPECTIVE: {
-			projection.set_perspective(
-					camera->fov,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
+		switch (camera->type) {
+			case Camera::ORTHOGONAL: {
+				projection.set_orthogonal(
+						camera->size,
+						p_viewport_size.width / (float)p_viewport_size.height,
+						camera->znear,
+						camera->zfar,
+						camera->vaspect);
+				is_orthogonal = true;
+			} break;
+			case Camera::PERSPECTIVE: {
+				projection.set_perspective(
+						camera->fov,
+						p_viewport_size.width / (float)p_viewport_size.height,
+						camera->znear,
+						camera->zfar,
+						camera->vaspect);
 
-		} break;
-		case Camera::FRUSTUM: {
-			projection.set_frustum(
-					camera->size,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->offset,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
-			is_frustum = true;
-		} break;
-	}
+			} break;
+			case Camera::FRUSTUM: {
+				projection.set_frustum(
+						camera->size,
+						p_viewport_size.width / (float)p_viewport_size.height,
+						camera->offset,
+						camera->znear,
+						camera->zfar,
+						camera->vaspect);
+				is_frustum = true;
+			} break;
+		}
 
-	camera_data.set_camera(transform, projection, is_orthogonal, is_frustum, vaspect, jitter, taa_frame_count, camera->visible_layers);
+		camera_data.set_camera(transform, projection, is_orthogonal, is_frustum, vaspect, jitter, taa_frame_count, camera->visible_layers);
 
 	RID environment = _render_get_environment(p_camera, p_scenario);
 	RID compositor = _render_get_compositor(p_camera, p_scenario);

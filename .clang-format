@@ -136,14 +136,6 @@ InsertBraces: true
 #   DecimalMinDigits: 0
 #   Hex: 0
 #   HexMinDigits: 0
-JavaImportGroups:
-  - org.godotengine
-  - android
-  - androidx
-  - com.android
-  - com.google
-  - java
-  - javax
 # JavaScriptQuotes: Leave
 # JavaScriptWrapImports: true
 # KeepEmptyLinesAtEOF: false

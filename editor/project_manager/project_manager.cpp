@@ -358,7 +358,6 @@ void ProjectManager::_select_main_view(int p_id) {
 	}
 	main_view_toggle_map[current_main_view]->set_pressed_no_signal(true);
 	main_view_map[current_main_view]->set_visible(true);
-
 }
 
 void ProjectManager::_show_about() {

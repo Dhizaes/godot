@@ -90,7 +90,7 @@ repos:
         language: python
         entry: python tests/python_build/validate_builders.py
         pass_filenames: false
-        files: ^(gles3|glsl)_builders\.py$
+        files: ^(glsl)_builders\.py$
 
       - id: eslint
         name: eslint

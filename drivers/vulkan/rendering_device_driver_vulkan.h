@@ -140,7 +140,6 @@ class RenderingDeviceDriverVulkan : public RenderingDeviceDriver {
 #if defined(VK_TRACK_DEVICE_MEMORY)
 	bool device_memory_report_support = false;
 #endif
-
 	DeviceFunctions device_functions;
 
 	void _register_requested_device_extension(const CharString &p_extension_name, bool p_required);

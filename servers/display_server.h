@@ -80,9 +80,7 @@ public:
 	enum HandleType {
 		DISPLAY_HANDLE,
 		WINDOW_HANDLE,
-		WINDOW_VIEW,
-		EGL_DISPLAY,
-		EGL_CONFIG,
+		WINDOW_VIEW
 	};
 
 	enum Context {

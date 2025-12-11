@@ -591,6 +591,7 @@ public:
 		SHADER_LANGUAGE_VULKAN_VERSION_1_2 = (1 << 22) | (2 << 12),
 		SHADER_LANGUAGE_VULKAN_VERSION_1_3 = (1 << 22) | (3 << 12),
 		SHADER_LANGUAGE_VULKAN_VERSION_1_4 = (1 << 22) | (4 << 12),
+		SHADER_LANGUAGE_OPENGL_VERSION_4_5_0 = 450,
 	};
 
 	enum ShaderSpirvVersion {

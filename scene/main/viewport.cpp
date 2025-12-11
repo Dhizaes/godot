@@ -1127,7 +1127,6 @@ bool Viewport::_set_size(const Size2i &p_size, const Size2 &p_size_2d_override, 
 }
 
 Size2i Viewport::_get_size() const {
-
 	return size;
 }
 
@@ -4799,33 +4798,6 @@ void Viewport::_propagate_exit_world_3d(Node *p_node) {
 	}
 }
 
-void Viewport::set_use_xr(bool p_use_xr) {
-	ERR_MAIN_THREAD_GUARD;
-	if (use_xr != p_use_xr) {
-		use_xr = p_use_xr;
-
-		RS::get_singleton()->viewport_set_use_xr(viewport, use_xr);
-
-		if (!use_xr) {
-			// Set viewport to previous size when exiting XR.
-			if (size_allocated) {
-				RS::get_singleton()->viewport_set_size(viewport, size.width, size.height);
-			} else {
-				RS::get_singleton()->viewport_set_size(viewport, 0, 0);
-			}
-
-			// Reset render target override textures.
-			RID rt = RS::get_singleton()->viewport_get_render_target(viewport);
-			RSG::texture_storage->render_target_set_override(rt, RID(), RID(), RID(), RID());
-		}
-	}
-}
-
-bool Viewport::is_using_xr() {
-	ERR_READ_THREAD_GUARD_V(false);
-	return use_xr;
-}
-
 void Viewport::set_scaling_3d_mode(Scaling3DMode p_scaling_3d_mode) {
 	ERR_MAIN_THREAD_GUARD;
 	if (scaling_3d_mode == p_scaling_3d_mode) {
@@ -5091,9 +5063,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_disable_3d", "disable"), &Viewport::set_disable_3d);
 	ClassDB::bind_method(D_METHOD("is_3d_disabled"), &Viewport::is_3d_disabled);
 
-	ClassDB::bind_method(D_METHOD("set_use_xr", "use"), &Viewport::set_use_xr);
-	ClassDB::bind_method(D_METHOD("is_using_xr"), &Viewport::is_using_xr);
-
 	ClassDB::bind_method(D_METHOD("set_scaling_3d_mode", "scaling_3d_mode"), &Viewport::set_scaling_3d_mode);
 	ClassDB::bind_method(D_METHOD("get_scaling_3d_mode"), &Viewport::get_scaling_3d_mode);
 
@@ -5119,7 +5088,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_vrs_texture"), &Viewport::get_vrs_texture);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disable_3d"), "set_disable_3d", "is_3d_disabled");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_xr"), "set_use_xr", "is_using_xr");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "own_world_3d"), "set_use_own_world_3d", "is_using_own_world_3d");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "world_3d", PROPERTY_HINT_RESOURCE_TYPE, "World3D"), "set_world_3d", "get_world_3d");
 #endif // _3D_DISABLED

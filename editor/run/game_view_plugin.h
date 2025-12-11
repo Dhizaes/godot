@@ -266,7 +266,6 @@ public:
 
 	virtual void set_window_layout(Ref<ConfigFile> p_layout) override;
 	virtual void get_window_layout(Ref<ConfigFile> p_layout) override;
-	
 	GameViewPluginBase();
 };
 
