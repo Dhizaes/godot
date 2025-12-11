@@ -644,7 +644,7 @@ void GameView::_update_ui() {
 			break;
 		case EMBED_NOT_AVAILABLE_FEATURE_NOT_SUPPORTED:
 			if (DisplayServer::get_singleton()->get_name() == "Wayland") {
-				state_label->set_text(TTRC("Game embedding not available on Wayland.\nWayland can be disabled in the Editor Settings (Run > Platforms > Linux/*BSD > Prefer Wayland)."));
+				state_label->set_text(TTRC("Game embedding not available on Wayland."));
 			} else {
 				state_label->set_text(TTRC("Game embedding not available on your OS."));
 			}
