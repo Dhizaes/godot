@@ -1085,9 +1085,6 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 	EDITOR_SETTING(Variant::INT, PROPERTY_HINT_ENUM, "project_manager/sorting_order", 0, "Last Edited,Name,Path")
 	EDITOR_SETTING_BASIC(Variant::INT, PROPERTY_HINT_ENUM, "project_manager/directory_naming_convention", 4, "No convention,kebab-case,snake_case,camelCase,PascalCase,Title Case")
 
-	const String default_renderer = "forward_plus";
-	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_ENUM, "project_manager/default_renderer", default_renderer, "forward_plus")
-
 #undef EDITOR_SETTING
 #undef EDITOR_SETTING_BASIC
 #undef EDITOR_SETTING_USAGE

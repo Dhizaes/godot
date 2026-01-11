@@ -447,21 +447,14 @@ void ProjectDialog::_reset_name() {
 void ProjectDialog::_renderer_selected() {
 	ERR_FAIL_NULL(renderer_button_group->get_pressed_button());
 
-	String renderer_type = renderer_button_group->get_pressed_button()->get_meta(SNAME("rendering_method"));
-
 	bool rd_error = false;
-
-	if (renderer_type == "forward_plus") {
-		renderer_info->set_text(
-				String::utf8("•  ") + TTR("Supports desktop platforms only.") +
-				String::utf8("\n•  ") + TTR("Advanced 3D graphics available.") +
-				String::utf8("\n•  ") + TTR("Can scale to large complex scenes.") +
-				String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
-				String::utf8("\n•  ") + TTR("Slower rendering of simple scenes."));
-		rd_error = !rendering_device_supported;
-	} else {
-		WARN_PRINT("Unknown renderer type. Please report this as a bug on GitHub.");
-	}
+	renderer_info->set_text(
+			String::utf8("•  ") + TTR("Supports desktop platforms only.") +
+			String::utf8("\n•  ") + TTR("Advanced 3D graphics available.") +
+			String::utf8("\n•  ") + TTR("Can scale to large complex scenes.") +
+			String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
+			String::utf8("\n•  ") + TTR("Slower rendering of simple scenes."));
+	rd_error = !rendering_device_supported;
 
 	rd_not_supported->set_visible(rd_error);
 	get_ok_button()->set_disabled(rd_error);
@@ -505,19 +498,9 @@ void ProjectDialog::ok_pressed() {
 		PackedStringArray project_features = ProjectSettings::get_required_features();
 		ProjectSettings::CustomMap initial_settings;
 
-		// Be sure to change this code if/when renderers are changed.
-		// Default value is "forward_plus" for the main setting.
-		String renderer_type = renderer_button_group->get_pressed_button()->get_meta(SNAME("rendering_method"));
-		initial_settings["rendering/renderer/rendering_method"] = renderer_type;
-
-		EditorSettings::get_singleton()->set("project_manager/default_renderer", renderer_type);
 		EditorSettings::get_singleton()->save();
 
-		if (renderer_type == "forward_plus") {
-			project_features.push_back("Forward Plus");
-		} else {
-			WARN_PRINT("Unknown renderer type. Please report this as a bug on GitHub.");
-		}
+		project_features.push_back("Forward Plus");
 
 		project_features.sort();
 		initial_settings["application/config/features"] = project_features;
@@ -999,11 +982,6 @@ ProjectDialog::ProjectDialog() {
 	Container *rvb = memnew(VBoxContainer);
 	rshc->add_child(rvb);
 
-	String default_renderer_type = "forward_plus";
-	if (EditorSettings::get_singleton()->has_setting("project_manager/default_renderer")) {
-		default_renderer_type = EditorSettings::get_singleton()->get_setting("project_manager/default_renderer");
-	}
-
 	rendering_device_supported = DisplayServer::is_rendering_device_supported();
 
 	Button *rs_button = memnew(CheckBox);
@@ -1015,9 +993,7 @@ ProjectDialog::ProjectDialog() {
 	rs_button->set_meta(SNAME("rendering_method"), "forward_plus");
 	rs_button->connect(SceneStringName(pressed), callable_mp(this, &ProjectDialog::_renderer_selected));
 	rvb->add_child(rs_button);
-	if (default_renderer_type == "forward_plus") {
-		rs_button->set_pressed(true);
-	}
+	rs_button->set_pressed(true);
 
 	rshc->add_child(memnew(VSeparator));
 

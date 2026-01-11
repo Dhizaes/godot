@@ -1175,9 +1175,6 @@
 			If [code]true[/code], enable TLSv1.3 negotiation.
 			[b]Note:[/b] Only supported when using Mbed TLS 3.0 or later (Linux distribution packages may be compiled against older system Mbed TLS packages), otherwise the maximum supported TLS version is always TLSv1.2.
 		</member>
-		<member name="project_manager/default_renderer" type="String" setter="" getter="">
-			The renderer type that will be checked off by default when creating a new project. Accepted string is "forward_plus".
-		</member>
 		<member name="project_manager/directory_naming_convention" type="int" setter="" getter="">
 			Directory naming convention for the project manager. Options are "No convention" (project name is directory name), "kebab-case", "snake_case", "camelCase", "PascalCase" (default), or "Title Case".
 		</member>
