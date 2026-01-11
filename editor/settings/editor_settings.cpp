@@ -999,7 +999,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 	_initial_set("editors/shader_editor/behavior/files/restore_shaders_on_load", true, true);
 
 	// Visual editors
-	EDITOR_SETTING(Variant::STRING, PROPERTY_HINT_ENUM, "editors/visual_editors/color_theme", "Default", "Default,Legacy,Custom")
+	EDITOR_SETTING(Variant::STRING, PROPERTY_HINT_ENUM, "editors/visual_editors/color_theme", "Default", "Default,Custom")
 
 	_load_default_visual_shader_editor_theme();
 
