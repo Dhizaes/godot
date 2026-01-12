@@ -551,10 +551,6 @@ EditorBuildProfile::EditorBuildProfile() {
 		{ "display/display_server/driver.linuxbsd", { "default", "wayland" } },
 	};
 	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_wayland);
-	HashMap<String, LocalVector<Variant>> settings_rd = {
-		{ "rendering/renderer/rendering_method", { "forward_plus" } },
-	};
-	build_option_settings.insert(BUILD_OPTION_RENDERING_DEVICE, settings_rd);
 	HashMap<String, LocalVector<Variant>> settings_vulkan = {
 		{ "rendering/rendering_device/driver", { "vulkan" } },
 		{ "rendering/rendering_device/driver.windows", { "vulkan" } },

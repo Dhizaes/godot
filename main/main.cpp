@@ -2287,11 +2287,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			goto error;
 		}
 	}
-
-	// Default to ProjectSettings default if nothing set on the command line.
-	if (rendering_method.is_empty()) {
-		rendering_method = GLOBAL_GET("rendering/renderer/rendering_method");
-	}
+	
+	rendering_method = "forward_plus";
 
 	if (rendering_driver.is_empty()) {
 		if (rendering_method == "dummy") {

@@ -444,26 +444,6 @@ void ProjectDialog::_reset_name() {
 	project_name->set_text(TTR("New Game Project"));
 }
 
-void ProjectDialog::_renderer_selected() {
-	ERR_FAIL_NULL(renderer_button_group->get_pressed_button());
-
-	bool rd_error = false;
-	renderer_info->set_text(
-			String::utf8("•  ") + TTR("Supports desktop platforms only.") +
-			String::utf8("\n•  ") + TTR("Advanced 3D graphics available.") +
-			String::utf8("\n•  ") + TTR("Can scale to large complex scenes.") +
-			String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
-			String::utf8("\n•  ") + TTR("Slower rendering of simple scenes."));
-	rd_error = !rendering_device_supported;
-
-	rd_not_supported->set_visible(rd_error);
-	get_ok_button()->set_disabled(rd_error);
-	if (rd_error) {
-		// Needs to be set here since theme colors aren't available at startup.
-		rd_not_supported->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
-	}
-}
-
 void ProjectDialog::_nonempty_confirmation_ok_pressed() {
 	is_folder_empty = true;
 	ok_pressed();
@@ -857,7 +837,6 @@ void ProjectDialog::show_dialog(bool p_reset_name) {
 void ProjectDialog::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_TRANSLATION_CHANGED: {
-			_renderer_selected();
 		} break;
 
 		case NOTIFICATION_THEME_CHANGED: {
@@ -984,17 +963,6 @@ ProjectDialog::ProjectDialog() {
 
 	rendering_device_supported = DisplayServer::is_rendering_device_supported();
 
-	Button *rs_button = memnew(CheckBox);
-	rs_button->set_button_group(renderer_button_group);
-	rs_button->set_text(TTRC("Forward+"));
-#ifndef RD_ENABLED
-	rs_button->set_disabled(true);
-#endif
-	rs_button->set_meta(SNAME("rendering_method"), "forward_plus");
-	rs_button->connect(SceneStringName(pressed), callable_mp(this, &ProjectDialog::_renderer_selected));
-	rvb->add_child(rs_button);
-	rs_button->set_pressed(true);
-
 	rshc->add_child(memnew(VSeparator));
 
 	// Right hand side, used for text explaining each choice.
@@ -1015,8 +983,6 @@ ProjectDialog::ProjectDialog() {
 	rd_not_supported->set_autowrap_mode(TextServer::AUTOWRAP_WORD_SMART);
 	rd_not_supported->set_visible(false);
 	renderer_container->add_child(rd_not_supported);
-
-	_renderer_selected();
 
 	l = memnew(Label);
 	l->set_focus_mode(Control::FOCUS_ACCESSIBILITY);

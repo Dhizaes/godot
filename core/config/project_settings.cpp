@@ -1116,7 +1116,7 @@ Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_cust
 		project_features = ProjectSettings::get_required_features();
 	}
 	// Check the rendering API.
-	const String rendering_api = has_setting("rendering/renderer/rendering_method") ? (String)get_setting("rendering/renderer/rendering_method") : String();
+	const String rendering_api = "forward_plus";
 	if (!rendering_api.is_empty()) {
 		// Add the rendering API as a project feature if it doesn't already exist.
 		if (!project_features.has(rendering_api)) {

@@ -604,10 +604,8 @@ private:
 	void _queue_translation_notification();
 	void _propagate_translation_notification();
 
-	void _renderer_selected(int);
 	void _update_renderer_color();
 	void _add_renderer_entry(const String &p_renderer_name, bool p_mark_overridden);
-	void _set_renderer_name_save_and_restart();
 
 	void _exit_editor(int p_exit_code);
 

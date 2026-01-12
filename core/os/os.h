@@ -133,7 +133,7 @@ public:
 	void set_current_rendering_method(const String &p_name) { _current_rendering_method = p_name; }
 
 	String get_current_rendering_driver_name() const { return _current_rendering_driver_name; }
-	String get_current_rendering_method() const { return _current_rendering_method; }
+	String get_current_rendering_method() const { return "forward_plus"; }
 
 	virtual Vector<String> get_video_adapter_driver_info() const = 0;
 	virtual bool get_user_prefers_integrated_gpu() const { return false; }

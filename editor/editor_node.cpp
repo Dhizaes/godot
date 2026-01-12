@@ -7036,42 +7036,15 @@ void EditorNode::_update_renderer_color() {
 	}
 }
 
-void EditorNode::_renderer_selected(int p_which) {
-	String rendering_method = renderer->get_item_metadata(p_which);
-
-	String current_renderer = GLOBAL_GET("rendering/renderer/rendering_method");
-
-	if (rendering_method == current_renderer) {
-		return;
-	}
-
-	renderer_request = rendering_method;
-	video_restart_dialog->set_text(
-			vformat(TTR("Changing the renderer requires restarting the editor.\n\nChoosing Save & Restart will change the rendering method to:\n- Desktop platforms: %s"),
-					renderer_request));
-	video_restart_dialog->popup_centered();
-	renderer->select(renderer_current);
-	_update_renderer_color();
-}
-
 void EditorNode::_add_renderer_entry(const String &p_renderer_name, bool p_mark_overridden) {
 	String item_text;
-	if (p_renderer_name == "forward_plus") {
-		item_text = TTR("Forward+");
-	}
+	item_text = TTR("Forward+");
+	
 	if (p_mark_overridden) {
 		// TRANSLATORS: The placeholder is the rendering method that has overridden the default one.
 		item_text = vformat(TTR("%s (Overridden)"), item_text);
 	}
 	renderer->add_item(item_text);
-}
-
-void EditorNode::_set_renderer_name_save_and_restart() {
-	ProjectSettings::get_singleton()->set("rendering/renderer/rendering_method", renderer_request);
-	ProjectSettings::get_singleton()->save();
-
-	save_all_scenes();
-	restart_editor();
 }
 
 void EditorNode::_resource_saved(Ref<Resource> p_resource, const String &p_path) {
@@ -8103,42 +8076,8 @@ EditorNode::EditorNode() {
 		title_bar->add_child(right_menu_spacer);
 	}
 
-	String current_renderer_ps = GLOBAL_GET("rendering/renderer/rendering_method");
-	current_renderer_ps = current_renderer_ps.to_lower();
-	String current_renderer_os = OS::get_singleton()->get_current_rendering_method().to_lower();
-
-	// Add the renderers name to the UI.
-	if (current_renderer_ps == current_renderer_os) {
-		renderer->connect(SceneStringName(item_selected), callable_mp(this, &EditorNode::_renderer_selected));
-		// As we are doing string comparisons, keep in standard case to prevent problems with capitals
-		// "vulkan" in particular uses lowercase "v" in the code, and uppercase in the UI.
-		PackedStringArray renderers = ProjectSettings::get_singleton()->get_custom_property_info().get(StringName("rendering/renderer/rendering_method")).hint_string.split(",", false);
-		for (int i = 0; i < renderers.size(); i++) {
-			String rendering_method = renderers[i];
-			if (rendering_method == "dummy") {
-				continue;
-			}
-			_add_renderer_entry(rendering_method, false);
-			renderer->set_item_metadata(i, rendering_method);
-			// Lowercase for standard comparison.
-			rendering_method = rendering_method.to_lower();
-			if (current_renderer_ps == rendering_method) {
-				renderer->select(i);
-				renderer_current = i;
-			}
-		}
-	} else {
-		// It's an CLI-overridden rendering method.
-		_add_renderer_entry(current_renderer_os, true);
-		renderer->set_item_metadata(0, current_renderer_os);
-		renderer->select(0);
-		renderer_current = 0;
-	}
-	_update_renderer_color();
-
 	video_restart_dialog = memnew(ConfirmationDialog);
 	video_restart_dialog->set_ok_button_text(TTR("Save & Restart"));
-	video_restart_dialog->connect(SceneStringName(confirmed), callable_mp(this, &EditorNode::_set_renderer_name_save_and_restart));
 	gui_base->add_child(video_restart_dialog);
 
 	progress_hb = memnew(BackgroundProgress);
